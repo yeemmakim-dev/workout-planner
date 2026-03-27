@@ -165,6 +165,18 @@
   .week-plan{padding:0 16px}
   .plan-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
   .plan-row:last-child{border-bottom:none}
+  .plan-edit-hint{font-size:11px;color:var(--text-hint);padding:4px 16px 0;text-align:center}
+  .move-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:flex-end;justify-content:center}
+  .move-modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:500px;animation:slideUp .25s ease}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .move-modal-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:4px}
+  .move-modal-sub{font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:16px}
+  .move-day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+  .move-day-btn{padding:12px 4px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:14px;font-weight:600;cursor:pointer;text-align:center;-webkit-tap-highlight-color:rgba(76,175,80,.3)}
+  .move-day-btn:active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .move-day-btn.current{background:var(--surface);color:var(--text-muted);border-color:var(--border);pointer-events:none;opacity:.5}
+  .move-day-btn.rest-day{border-style:dashed;color:var(--text-muted)}
+  .move-cancel{display:block;width:100%;padding:14px;border-radius:12px;border:none;background:var(--surface);font-size:15px;font-weight:600;color:var(--text-muted);cursor:pointer;-webkit-tap-highlight-color:rgba(0,0,0,.1)}
   .plan-daybadge{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
   .plan-daybadge.workout{background:var(--green-light);color:var(--green-xdark)}
   .plan-daybadge.rest{background:var(--surface);color:var(--text-muted)}
@@ -1304,26 +1316,119 @@ function selRoutine(id){
   document.getElementById('snext3').disabled=false;
 }
 
+/* ── Move exercise modal for routine preview ── */
+
 function renderWeekPreview(){
   if(!RS.routine)return;
-  const r=RS.routine;
+  var r=RS.routine;
   document.getElementById('cb-title').textContent=r.name;
-  document.getElementById('cb-sub').textContent=`주 ${Object.keys(r.sched).length}회 · ${levelText(r.level)} 강도`;
+  document.getElementById('cb-sub').textContent='주 '+Object.keys(r.sched).length+'회 · '+levelText(r.level)+' 강도';
   document.getElementById('plan-sub').textContent=r.name;
 
-  document.getElementById('week-plan-preview').innerHTML=Array.from({length:7},(_,i)=>{
-    const items=r.sched[i];
-    if(!items)return `<div class="plan-row"><div class="plan-daybadge rest">${DAYS[i]}</div><div class="plan-body"><div class="plan-dayname">${DAYS_FULL[i]}</div><div class="plan-rest">휴식 😴</div></div></div>`;
-    const resolved=items.map(item=>{
-      const ex=findExercise(item.e);if(!ex)return null;
-      const isStr=ex.sets!==undefined;
-      const label=isStr?`${ex.name} ${item.s||ex.sets}×${item.r||ex.reps}`:`${ex.name} ${item.d||ex.dur}분`;
-      const pill=TYPE_PILL[ex.exType];
-      return{label,pill};
-    }).filter(Boolean);
-    const totalMin=items.reduce((s,item)=>{const ex=findExercise(item.e);return s+(item.d||ex?.dur||0)},0);
-    return `<div class="plan-row"><div class="plan-daybadge workout">${DAYS[i]}</div><div class="plan-body"><div class="plan-dayname">${DAYS_FULL[i]}</div><div class="plan-items">${resolved.map(r=>`<span class="pill ${r.pill}">${r.label}</span>`).join('')}</div><div class="plan-dur">약 ${totalMin}분</div></div></div>`;
-  }).join('');
+  var container=document.getElementById('week-plan-preview');
+  var html='<div class="plan-edit-hint">💡 운동을 탭하면 다른 요일로 이동할 수 있어요</div>';
+
+  for(var i=0;i<7;i++){
+    var items=r.sched[i];
+    if(!items||!items.length){
+      html+='<div class="plan-row"><div class="plan-daybadge rest">'+DAYS[i]+'</div><div class="plan-body"><div class="plan-dayname">'+DAYS_FULL[i]+'</div><div class="plan-rest">휴식 😴</div></div></div>';
+      continue;
+    }
+    var pillsHtml='';
+    for(var j=0;j<items.length;j++){
+      var ex=findExercise(items[j].e);
+      if(!ex)continue;
+      var isStr=ex.sets!==undefined;
+      var label=isStr?ex.name+' '+(items[j].s||ex.sets)+'×'+(items[j].r||ex.reps):ex.name+' '+(items[j].d||ex.dur)+'분';
+      var pill=TYPE_PILL[ex.exType];
+      pillsHtml+='<span class="pill '+pill+'" style="cursor:pointer;-webkit-tap-highlight-color:rgba(76,175,80,.3)" data-mv-day="'+i+'" data-mv-idx="'+j+'">'+label+'</span>';
+    }
+    var totalMin=0;
+    for(var k=0;k<items.length;k++){var exx=findExercise(items[k].e);totalMin+=(items[k].d||(exx?exx.dur:0)||0);}
+    html+='<div class="plan-row"><div class="plan-daybadge workout">'+DAYS[i]+'</div><div class="plan-body"><div class="plan-dayname">'+DAYS_FULL[i]+'</div><div class="plan-items">'+pillsHtml+'</div><div class="plan-dur">약 '+totalMin+'분</div></div></div>';
+  }
+  container.innerHTML=html;
+
+  /* Single event delegation on container */
+  container.addEventListener('click',function onContainerClick(e){
+    container.removeEventListener('click',onContainerClick);
+    var pill=e.target.closest('[data-mv-day]');
+    if(pill) openMoveModal(parseInt(pill.dataset.mvDay),parseInt(pill.dataset.mvIdx));
+  });
+}
+
+function openMoveModal(srcDay,srcIdx){
+  var r=RS.routine;
+  if(!r||!r.sched[srcDay]||!r.sched[srcDay][srcIdx])return;
+  var item=r.sched[srcDay][srcIdx];
+  var ex=findExercise(item.e);
+  if(!ex)return;
+  var exName=ex.name;
+
+  /* Remove old modal if exists */
+  var old=document.getElementById('move-modal');
+  if(old)old.remove();
+
+  var overlay=document.createElement('div');
+  overlay.id='move-modal';
+  overlay.className='move-modal-overlay';
+
+  var dayBtns='';
+  for(var d=0;d<7;d++){
+    var isCurrent=d===srcDay;
+    var hasItems=r.sched[d]&&r.sched[d].length>0;
+    var cls='move-day-btn';
+    if(isCurrent)cls+=' current';
+    else if(!hasItems)cls+=' rest-day';
+    dayBtns+='<div class="'+cls+'" data-move-to="'+d+'">'+DAYS_FULL[d]+(isCurrent?' ✓':'')+'</div>';
+  }
+
+  overlay.innerHTML='<div class="move-modal">'
+    +'<div class="move-modal-title">🔄 '+exName+'</div>'
+    +'<div class="move-modal-sub">'+DAYS_FULL[srcDay]+'에서 어디로 이동할까요?</div>'
+    +'<div class="move-day-grid">'+dayBtns+'</div>'
+    +'<div class="move-cancel" id="move-cancel-btn">취소</div>'
+    +'</div>';
+
+  document.body.appendChild(overlay);
+
+  /* Close on overlay tap */
+  overlay.addEventListener('click',function(e){
+    if(e.target===overlay)closeMoveModal();
+  });
+
+  /* Cancel button */
+  document.getElementById('move-cancel-btn').addEventListener('click',function(){
+    closeMoveModal();
+  });
+
+  /* Day buttons */
+  var btns=overlay.querySelectorAll('[data-move-to]');
+  for(var b=0;b<btns.length;b++){
+    btns[b].addEventListener('click',function(){
+      var targetDay=parseInt(this.dataset.moveTo);
+      if(targetDay===srcDay){closeMoveModal();return;}
+      doMoveExercise(srcDay,srcIdx,targetDay);
+    });
+  }
+}
+
+function closeMoveModal(){
+  var m=document.getElementById('move-modal');
+  if(m)m.remove();
+}
+
+function doMoveExercise(srcDay,srcIdx,targetDay){
+  var r=RS.routine;
+  var srcItems=r.sched[srcDay];
+  if(!srcItems||!srcItems[srcIdx]){closeMoveModal();return;}
+  var moved=srcItems.splice(srcIdx,1)[0];
+  if(!srcItems.length)delete r.sched[srcDay];
+  if(!r.sched[targetDay])r.sched[targetDay]=[];
+  r.sched[targetDay].push(moved);
+  closeMoveModal();
+  renderWeekPreview();
+  showToast(DAYS_FULL[targetDay]+'로 이동 완료!');
 }
 
 function applyRoutine(){
