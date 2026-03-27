@@ -26,7 +26,7 @@
       --border:rgba(255,255,255,0.1);--border-strong:rgba(255,255,255,0.2);
       --green-light:#0a2e20;--amber-light:#2a1c00;--pink-light:#2a0d18;--purple-light:#15113a;}
   }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   html,body{height:100%;overflow:hidden}
   body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--text);overscroll-behavior:none}
 
@@ -165,7 +165,19 @@
   .week-plan{padding:0 16px}
   .plan-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
   .plan-row:last-child{border-bottom:none}
-  .plan-edit-hint{font-size:11px;color:var(--text-hint);padding:4px 16px 0;text-align:center}
+  .plan-edit-hint{font-size:10px;color:var(--text-hint);padding:4px 16px 0;text-align:center}
+  #swrap-4 .step-title{font-size:17px}
+  #swrap-4 .step-sub{font-size:12px}
+  #swrap-4 .cb-title{font-size:13px}
+  #swrap-4 .cb-sub{font-size:11px}
+  #swrap-4 .cb-icon{font-size:20px}
+  #swrap-4 .plan-daybadge{font-size:11px;width:28px;height:28px}
+  #swrap-4 .plan-dayname{font-size:11px}
+  #swrap-4 .plan-rest{font-size:12px}
+  #swrap-4 .plan-dur{font-size:10px}
+  #swrap-4 .pill{font-size:10px}
+  #swrap-4 .confirm-box{padding:12px}
+  #swrap-4 .btn-primary{font-size:14px}
   .move-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:flex-end;justify-content:center}
   .move-modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:500px;animation:slideUp .25s ease}
   @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
