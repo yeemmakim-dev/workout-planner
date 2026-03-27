@@ -1341,7 +1341,7 @@ function renderWeekPreview(){
       var isStr=ex.sets!==undefined;
       var label=isStr?ex.name+' '+(items[j].s||ex.sets)+'×'+(items[j].r||ex.reps):ex.name+' '+(items[j].d||ex.dur)+'분';
       var pill=TYPE_PILL[ex.exType];
-      pillsHtml+='<span class="pill '+pill+'" style="cursor:pointer;-webkit-tap-highlight-color:rgba(76,175,80,.3)" data-mv-day="'+i+'" data-mv-idx="'+j+'">'+label+'</span>';
+      pillsHtml+='<button type="button" class="pill '+pill+'" style="cursor:pointer;-webkit-tap-highlight-color:rgba(76,175,80,.3);border:none;font:inherit;outline:none" data-mv-day="'+i+'" data-mv-idx="'+j+'">'+label+'</button>';
     }
     var totalMin=0;
     for(var k=0;k<items.length;k++){var exx=findExercise(items[k].e);totalMin+=(items[k].d||(exx?exx.dur:0)||0);}
@@ -1349,12 +1349,15 @@ function renderWeekPreview(){
   }
   container.innerHTML=html;
 
-  /* Single event delegation on container */
-  container.addEventListener('click',function onContainerClick(e){
-    container.removeEventListener('click',onContainerClick);
-    var pill=e.target.closest('[data-mv-day]');
-    if(pill) openMoveModal(parseInt(pill.dataset.mvDay),parseInt(pill.dataset.mvIdx));
-  });
+  /* Attach click to each button directly — most reliable on iOS */
+  var allBtns=container.querySelectorAll('[data-mv-day]');
+  for(var b=0;b<allBtns.length;b++){
+    (function(btn){
+      btn.addEventListener('click',function(){
+        openMoveModal(parseInt(btn.getAttribute('data-mv-day')),parseInt(btn.getAttribute('data-mv-idx')));
+      });
+    })(allBtns[b]);
+  }
 }
 
 function openMoveModal(srcDay,srcIdx){
@@ -1380,14 +1383,14 @@ function openMoveModal(srcDay,srcIdx){
     var cls='move-day-btn';
     if(isCurrent)cls+=' current';
     else if(!hasItems)cls+=' rest-day';
-    dayBtns+='<div class="'+cls+'" data-move-to="'+d+'">'+DAYS_FULL[d]+(isCurrent?' ✓':'')+'</div>';
+    dayBtns+='<button type="button" class="'+cls+'" data-move-to="'+d+'">'+DAYS_FULL[d]+(isCurrent?' ✓':'')+'</button>';
   }
 
   overlay.innerHTML='<div class="move-modal">'
     +'<div class="move-modal-title">🔄 '+exName+'</div>'
     +'<div class="move-modal-sub">'+DAYS_FULL[srcDay]+'에서 어디로 이동할까요?</div>'
     +'<div class="move-day-grid">'+dayBtns+'</div>'
-    +'<div class="move-cancel" id="move-cancel-btn">취소</div>'
+    +'<button type="button" class="move-cancel" id="move-cancel-btn">취소</button>'
     +'</div>';
 
   document.body.appendChild(overlay);
@@ -1405,11 +1408,13 @@ function openMoveModal(srcDay,srcIdx){
   /* Day buttons */
   var btns=overlay.querySelectorAll('[data-move-to]');
   for(var b=0;b<btns.length;b++){
-    btns[b].addEventListener('click',function(){
-      var targetDay=parseInt(this.dataset.moveTo);
-      if(targetDay===srcDay){closeMoveModal();return;}
-      doMoveExercise(srcDay,srcIdx,targetDay);
-    });
+    (function(btn){
+      btn.addEventListener('click',function(){
+        var targetDay=parseInt(btn.getAttribute('data-move-to'));
+        if(targetDay===srcDay){closeMoveModal();return;}
+        doMoveExercise(srcDay,srcIdx,targetDay);
+      });
+    })(btns[b]);
   }
 }
 
