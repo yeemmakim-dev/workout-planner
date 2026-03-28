@@ -1061,9 +1061,8 @@ function renderPlan(){
 
 function renderPlanMeal(){
   var area=document.getElementById('plan-meal-area');
-  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
-  var plan=saved.mealPlan;
-  if(!plan||!plan.length||!saved.mealCompleted){area.innerHTML='';return;}
+  var plan=S.mealPlan;
+  if(!plan||!plan.length||!S.mealCompleted){area.innerHTML='';return;}
   var today=plan[0];
   if(!today){area.innerHTML='';return;}
   var slots=['아침','점심','저녁','간식'];
@@ -1099,10 +1098,9 @@ function renderPlanMeal(){
 
 function completeMealPlan(){
   if(!mealPlanData||!mealPlanData.length)return;
-  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
-  saved.mealPlan=mealPlanData;
-  saved.mealCompleted=true;
-  localStorage.setItem('wapp',JSON.stringify(saved));
+  S.mealPlan=mealPlanData;
+  S.mealCompleted=true;
+  save();
   switchScreen('plan');
   renderPlan();
   renderPlanMeal();
@@ -1515,10 +1513,9 @@ function getDayIdxForDate(date){const dow=date.getDay();return dow===0?6:dow-1}
 function getWorkoutsForDate(date){const wKey=getWeekKeyForDate(date),dayIdx=getDayIdxForDate(date),week=S.weeks[wKey];return week?week[dayIdx]||[]:[]}
 
 function getMealForDate(date){
-  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
-  var plan=saved.mealPlan;
-  if(!plan||!plan.length||!saved.mealCompleted) return null;
-  var ds=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  var plan=S.mealPlan;
+  if(!plan||!plan.length||!S.mealCompleted) return null;
+  var ds=localDateStr(date);
   for(var i=0;i<plan.length;i++){if(plan[i].dateStr===ds) return plan[i];}
   return null;
 }
@@ -1651,15 +1648,13 @@ let selectedIngs = [];
 let mealPlanData = null; // [{day, slots:[{slot, options:[{name,desc,kcal}], picked, eaten}]}]
 
 function renderMealScreen(){
-  const saved = JSON.parse(localStorage.getItem('wapp')||'{}');
-  // Restore custom ingredients
-  if(saved.customIngs&&saved.customIngs.length){
+  if(S.customIngs&&S.customIngs.length){
     if(!INGREDIENTS.custom) INGREDIENTS.custom={name:'✏️ 직접 추가',items:[]};
-    saved.customIngs.forEach(n=>{if(!INGREDIENTS.custom.items.includes(n))INGREDIENTS.custom.items.push(n)});
+    S.customIngs.forEach(function(n){if(!INGREDIENTS.custom.items.includes(n))INGREDIENTS.custom.items.push(n)});
   }
   renderIngredients();
-  if(saved.mealIngs) { selectedIngs = saved.mealIngs; updateIngChips(); }
-  if(saved.mealPlan) { mealPlanData = saved.mealPlan; }
+  if(S.mealIngs) { selectedIngs = S.mealIngs; updateIngChips(); }
+  if(S.mealPlan) { mealPlanData = S.mealPlan; }
   if(mealPlanData) renderMealWeek();
 }
 
@@ -1680,9 +1675,8 @@ function togIng(el, item){
   if(selectedIngs.includes(item)) selectedIngs = selectedIngs.filter(x=>x!==item);
   else selectedIngs.push(item);
   document.getElementById('gen-meal-btn').disabled = selectedIngs.length < 3;
-  const s = JSON.parse(localStorage.getItem('wapp')||'{}');
-  s.mealIngs = selectedIngs;
-  localStorage.setItem('wapp', JSON.stringify(s));
+  S.mealIngs = selectedIngs;
+  save();
 }
 
 function updateIngChips(){
@@ -1701,11 +1695,10 @@ function addCustomIng(){
   if(!INGREDIENTS.custom) INGREDIENTS.custom={name:'✏️ 직접 추가',items:[]};
   if(!INGREDIENTS.custom.items.includes(name)) INGREDIENTS.custom.items.push(name);
   selectedIngs.push(name);
-  const s=JSON.parse(localStorage.getItem('wapp')||'{}');
-  s.mealIngs=selectedIngs;
-  if(!s.customIngs) s.customIngs=[];
-  if(!s.customIngs.includes(name)) s.customIngs.push(name);
-  localStorage.setItem('wapp',JSON.stringify(s));
+  S.mealIngs=selectedIngs;
+  if(!S.customIngs) S.customIngs=[];
+  if(!S.customIngs.includes(name)) S.customIngs.push(name);
+  save();
   input.value='';
   renderIngredients();
   updateIngChips();
@@ -1911,9 +1904,8 @@ function generateMealPlan(){
 }
 
 function saveMealPlan(){
-  const s = JSON.parse(localStorage.getItem('wapp')||'{}');
-  s.mealPlan = mealPlanData;
-  localStorage.setItem('wapp', JSON.stringify(s));
+  S.mealPlan = mealPlanData;
+  save();
 }
 
 function pickMealOpt(dayIdx,slotIdx,optIdx){
