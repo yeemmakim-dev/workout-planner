@@ -205,6 +205,9 @@
   .cal-dots{display:flex;gap:2px;height:5px}
   .cal-dots .dot-done{width:5px;height:5px;border-radius:50%;background:var(--green)}
   .cal-dots .dot-pending{width:5px;height:5px;border-radius:50%;background:var(--amber)}
+  .cal-dots .dot-meal{width:5px;height:5px;border-radius:50%;background:#8B5CF6}
+  .cal-meal-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:0.5px solid var(--border)}
+  .cal-meal-row:last-child{border-bottom:none}
   .cal-detail{margin:8px 16px 0;background:var(--surface);border-radius:var(--radius);padding:14px}
   .cal-detail-title{font-size:14px;font-weight:700;margin-bottom:8px}
   .cal-detail-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:0.5px solid var(--border)}
@@ -500,7 +503,7 @@
 
   <!-- ══ SCREEN: 캘린더 ══ -->
   <div class="screen" id="screen-calendar">
-    <div class="page-header"><h1>캘린더</h1><p>월간 운동 현황</p></div>
+    <div class="page-header"><h1>캘린더</h1><p>운동 · 식단 현황</p></div>
     <div class="cal-nav">
       <button class="cal-nav-btn" onclick="calMove(-1)">‹</button>
       <span class="cal-month" id="cal-month"></span>
@@ -1505,47 +1508,89 @@ function getWeekKeyForDate(date){const d=new Date(date),dow=d.getDay(),mon=new D
 function getDayIdxForDate(date){const dow=date.getDay();return dow===0?6:dow-1}
 function getWorkoutsForDate(date){const wKey=getWeekKeyForDate(date),dayIdx=getDayIdxForDate(date),week=S.weeks[wKey];return week?week[dayIdx]||[]:[]}
 
+function getMealForDate(date){
+  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  var plan=saved.mealPlan;
+  if(!plan||!plan.length||!saved.mealCompleted) return null;
+  var ds=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  for(var i=0;i<plan.length;i++){if(plan[i].dateStr===ds) return plan[i];}
+  return null;
+}
+
 function renderCalendar(){
-  document.getElementById('cal-month').textContent=`${calYear}년 ${calMonth+1}월`;
-  const grid=document.getElementById('cal-grid'),today=new Date();today.setHours(0,0,0,0);
-  let html=DAYS.map(d=>`<div class="cal-head">${d}</div>`).join('');
-  const firstDay=new Date(calYear,calMonth,1),lastDay=new Date(calYear,calMonth+1,0);
-  let startDow=firstDay.getDay();startDow=startDow===0?6:startDow-1;
-  for(let i=startDow-1;i>=0;i--){const d=new Date(calYear,calMonth,-i);html+=renderCalCell(d,getWorkoutsForDate(d),true,today)}
-  for(let day=1;day<=lastDay.getDate();day++){const d=new Date(calYear,calMonth,day);html+=renderCalCell(d,getWorkoutsForDate(d),false,today)}
-  const total=startDow+lastDay.getDate(),rem=(7-total%7)%7;
-  for(let i=1;i<=rem;i++){const d=new Date(calYear,calMonth+1,i);html+=renderCalCell(d,getWorkoutsForDate(d),true,today)}
+  document.getElementById('cal-month').textContent=calYear+'년 '+(calMonth+1)+'월';
+  var grid=document.getElementById('cal-grid'),today=new Date();today.setHours(0,0,0,0);
+  var html=DAYS.map(function(d){return '<div class="cal-head">'+d+'</div>'}).join('');
+  var firstDay=new Date(calYear,calMonth,1),lastDay=new Date(calYear,calMonth+1,0);
+  var startDow=firstDay.getDay();startDow=startDow===0?6:startDow-1;
+  for(var i=startDow-1;i>=0;i--){var d=new Date(calYear,calMonth,-i);html+=renderCalCell(d,getWorkoutsForDate(d),getMealForDate(d),true,today)}
+  for(var day=1;day<=lastDay.getDate();day++){var d=new Date(calYear,calMonth,day);html+=renderCalCell(d,getWorkoutsForDate(d),getMealForDate(d),false,today)}
+  var total=startDow+lastDay.getDate(),rem=(7-total%7)%7;
+  for(var i=1;i<=rem;i++){var d=new Date(calYear,calMonth+1,i);html+=renderCalCell(d,getWorkoutsForDate(d),getMealForDate(d),true,today)}
   grid.innerHTML=html;
 
-  let totalW=0,totalD=0,activeDays=0;
-  for(let day=1;day<=lastDay.getDate();day++){const d=new Date(calYear,calMonth,day),ws=getWorkoutsForDate(d);if(ws.length)activeDays++;totalW+=ws.length;totalD+=ws.filter(w=>w.done).length}
-  document.getElementById('cal-summary').innerHTML=`
-    <div class="cal-stat"><div class="cal-stat-val">${activeDays}</div><div class="cal-stat-lbl">운동한 날</div></div>
-    <div class="cal-stat"><div class="cal-stat-val">${totalW}</div><div class="cal-stat-lbl">총 운동</div></div>
-    <div class="cal-stat"><div class="cal-stat-val">${totalW?Math.round(totalD/totalW*100):0}%</div><div class="cal-stat-lbl">완료율</div></div>`;
+  var totalW=0,totalD=0,activeDays=0,mealDays=0;
+  for(var day=1;day<=lastDay.getDate();day++){
+    var d=new Date(calYear,calMonth,day),ws=getWorkoutsForDate(d),ml=getMealForDate(d);
+    if(ws.length)activeDays++;totalW+=ws.length;totalD+=ws.filter(function(w){return w.done}).length;
+    if(ml){var eaten=ml.slots.filter(function(s){return s.eaten}).length;if(eaten>0)mealDays++;}
+  }
+  document.getElementById('cal-summary').innerHTML=
+    '<div class="cal-stat"><div class="cal-stat-val">'+activeDays+'</div><div class="cal-stat-lbl">운동한 날</div></div>'+
+    '<div class="cal-stat"><div class="cal-stat-val">'+mealDays+'</div><div class="cal-stat-lbl">식단 기록</div></div>'+
+    '<div class="cal-stat"><div class="cal-stat-val">'+(totalW?Math.round(totalD/totalW*100):0)+'%</div><div class="cal-stat-lbl">완료율</div></div>';
 
   if(calSelectedDate)renderCalDetail(calSelectedDate);
   else document.getElementById('cal-detail-wrap').innerHTML='';
 }
 
-function renderCalCell(date,workouts,isOther,today){
-  const isToday=date.getTime()===today.getTime(),isSel=calSelectedDate&&date.getTime()===calSelectedDate.getTime();
-  let cls='cal-cell';if(isOther)cls+=' other-month';if(isToday)cls+=' today';if(isSel)cls+=' selected';
-  let dots='';
-  if(workouts.length>0){const dc=workouts.filter(w=>w.done).length,pc=workouts.length-dc;
-    dots='<div class="cal-dots">';for(let i=0;i<Math.min(dc,3);i++)dots+='<span class="dot-done"></span>';for(let i=0;i<Math.min(pc,3-Math.min(dc,3));i++)dots+='<span class="dot-pending"></span>';dots+='</div>';}
-  return `<div class="${cls}" onclick="calSelectDate('${date.toISOString().slice(0,10)}')">${date.getDate()}${dots}</div>`;
+function renderCalCell(date,workouts,meal,isOther,today){
+  var isToday=date.getTime()===today.getTime(),isSel=calSelectedDate&&date.getTime()===calSelectedDate.getTime();
+  var cls='cal-cell';if(isOther)cls+=' other-month';if(isToday)cls+=' today';if(isSel)cls+=' selected';
+  var dots='';
+  var hasDots=workouts.length>0||meal;
+  if(hasDots){
+    dots='<div class="cal-dots">';
+    if(workouts.length>0){var dc=workouts.filter(function(w){return w.done}).length,pc=workouts.length-dc;
+      for(var i=0;i<Math.min(dc,2);i++)dots+='<span class="dot-done"></span>';
+      for(var i=0;i<Math.min(pc,2-Math.min(dc,2));i++)dots+='<span class="dot-pending"></span>';}
+    if(meal){var eaten=meal.slots.filter(function(s){return s.eaten}).length;
+      if(eaten>0)dots+='<span class="dot-meal"></span>';}
+    dots+='</div>';
+  }
+  return '<div class="'+cls+'" onclick="calSelectDate(\''+date.toISOString().slice(0,10)+'\')">'+date.getDate()+dots+'</div>';
 }
 function calSelectDate(ds){calSelectedDate=new Date(ds+'T00:00:00');renderCalendar()}
 function renderCalDetail(date){
-  const ws=getWorkoutsForDate(date),wrap=document.getElementById('cal-detail-wrap');
-  const lbl=`${date.getMonth()+1}월 ${date.getDate()}일 ${DAYS_FULL[getDayIdxForDate(date)]}`;
-  if(!ws.length){wrap.innerHTML=`<div class="cal-detail"><div class="cal-detail-title">${lbl}</div><div class="cal-detail-empty">운동 없음 · 휴식일 😴</div></div>`;return}
-  wrap.innerHTML=`<div class="cal-detail"><div class="cal-detail-title">${lbl} · ${ws.length}개 운동</div>
-    ${ws.map(w=>{
-      const meta=w.setsCompleted?`${w.sets}세트×${w.reps}회${w.kg?' · '+w.kg+'kg':''} (${w.setsCompleted.filter(Boolean).length}/${w.sets})`:`${w.dur}분`;
-      return `<div class="cal-detail-item"><span style="font-size:16px">${TYPE_ICON[w.type]}</span><span style="flex:1;${w.done?'text-decoration:line-through;color:var(--text-muted)':''}">${w.name}</span><span style="font-size:11px;color:var(--text-muted)">${meta}</span><span style="font-size:12px">${w.done?'✅':'⬜'}</span></div>`
-    }).join('')}</div>`;
+  var ws=getWorkoutsForDate(date),meal=getMealForDate(date),wrap=document.getElementById('cal-detail-wrap');
+  var lbl=(date.getMonth()+1)+'월 '+date.getDate()+'일 '+DAYS_FULL[getDayIdxForDate(date)];
+  var html='<div class="cal-detail"><div class="cal-detail-title">'+lbl+'</div>';
+
+  if(ws.length){
+    html+='<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin:4px 0">운동 · '+ws.length+'개</div>';
+    ws.forEach(function(w){
+      var meta=w.setsCompleted?w.sets+'세트×'+w.reps+'회'+(w.kg?' · '+w.kg+'kg':'')+' ('+w.setsCompleted.filter(Boolean).length+'/'+w.sets+')':w.dur+'분';
+      html+='<div class="cal-detail-item"><span style="font-size:16px">'+TYPE_ICON[w.type]+'</span><span style="flex:1;'+(w.done?'text-decoration:line-through;color:var(--text-muted)':'')+'">'+w.name+'</span><span style="font-size:11px;color:var(--text-muted)">'+meta+'</span><span style="font-size:12px">'+(w.done?'✅':'⬜')+'</span></div>';
+    });
+  }
+
+  if(meal){
+    var slots=['아침','점심','저녁','간식'];
+    var eaten=meal.slots.filter(function(s){return s.eaten}).length;
+    var kcal=0;meal.slots.forEach(function(s){if(s.eaten){var m=s.options[s.picked||0];kcal+=m.kcal;}});
+    html+='<div style="font-size:12px;font-weight:600;color:#8B5CF6;margin:8px 0 4px">🥗 식단 · '+eaten+'/'+meal.slots.length+'끼'+(kcal?' · '+kcal+'kcal':'')+'</div>';
+    meal.slots.forEach(function(s,i){
+      var m=s.options[s.picked||0];
+      html+='<div class="cal-meal-row"><span style="color:var(--text-muted);min-width:30px;font-size:12px">'+slots[i]+'</span><span style="flex:1;font-size:13px;'+(s.eaten?'':'color:var(--text-hint)')+'">'+m.name+'</span><span style="font-size:12px">'+(s.eaten?'✅':'⬜')+'</span></div>';
+    });
+  }
+
+  if(!ws.length&&!meal){
+    html+='<div class="cal-detail-empty">기록 없음 😴</div>';
+  }
+
+  html+='</div>';
+  wrap.innerHTML=html;
 }
 
 /* ══ Stats ══ */
