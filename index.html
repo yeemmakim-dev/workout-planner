@@ -1014,11 +1014,18 @@ function renderPlan(){
 
   const wKey=`w_${getWeekKey(S.weekOffset||0)}_${selDay}`;
   const wData=S.weights[wKey];
-  document.getElementById('w-display').textContent=wData?parseFloat(wData).toFixed(1):'-';
+  // 최근 몸무게 찾기 (오늘 기록 없으면 가장 최근 기록 표시)
+  let latestW=wData;
+  if(!latestW){
+    const allKeys=Object.keys(S.weights).sort();
+    if(allKeys.length) latestW=S.weights[allKeys[allKeys.length-1]];
+  }
+  document.getElementById('w-display').textContent=latestW?parseFloat(latestW).toFixed(1):'-';
   const prevKey=`w_${getWeekKey(S.weekOffset||0)}_${selDay-1>=0?selDay-1:6}`;
   const prevW=S.weights[prevKey];
   const wc=document.getElementById('w-change');
   if(wData&&prevW){const diff=(prevW-wData).toFixed(1);if(diff>0){wc.textContent='▼ '+diff+' kg';wc.style.color='var(--green)';}else if(diff<0){wc.textContent='▲ '+Math.abs(diff)+' kg';wc.style.color='#E24B4A';}else{wc.textContent='변화 없음';wc.style.color='var(--text-muted)';}}
+  else if(!wData&&latestW){wc.textContent='최근 기록';wc.style.color='var(--text-hint)';}
   else if(!wData){wc.textContent='입력해 주세요';wc.style.color='var(--text-muted)';}
   else{wc.textContent='첫 기록!';wc.style.color='var(--green)';}
 
