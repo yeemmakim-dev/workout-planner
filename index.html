@@ -7,13 +7,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="운동플랜">
-<meta name="theme-color" content="#1D9E75">
+<meta name="theme-color" content="#2B7DE9">
 <title>내 운동 플랜</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --green:#1D9E75;--green-light:#E1F5EE;--green-mid:#9FE1CB;--green-dark:#0F6E56;--green-xdark:#085041;
+    --green:#2B7DE9;--green-light:#E3EFFE;--green-mid:#93BFFA;--green-dark:#1A5BB8;--green-xdark:#0D3D7A;
     --amber:#BA7517;--amber-light:#FAEEDA;--pink:#993556;--pink-light:#FBEAF0;
     --purple:#534AB7;--purple-light:#EEEDFE;
     --text:#1a1a1a;--text-muted:#6b6b6b;--text-hint:#9e9e9e;
@@ -24,7 +24,7 @@
   @media(prefers-color-scheme:dark){
     :root{--text:#f0f0f0;--text-muted:#a0a0a0;--text-hint:#666;--bg:#121212;--surface:#1e1e1e;
       --border:rgba(255,255,255,0.1);--border-strong:rgba(255,255,255,0.2);
-      --green-light:#0a2e20;--amber-light:#2a1c00;--pink-light:#2a0d18;--purple-light:#15113a;}
+      --green-light:#0d1f3d;--amber-light:#2a1c00;--pink-light:#2a0d18;--purple-light:#15113a;}
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   html,body{height:100%;overflow:hidden}
@@ -414,7 +414,7 @@
     <div class="ai-card">
       <div class="ai-icon">✦</div>
       <div style="flex:1">
-        <div class="ai-title">PCOS 맞춤 팁</div>
+        <div class="ai-title">오늘의 건강 팁</div>
         <div class="ai-msg" id="ai-msg"></div>
         <button class="ai-refresh" onclick="refreshAI()">새 팁 보기 →</button>
       </div>
@@ -423,7 +423,7 @@
 
   <!-- ══ SCREEN: 루틴 ══ -->
   <div class="screen" id="screen-routine">
-    <div class="page-header"><h1>루틴 선택</h1><p>PCOS·인슐린저항성 맞춤 루틴을 골라보세요</p></div>
+    <div class="page-header"><h1>루틴 선택</h1><p>면역·체력증진 맞춤 루틴을 골라보세요</p></div>
     <div class="step-dots" id="step-dots"><div class="sdot active"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div></div>
     <!-- Step 0: 운동 종목 선택 -->
     <div class="step-wrap active" id="swrap-0">
@@ -433,8 +433,8 @@
       </div>
       <div class="goal-grid" style="padding-top:12px">
         <div class="goal-card" onclick="togType(this,'running')"><div class="gc-icon">🏃</div><div class="gc-name">런닝</div><div class="gc-desc">심폐 강화 유산소</div></div>
-        <div class="goal-card" onclick="togType(this,'walking')"><div class="gc-icon">🚶‍♀️</div><div class="gc-name">걷기</div><div class="gc-desc">혈당 조절, 코르티솔↓</div></div>
-        <div class="goal-card" onclick="togType(this,'strength')"><div class="gc-icon">🏋️</div><div class="gc-name">근력운동</div><div class="gc-desc">웨이트, 인슐린 감수성↑</div></div>
+        <div class="goal-card" onclick="togType(this,'walking')"><div class="gc-icon">🚶‍♀️</div><div class="gc-name">걷기</div><div class="gc-desc">심폐 강화, 면역력↑</div></div>
+        <div class="goal-card" onclick="togType(this,'strength')"><div class="gc-icon">🏋️</div><div class="gc-name">근력운동</div><div class="gc-desc">웨이트, 체력·근력↑</div></div>
         <div class="goal-card" onclick="togType(this,'ballet')"><div class="gc-icon">🩰</div><div class="gc-name">발레</div><div class="gc-desc">발레수업, 바워크</div></div>
         <div class="goal-card" onclick="togType(this,'pilates')"><div class="gc-icon">🤸‍♀️</div><div class="gc-name">필라테스</div><div class="gc-desc">코어 강화, 유연성↑</div></div>
         <div class="goal-card" onclick="togType(this,'stretching')"><div class="gc-icon">🧘‍♀️</div><div class="gc-name">스트레칭</div><div class="gc-desc">유연성, 이완, 숙면</div></div>
@@ -523,7 +523,7 @@
   </div>
 
   <div class="screen" id="screen-meal">
-    <div class="page-header"><h1>🥗 식단 플래너</h1><p>저탄수 고단백 · PCOS 맞춤</p></div>
+    <div class="page-header"><h1>🥗 식단 플래너</h1><p>면역력 강화 · 체력증진 맞춤</p></div>
 
     <div class="meal-tab-row">
       <button class="meal-tab active" onclick="mealTab('input')">재료 입력</button>
@@ -551,7 +551,7 @@
     <div id="meal-plan-view" style="display:none">
       <div class="meal-tip">
         <span class="meal-tip-icon">💡</span>
-        <span class="meal-tip-text">메뉴를 눌러서 선택하고, ✓ 버튼으로 먹었는지 체크하세요. PCOS·인슐린저항성 맞춤 저GI·고단백 식단이에요.</span>
+        <span class="meal-tip-text">메뉴를 눌러서 선택하고, ✓ 버튼으로 먹었는지 체크하세요. 면역력·체력증진 맞춤 고단백·영양균형 식단이에요.</span>
       </div>
       <div class="meal-summary" id="meal-summary"></div>
       <div id="meal-week-content"></div>
@@ -638,26 +638,26 @@ const TYPE_PILL={running:'pill-green',walking:'pill-green',strength:'pill-amber'
 /* ══ Exercise Library ══ */
 const EXERCISES = {
   running: [
-    {eid:'r1',name:'런닝',dur:30,desc:'심폐 강화 유산소'},
-    {eid:'r2',name:'인터벌 런닝',dur:25,desc:'고강도/저강도 번갈아 뛰기'},
-    {eid:'r3',name:'조깅',dur:35,desc:'가볍게 뛰는 유산소. 혈당 조절'},
-    {eid:'r4',name:'트레드밀 경사 런닝',dur:30,desc:'경사로 심박수↑ 칼로리↑'},
+    {eid:'r1',name:'런닝',dur:30,desc:'심폐 강화 · 면역세포 순환↑'},
+    {eid:'r2',name:'인터벌 런닝',dur:25,desc:'체력 폭발 향상 · 성장호르몬↑'},
+    {eid:'r3',name:'조깅',dur:35,desc:'가볍게 뛰기 · NK세포 활성화'},
+    {eid:'r4',name:'트레드밀 경사 런닝',dur:30,desc:'심폐지구력↑ 하체 근력↑'},
   ],
   walking: [
-    {eid:'w1',name:'걷기',dur:30,desc:'가장 안전한 유산소. 코르티솔↓ 혈당 관리'},
-    {eid:'w2',name:'경사 걷기',dur:30,desc:'경사로 심박수↑ 관절 부담↓'},
-    {eid:'w3',name:'인터벌 걷기',dur:25,desc:'빠르게/느리게 번갈아 걷기'},
-    {eid:'w4',name:'식후 걷기',dur:15,desc:'식후 혈당 스파이크 방지'},
-    {eid:'w5',name:'파워워킹',dur:30,desc:'빠른 걸음으로 유산소 효과↑'},
+    {eid:'w1',name:'걷기',dur:30,desc:'혈액순환↑ 면역세포 활성화'},
+    {eid:'w2',name:'경사 걷기',dur:30,desc:'심박수↑ 체력 기초 강화'},
+    {eid:'w3',name:'인터벌 걷기',dur:25,desc:'빠르게/느리게 · 심폐 적응력↑'},
+    {eid:'w4',name:'식후 걷기',dur:15,desc:'소화 촉진 · 장 건강↑ 면역↑'},
+    {eid:'w5',name:'파워워킹',dur:30,desc:'빠른 걸음 · 체력·지구력 향상'},
   ],
   strength: [
-    {eid:'s1',name:'스쿼트',sets:4,reps:10,dur:8,group:'하체',desc:'하체 왕 운동. 인슐린 감수성↑',
+    {eid:'s1',name:'스쿼트',sets:4,reps:10,dur:8,group:'하체',desc:'하체 왕 운동 · 성장호르몬↑ 체력↑',
       how:'① 발 어깨너비로 벌리고 발끝 살짝 바깥\n② 엉덩이를 뒤로 빼며 무릎 굽히기 (허벅지 평행까지)\n③ 무릎이 발끝을 넘지 않게 주의\n④ 코어에 힘주고 발뒤꿈치로 밀며 올라오기'},
-    {eid:'s2',name:'런지',sets:3,reps:10,dur:7,group:'하체',desc:'좌우 균형+하체 근력',
+    {eid:'s2',name:'런지',sets:3,reps:10,dur:7,group:'하체',desc:'균형감각↑ 하체 체력 강화',
       how:'① 한 발 앞으로 크게 내딛기\n② 뒷무릎이 바닥에 거의 닿을 때까지 내려가기\n③ 상체는 곧게 유지, 앞무릎 90도\n④ 앞발 뒤꿈치로 밀며 원위치'},
-    {eid:'s3',name:'점프스쿼트',sets:3,reps:10,dur:7,group:'하체',desc:'폭발적 하체 파워+유산소 효과',
+    {eid:'s3',name:'점프스쿼트',sets:3,reps:10,dur:7,group:'하체',desc:'폭발력↑ 심폐+근력 동시 강화',
       how:'① 발 어깨너비, 스쿼트 자세로 앉기\n② 팔 반동과 함께 힘차게 점프\n③ 착지 시 무릎 살짝 굽혀 충격 흡수\n④ 착지 즉시 다시 스쿼트 자세로'},
-    {eid:'s4',name:'힙브릿지',sets:3,reps:15,dur:6,group:'하체',desc:'둔근 활성화+골반 안정성',
+    {eid:'s4',name:'힙브릿지',sets:3,reps:15,dur:6,group:'하체',desc:'둔근·코어 강화 · 자세 교정',
       how:'① 누워서 무릎 굽히고 발바닥 바닥에\n② 둔근에 힘주며 골반을 천장으로 들어올리기\n③ 어깨~무릎 일직선, 정점 2초 유지\n④ 천천히 내려오기 (등 순서대로)'},
     {eid:'s5',name:'불가리안 스플릿',sets:3,reps:10,dur:7,group:'하체',desc:'한쪽 다리 집중 런지',
       how:'① 뒤쪽 발등을 의자나 소파 위에 올리기\n② 앞다리 무릎 90도까지 내려가기\n③ 상체 곧게, 코어에 힘주기\n④ 앞발 뒤꿈치로 밀며 올라오기'},
@@ -685,7 +685,7 @@ const EXERCISES = {
       how:'① 팔꿈치를 바닥에, 어깨 바로 아래\n② 머리~발끝 일직선 유지\n③ 배꼽을 척추 쪽으로 당기듯 코어 힘주기\n④ 엉덩이가 올라가거나 처지지 않게'},
     {eid:'s17',name:'바이시클 크런치',sets:3,reps:15,dur:5,group:'코어',desc:'복근+복사근',
       how:'① 누워서 양손 귀 옆에\n② 한쪽 무릎 당기며 반대쪽 팔꿈치 터치\n③ 자전거 페달 돌리듯 교차 반복\n④ 허리가 바닥에서 뜨지 않게'},
-    {eid:'s18',name:'마운틴 클라이머',sets:3,reps:20,dur:5,group:'코어',desc:'코어+유산소',
+    {eid:'s18',name:'마운틴 클라이머',sets:3,reps:20,dur:5,group:'코어',desc:'코어+유산소 · 체력 폭발↑',
       how:'① 푸시업 자세에서 시작\n② 한쪽 무릎을 가슴 쪽으로 빠르게 당기기\n③ 다리 교대하며 달리듯 반복\n④ 엉덩이 높이 일정하게 유지'},
   ],
   ballet: [
@@ -700,24 +700,24 @@ const EXERCISES = {
     {eid:'p5',name:'리포머 필라테스',dur:45,desc:'기구 필라테스 전신 운동'},
   ],
   stretching: [
-    {eid:'st1',name:'전신 스트레칭',dur:20,desc:'머리부터 발끝까지 전신 이완'},
-    {eid:'st2',name:'하체 스트레칭',dur:15,desc:'허벅지·종아리·고관절 유연성'},
-    {eid:'st3',name:'상체 스트레칭',dur:15,desc:'어깨·목·등 긴장 풀기'},
-    {eid:'st4',name:'폼롤러 마사지',dur:20,desc:'근막 이완·뭉친 근육 풀기'},
-    {eid:'st5',name:'취침 전 스트레칭',dur:15,desc:'이완+숙면 도움. 코르티솔↓'},
+    {eid:'st1',name:'전신 스트레칭',dur:20,desc:'혈액순환↑ 피로회복 · 면역↑'},
+    {eid:'st2',name:'하체 스트레칭',dur:15,desc:'하체 유연성 · 운동 회복력↑'},
+    {eid:'st3',name:'상체 스트레칭',dur:15,desc:'긴장 해소 · 스트레스↓ 면역↑'},
+    {eid:'st4',name:'폼롤러 마사지',dur:20,desc:'근막 이완 · 림프순환 촉진'},
+    {eid:'st5',name:'취침 전 스트레칭',dur:15,desc:'숙면 도움 · 면역 회복 극대화'},
   ],
   hometraining: [
-    {eid:'h1',name:'전신 홈트',dur:30,desc:'맨몸 전신 운동 루틴'},
-    {eid:'h2',name:'하체 홈트',dur:25,desc:'스쿼트·런지·힙브릿지 맨몸'},
-    {eid:'h3',name:'상체 홈트',dur:25,desc:'푸시업·딥스·플랭크 맨몸'},
-    {eid:'h4',name:'코어 홈트',dur:20,desc:'복근·허리·골반 집중 루틴'},
-    {eid:'h5',name:'HIIT 홈트',dur:20,desc:'고강도 인터벌 전신 운동'},
-    {eid:'h6',name:'밴드 홈트',dur:25,desc:'저항밴드 활용 전신 운동'},
+    {eid:'h1',name:'전신 홈트',dur:30,desc:'전신 체력 강화 · 면역력↑'},
+    {eid:'h2',name:'하체 홈트',dur:25,desc:'하체 근력↑ 기초체력 향상'},
+    {eid:'h3',name:'상체 홈트',dur:25,desc:'상체 근지구력 · 자세 개선'},
+    {eid:'h4',name:'코어 홈트',dur:20,desc:'코어 안정성 · 체력 기반↑'},
+    {eid:'h5',name:'HIIT 홈트',dur:20,desc:'고강도 인터벌 · 심폐+체력 극대화'},
+    {eid:'h6',name:'밴드 홈트',dur:25,desc:'저항밴드 · 근력+관절 건강↑'},
   ]
 };
 
 function getSmartTip(){
-  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  var saved=JSON.parse(localStorage.getItem('wapp-v3')||'{}');
   var wk=saved.weeks&&saved.weeks[getWeekKey(0)];
   var todayW=wk&&wk[todayIdx()]||[];
   var doneCount=todayW.filter(function(w){return w.done}).length;
@@ -740,45 +740,45 @@ function getSmartTip(){
   // 운동 상태 기반
   if(totalCount>0&&doneCount===0) tips.push('오늘 운동 '+totalCount+'개가 기다리고 있어요! 하나씩 시작해볼까요?');
   if(totalCount>0&&doneCount>0&&doneCount<totalCount) tips.push('오늘 '+doneCount+'/'+totalCount+' 완료! 나머지도 화이팅 💪');
-  if(totalCount>0&&doneCount===totalCount) tips.push('오늘 운동 올클리어! 내일도 이 페이스 유지해봐요 🎉');
-  if(totalCount===0) tips.push('오늘은 휴식일이에요. 가벼운 산책이나 스트레칭으로 몸을 풀어주세요.');
+  if(totalCount>0&&doneCount===totalCount) tips.push('오늘 운동 올클리어! 체력이 쑥쑥 올라가고 있어요 🎉');
+  if(totalCount===0) tips.push('오늘은 휴식일이에요. 가벼운 산책으로 혈액순환을 도와주세요.');
 
   // 식단 상태 기반
-  if(mealTotal>0&&eatenCount===0) tips.push('아직 식사 기록이 없어요. 식단대로 먹으면 혈당 관리에 도움돼요!');
-  if(eatenCount>0&&mealKcal<800) tips.push('오늘 섭취 '+mealKcal+'kcal — 너무 적게 먹으면 오히려 코르티솔이 올라가요.');
-  if(mealKcal>1800) tips.push('오늘 '+mealKcal+'kcal 섭취 중. 저녁은 가볍게 단백질 위주로 추천해요.');
-  if(eatenCount>=3) tips.push('식사 '+eatenCount+'끼 완료! 규칙적인 식사가 인슐린 안정의 핵심이에요.');
-  if(mealTotal===0) tips.push('식단을 설정하면 칼로리·영양 관리가 훨씬 쉬워져요. 식단 탭에서 시작해보세요!');
+  if(mealTotal>0&&eatenCount===0) tips.push('아직 식사 기록이 없어요. 균형 잡힌 식사가 면역력의 기본이에요!');
+  if(eatenCount>0&&mealKcal<800) tips.push('오늘 섭취 '+mealKcal+'kcal — 너무 적게 먹으면 면역력이 떨어져요.');
+  if(mealKcal>1800) tips.push('오늘 '+mealKcal+'kcal 섭취 중. 저녁은 가볍게 단백질+채소 위주로!');
+  if(eatenCount>=3) tips.push('식사 '+eatenCount+'끼 완료! 규칙적인 식사가 체력 유지의 핵심이에요.');
+  if(mealTotal===0) tips.push('식단을 설정하면 영양 관리가 훨씬 쉬워져요. 식단 탭에서 시작해보세요!');
 
   // 몸무게 변화 기반
-  if(wTrend<-0.3) tips.push('체중이 조금씩 줄고 있어요! 근육은 유지하면서 체지방↓ 좋은 흐름이에요.');
-  if(wTrend>0.5) tips.push('체중이 약간 올랐어요. 근육 증가일 수도! 꾸준한 근력운동이 중요해요.');
+  if(wTrend<-0.3) tips.push('체중이 조금씩 줄고 있어요! 근육량은 유지하면서 건강하게 관리 중이네요.');
+  if(wTrend>0.5) tips.push('체중이 약간 올랐어요. 근육 증가일 수도! 꾸준한 운동이 체력의 기본이에요.');
   if(wKeys.length===0) tips.push('몸무게를 기록하면 변화 추이를 한눈에 볼 수 있어요. 위에서 입력해보세요!');
 
   // 운동 종목별 맞춤 팁
-  if(hasStrength) tips.push('근력운동 후 30분 내 단백질 섭취가 근육 회복에 최적이에요.');
-  if(hasStrength) tips.push('스쿼트·데드리프트 같은 하체 복합운동이 인슐린 감수성 개선에 가장 효과적이에요.');
+  if(hasStrength) tips.push('근력운동 후 30분 내 단백질 섭취가 근육 회복과 면역력 강화에 최적이에요.');
+  if(hasStrength) tips.push('복합운동(스쿼트·데드리프트)은 성장호르몬 분비를 촉진해 체력 향상에 효과적이에요.');
   if(hasBallet) tips.push('발레 수업 전 가볍게 바나나+두유로 에너지를 채워보세요.');
-  if(hasBallet) tips.push('발레 후 스트레칭을 10분만 해도 근육통이 확 줄어요.');
-  if(hasRunning) tips.push('런닝은 식후 1시간 뒤가 혈당 관리에 가장 좋은 타이밍이에요.');
-  if(hasRunning) tips.push('런닝 전 BCAA나 단백질쉐이크로 근손실을 예방하세요.');
-  if(hasStretching) tips.push('취침 전 스트레칭 10분으로 수면의 질이 확 올라가요. 코르티솔↓');
+  if(hasBallet) tips.push('발레는 코어·균형감각·유연성을 동시에 키워줘요. 체력 기반이 탄탄해져요!');
+  if(hasRunning) tips.push('유산소 운동은 심폐 기능을 강화해 면역세포 순환을 도와요.');
+  if(hasRunning) tips.push('런닝 전 워밍업 5분이 부상 예방과 운동 효율을 높여줘요.');
+  if(hasStretching) tips.push('취침 전 스트레칭 10분으로 수면의 질이 확 올라가요. 면역력 회복의 핵심!');
 
   // 요일별 팁
   var dow=new Date().getDay();
   if(dow===1) tips.push('월요일! 이번 주 운동 목표를 세워보세요. 작은 목표가 큰 변화를 만들어요.');
   if(dow===5) tips.push('금요일이에요! 이번 주 운동 잘 해왔다면 주말엔 가볍게 쉬어가도 괜찮아요.');
-  if(dow===0||dow===6) tips.push('주말에는 야외 걷기가 좋아요. 햇빛은 비타민D 합성에 도움돼요.');
+  if(dow===0||dow===6) tips.push('주말에는 야외 걷기가 좋아요. 햇빛은 비타민D 합성과 면역력에 도움돼요.');
 
-  // 일반 PCOS 팁 (fallback + 다양성)
-  tips.push('식후 15~20분 걷기만으로도 혈당 스파이크를 줄일 수 있어요.');
-  tips.push('수면 부족은 인슐린저항성을 악화시켜요. 7~8시간 수면을 목표로!');
-  tips.push('물을 하루 2L 이상 마시면 대사 활성화에 도움돼요.');
-  tips.push('계피·녹차는 인슐린 감수성 개선에 도움이 되는 식품이에요.');
-  tips.push('스트레스가 높으면 코르티솔↑ → 복부지방↑. 이완 시간을 꼭 가져요.');
-  tips.push('오메가3(연어·고등어)는 염증을 줄여 PCOS 증상 완화에 좋아요.');
-  tips.push('정제 탄수화물 대신 현미·고구마·오트밀 같은 저GI 식품을 선택하세요.');
-  tips.push('단백질은 매 끼니 손바닥 크기만큼! 포만감↑ 혈당 안정에 도움돼요.');
+  // 일반 면역·체력 팁 (fallback + 다양성)
+  tips.push('식후 15~20분 걷기만으로도 소화를 돕고 혈액순환이 좋아져요.');
+  tips.push('수면 부족은 면역력을 크게 떨어뜨려요. 7~8시간 수면을 목표로!');
+  tips.push('물을 하루 2L 이상 마시면 대사 활성화와 독소 배출에 도움돼요.');
+  tips.push('비타민C가 풍부한 과일(키위·귤·딸기)은 면역력 강화에 좋아요.');
+  tips.push('스트레스가 높으면 면역력↓ 체력↓. 명상이나 이완 시간을 꼭 가져요.');
+  tips.push('오메가3(연어·고등어)는 염증을 줄이고 면역 시스템을 강화해요.');
+  tips.push('발효식품(김치·요거트)은 장 건강과 면역력에 큰 도움이 돼요.');
+  tips.push('단백질은 매 끼니 손바닥 크기만큼! 근육 회복과 면역세포 생성에 필수에요.');
 
   // Pick 1 random tip, but prioritize context-specific ones (first half)
   var contextTips=tips.slice(0,Math.max(tips.length-8,1));
@@ -894,7 +894,7 @@ function generateRoutines(){
     var focusStr=strengthTypes.concat(types.filter(function(t){return strengthTypes.indexOf(t)<0}));
     routines.push({
       id:'gen1',name:'💪 근력 위주',level:level,popular:true,
-      desc:'근력·홈트를 중심으로 배치. 근육량↑ 기초대사량↑ 인슐린 감수성 개선.',
+      desc:'근력·홈트를 중심으로 배치. 근육량↑ 기초대사량↑ 체력 강화.',
       tags:types.map(function(t){return TYPE_NAME[t]}),
       sched:buildSched(focusStr,cfg)
     });
@@ -905,7 +905,7 @@ function generateRoutines(){
     var focusCardio=cardioTypes.concat(types.filter(function(t){return cardioTypes.indexOf(t)<0}));
     routines.push({
       id:'gen2',name:'🏃 유산소 위주',level:level,
-      desc:'런닝·걷기를 중심으로 배치. 심폐 강화, 체지방↓ 혈당 조절.',
+      desc:'런닝·걷기를 중심으로 배치. 심폐 강화, 면역세포 활성화.',
       tags:types.map(function(t){return TYPE_NAME[t]}),
       sched:buildSched(focusCardio,cfg)
     });
@@ -916,7 +916,7 @@ function generateRoutines(){
     var focusFlex=flexTypes.concat(types.filter(function(t){return flexTypes.indexOf(t)<0}));
     routines.push({
       id:'gen3',name:'🧘 유연성 위주',level:level,
-      desc:'스트레칭·필라테스·발레를 중심으로 배치. 유연성↑ 스트레스↓.',
+      desc:'스트레칭·필라테스·발레를 중심으로 배치. 유연성↑ 회복력↑.',
       tags:types.map(function(t){return TYPE_NAME[t]}),
       sched:buildSched(focusFlex,cfg)
     });
@@ -938,7 +938,7 @@ function generateRoutines(){
   if(routines.length===0){
     routines.push({
       id:'gen1',name:TYPE_NAME[types[0]]+' 루틴',level:level,popular:true,
-      desc:TYPE_NAME[types[0]]+' 집중 루틴. PCOS 맞춤 구성.',
+      desc:TYPE_NAME[types[0]]+' 집중 루틴. 면역·체력증진 맞춤 구성.',
       tags:[TYPE_NAME[types[0]]],
       sched:buildSched(types,cfg)
     });
@@ -956,7 +956,7 @@ function findExercise(eid){
 }
 
 /* ══ State ══ */
-const S=JSON.parse(localStorage.getItem('wapp')||'{}');
+const S=JSON.parse(localStorage.getItem('wapp-v3')||'{}');
 if(S.workouts&&!S.weeks){S.weeks={};S.weeks[getWeekKey(0)]=S.workouts;delete S.workouts;save();}
 if(!S.weeks)S.weeks={};
 // migrate UTC keys to local keys
@@ -973,7 +973,7 @@ const DUR_DEFAULTS={running:30,walking:30,ballet:90,pilates:40,stretching:20,hom
 let selDay=todayIdx(), curPickerTab='running', expandedEid=null;
 let calYear,calMonth,calSelectedDate=null;
 
-function save(){localStorage.setItem('wapp',JSON.stringify(S))}
+function save(){localStorage.setItem('wapp-v3',JSON.stringify(S))}
 function todayIdx(){const d=new Date().getDay();return d===0?6:d-1}
 function localDateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function getWeekKey(offset){
@@ -1107,13 +1107,13 @@ function renderPlan(){
 }
 
 function planMealCheck(slotIdx){
-  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  var saved=JSON.parse(localStorage.getItem('wapp-v3')||'{}');
   var plan=saved.mealPlan;
   if(!plan||!plan[0])return;
   plan[0].slots[slotIdx].eaten=!plan[0].slots[slotIdx].eaten;
   saved.mealPlan=plan;
   S.mealPlan=plan;
-  localStorage.setItem('wapp',JSON.stringify(saved));
+  localStorage.setItem('wapp-v3',JSON.stringify(saved));
   // Also sync mealPlanData if exists
   if(typeof mealPlanData!=='undefined'&&mealPlanData&&mealPlanData[0]){
     mealPlanData[0].slots[slotIdx].eaten=plan[0].slots[slotIdx].eaten;
@@ -1123,7 +1123,7 @@ function planMealCheck(slotIdx){
 
 function renderPlanMeal(){
   var area=document.getElementById('plan-meal-area');
-  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  var saved=JSON.parse(localStorage.getItem('wapp-v3')||'{}');
   var plan=saved.mealPlan;
   if(!plan||!plan.length||!saved.mealCompleted){area.innerHTML='';return;}
   var today=plan[0];
@@ -1661,7 +1661,7 @@ function renderCalDetail(date){
 
 /* ══ Backup ══ */
 function exportBackup(){
-  var data=localStorage.getItem('wapp')||'{}';
+  var data=localStorage.getItem('wapp-v3')||'{}';
   var blob=new Blob([data],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
@@ -1681,7 +1681,7 @@ function importBackup(e){
       var parsed=JSON.parse(ev.target.result);
       if(!parsed.weeks&&!parsed.weights){throw new Error('invalid');}
       if(!confirm('기존 데이터를 백업 파일로 덮어쓸까요?'))return;
-      localStorage.setItem('wapp',JSON.stringify(parsed));
+      localStorage.setItem('wapp-v3',JSON.stringify(parsed));
       Object.assign(S,parsed);
       showToast('복원 완료! 새로고침합니다');
       setTimeout(function(){location.reload()},1000);
@@ -1732,12 +1732,12 @@ renderPlan();
 /* ══ Meal Planner ══ */
 
 const INGREDIENTS = {
-  protein: {name:'🥩 단백질', items:['닭가슴살','닭다리살','소고기','돼지고기','연어','고등어','참치','새우','오징어','두부','계란','그릭요거트','치즈','단백질쉐이크','닭안심','목살']},
-  dairy: {name:'🥛 유제품·음료', items:['두유','우유','아몬드밀크','오트밀크','그릭요거트','프로틴쉐이크']},
-  veg: {name:'🥬 채소', items:['브로콜리','시금치','양배추','파프리카','오이','토마토','양파','버섯','애호박','아스파라거스','케일','콩나물','상추','당근','가지','무','셀러리','청경채','깻잎','부추','미나리','고추']},
-  carb: {name:'🍚 탄수화물(저GI)', items:['현미','고구마','퀴노아','통밀빵','오트밀','귀리','렌틸콩','병아리콩','메밀면','단호박','잡곡밥','바나나','블루베리','사과']},
-  fat: {name:'🥑 건강한 지방', items:['아보카도','올리브오일','아몬드','호두','캐슈넛','들기름','참기름','코코넛오일','치아씨드','땅콩버터','피칸','마카다미아','들깨']},
-  etc: {name:'🧂 기타·양념', items:['김치','미역','다시마','레몬','생강','마늘','고추장','된장','간장','식초','카레가루','후추','꿀','시나몬','바질','파슬리']}
+  protein: {name:'🥩 고단백 (근력·면역)', items:['닭가슴살','닭다리살','소고기','돼지고기','연어','고등어','참치','새우','오징어','두부','계란','그릭요거트','치즈','단백질쉐이크','닭안심','목살']},
+  dairy: {name:'🥛 유제품·발효 (장건강)', items:['두유','우유','아몬드밀크','오트밀크','그릭요거트','프로틴쉐이크','요거트']},
+  veg: {name:'🥬 비타민·항산화 채소', items:['브로콜리','시금치','양배추','파프리카','오이','토마토','양파','버섯','애호박','아스파라거스','케일','콩나물','상추','당근','가지','무','셀러리','청경채','깻잎','부추','미나리','고추','마늘']},
+  carb: {name:'🍚 에너지원 (체력충전)', items:['현미','고구마','퀴노아','통밀빵','오트밀','귀리','렌틸콩','병아리콩','메밀면','단호박','잡곡밥','바나나','블루베리','사과','키위','귤','딸기']},
+  fat: {name:'🥑 건강한 지방 (항염)', items:['아보카도','올리브오일','아몬드','호두','캐슈넛','들기름','참기름','코코넛오일','치아씨드','땅콩버터','피칸','마카다미아','들깨']},
+  etc: {name:'🧂 면역부스터·양념', items:['김치','미역','다시마','레몬','생강','마늘','강황','고추장','된장','간장','식초','카레가루','후추','꿀','시나몬','바질','파슬리','홍삼']}
 };
 
 let selectedIngs = [];
@@ -1817,134 +1817,134 @@ function mealTab(tab){
 // 실제 레시피 DB — 재료 매칭 + 간단 레시피
 const RECIPES = {
   breakfast:[
-    {name:'계란 스크램블 + 통밀빵',desc:'시금치 곁들임 · 고단백 아침',kcal:380,need:['계란','통밀빵'],
+    {name:'계란 스크램블 + 통밀빵',desc:'시금치 곁들임 · 단백질+철분↑',kcal:380,need:['계란','통밀빵'],
      recipe:['계란 2개 풀어 소금·후추 간','팬에 올리브오일 두르고 중불에 저으며 익히기','시금치 한 줌 같이 볶기','통밀빵 토스트와 함께']},
-    {name:'계란 프라이 + 아보카도 토스트',desc:'통밀빵 · 건강한 지방',kcal:370,need:['계란','아보카도','통밀빵'],
+    {name:'계란 프라이 + 아보카도 토스트',desc:'항염 지방 · 에너지 부스터',kcal:370,need:['계란','아보카도','통밀빵'],
      recipe:['통밀빵 토스트','아보카도 반개 으깨서 빵 위에 펴 바르기','계란 프라이 올리기','소금·후추·레몬즙 뿌리기']},
-    {name:'오트밀 볼 + 두유',desc:'아몬드 토핑 · 혈당 안정',kcal:320,need:['오트밀','두유'],
+    {name:'오트밀 볼 + 두유',desc:'베타글루칸 · 면역세포 활성화',kcal:320,need:['오트밀','두유'],
      recipe:['오트밀 40g에 두유 200ml 붓기','전자레인지 2분 또는 냄비에 끓이기','아몬드·블루베리 토핑','꿀 약간 (선택)']},
-    {name:'두유 + 삶은 계란 2개',desc:'간편 고단백 · 아침 루틴',kcal:300,need:['두유','계란'],
+    {name:'두유 + 삶은 계란 2개',desc:'간편 고단백 · 면역세포 재료↑',kcal:300,need:['두유','계란'],
      recipe:['계란 냄비에 넣고 물 잠길 때까지','끓으면 중불 8분 삶기','찬물에 식혀 껍질 벗기기','두유 한 잔과 함께']},
-    {name:'그릭요거트 + 블루베리 + 아몬드',desc:'치아씨드 토핑 · 항산화',kcal:280,need:['그릭요거트','블루베리'],
+    {name:'그릭요거트 + 블루베리 + 아몬드',desc:'항산화 폭탄 · 장건강↑ 면역↑',kcal:280,need:['그릭요거트','블루베리'],
      recipe:['그릭요거트 150g 그릇에 담기','블루베리 한 줌 올리기','아몬드 슬라이스 뿌리기','치아씨드 1스푼 토핑']},
-    {name:'그릭요거트 + 바나나 + 호두',desc:'포만감 · 혈당 안정',kcal:300,need:['그릭요거트','바나나'],
+    {name:'그릭요거트 + 바나나 + 호두',desc:'유산균+오메가3 · 면역 기초',kcal:300,need:['그릭요거트','바나나'],
      recipe:['그릭요거트 150g 그릇에 담기','바나나 1개 슬라이스','호두 5~6개 부숴서 올리기','꿀 약간 (선택)']},
-    {name:'고구마 + 계란 반숙 + 두유',desc:'든든한 아침 · 저GI',kcal:340,need:['고구마','계란'],
+    {name:'고구마 + 계란 반숙 + 두유',desc:'비타민A · 체력충전 아침',kcal:340,need:['고구마','계란'],
      recipe:['고구마 1개 씻어서 전자레인지 5분','계란 끓는 물에 6분 반숙','고구마 반 갈라 버터 약간','두유 한 잔과 함께']},
-    {name:'프로틴 스무디',desc:'두유 + 바나나 + 땅콩버터',kcal:330,need:['두유','바나나','땅콩버터'],
-     recipe:['두유 200ml + 바나나 1개 믹서에','땅콩버터 1스푼 넣기','얼음 3~4개 넣고 갈기','컵에 따라 바로 마시기']},
-    {name:'오트밀 죽 (두유 베이스)',desc:'시나몬 · 혈당 안정',kcal:290,need:['오트밀','두유'],
+    {name:'면역 파워 스무디',desc:'두유+바나나+생강 · 면역 부스터',kcal:330,need:['두유','바나나','생강'],
+     recipe:['두유 200ml + 바나나 1개 믹서에','생강 한 톨 갈아 넣기 (또는 땅콩버터)','얼음 3~4개 넣고 갈기','꿀 약간 넣고 바로 마시기']},
+    {name:'오트밀 죽 + 시나몬',desc:'베타글루칸 · 체력 에너지원',kcal:290,need:['오트밀','두유'],
      recipe:['냄비에 두유 250ml + 오트밀 40g','약불에 저으며 5분 끓이기','시나몬 파우더 톡톡','견과류 토핑 후 완성']},
-    {name:'두부 시금치 볶음밥',desc:'현미 반공기 · 저탄수',kcal:350,need:['두부','시금치','현미'],
+    {name:'두부 시금치 볶음밥',desc:'철분+식물성단백 · 체력↑',kcal:350,need:['두부','시금치','현미'],
      recipe:['두부 으깨기, 시금치 잘게 썰기','팬에 참기름 두르고 두부 볶기','시금치·현미밥 넣고 같이 볶기','간장 1스푼으로 간']},
-    {name:'계란말이 + 현미밥',desc:'김치 곁들임 · 한식 아침',kcal:360,need:['계란','현미'],
+    {name:'계란말이 + 현미밥',desc:'김치(유산균) 곁들임 · 장면역↑',kcal:360,need:['계란','현미'],
      recipe:['계란 2개 + 당근·파 다져서 섞기','팬에 기름 얇게, 계란물 조금씩 붓기','말아가며 익히기 반복','현미밥 + 김치와 함께']},
-    {name:'통밀빵 + 치즈 + 토마토',desc:'간편 오픈 샌드위치',kcal:310,need:['통밀빵','치즈','토마토'],
+    {name:'통밀빵 + 치즈 + 토마토',desc:'리코펜 항산화 · 간편 면역식',kcal:310,need:['통밀빵','치즈','토마토'],
      recipe:['통밀빵 토스트','치즈 1장 올리기','토마토 슬라이스 2~3장','올리브오일·바질 뿌리기']},
-    {name:'단호박 스프 + 계란',desc:'두유 베이스 · 부드러운 아침',kcal:300,need:['단호박','계란'],
+    {name:'단호박 스프 + 계란',desc:'베타카로틴 · 면역 점막 보호',kcal:300,need:['단호박','계란'],
      recipe:['단호박 전자레인지 5분 익히기','속 파내서 두유와 믹서에 갈기','냄비에 데우며 소금 간','삶은 계란 곁들이기']},
-    {name:'오트밀 + 사과 + 시나몬',desc:'식이섬유 · 혈당↓',kcal:280,need:['오트밀','사과'],
-     recipe:['오트밀 40g에 물 또는 우유 붓기','전자레인지 2분','사과 깍둑썰기 올리기','시나몬 + 꿀 약간']},
-    {name:'닭가슴살 샐러드 랩',desc:'통밀 또띠야 · 고단백',kcal:350,need:['닭가슴살','상추'],
+    {name:'오트밀 + 키위 + 시나몬',desc:'비타민C 폭탄 · 면역력↑',kcal:280,need:['오트밀','키위'],
+     recipe:['오트밀 40g에 물 또는 우유 붓기','전자레인지 2분','키위 슬라이스 올리기','시나몬 + 꿀 약간']},
+    {name:'닭가슴살 샐러드 랩',desc:'고단백 · 근육회복 · 체력 유지',kcal:350,need:['닭가슴살','상추'],
      recipe:['닭가슴살 삶거나 구워서 찢기','상추·토마토·오이 썰기','또띠야에 채소 + 닭가슴살','말아서 반 자르기']},
   ],
   lunch:[
-    {name:'닭가슴살 샐러드 + 퀴노아',desc:'올리브오일 드레싱 · 고단백',kcal:450,need:['닭가슴살','퀴노아'],
+    {name:'닭가슴살 샐러드 + 퀴노아',desc:'고단백 · 체력충전 파워 점심',kcal:450,need:['닭가슴살','퀴노아'],
      recipe:['퀴노아 물 2배 넣고 15분 삶기','닭가슴살 소금·후추 간 후 굽기','한입 크기로 썰어 채소 위에','올리브오일+레몬즙 드레싱']},
-    {name:'닭가슴살 브로콜리 볶음 + 현미',desc:'간장 양념 · 든든한 점심',kcal:460,need:['닭가슴살','브로콜리','현미'],
+    {name:'닭가슴살 브로콜리 볶음 + 현미',desc:'비타민C+단백질 · 면역 콤보',kcal:460,need:['닭가슴살','브로콜리','현미'],
      recipe:['닭가슴살 한입 크기로 썰기','팬에 기름 두르고 닭 먼저 볶기','브로콜리 넣고 같이 볶기','간장 1.5스푼 + 마늘 넣고 볶아 현미밥과']},
-    {name:'연어 포케 볼',desc:'현미 반공기 + 아보카도 · 오메가3',kcal:480,need:['연어','현미','아보카도'],
+    {name:'연어 포케 볼',desc:'오메가3 항염 · 면역세포 강화',kcal:480,need:['연어','현미','아보카도'],
      recipe:['연어회 깍둑썰기','간장 1스푼 + 참기름 + 와사비 소스','현미밥 반공기 그릇에','연어·아보카도·오이 올리기']},
-    {name:'연어 구이 + 아스파라거스',desc:'올리브오일 · 오메가3 풍부',kcal:440,need:['연어','아스파라거스'],
+    {name:'연어 구이 + 아스파라거스',desc:'오메가3+엽산 · 세포 재생↑',kcal:440,need:['연어','아스파라거스'],
      recipe:['연어 소금·후추 간','팬에 올리브오일, 껍질 면 먼저 4분','뒤집어서 3분 더','아스파라거스 같은 팬에 구워 곁들이기']},
-    {name:'소고기 브로콜리 볶음 + 잡곡밥',desc:'철분 보충 · 든든',kcal:500,need:['소고기','브로콜리'],
+    {name:'소고기 브로콜리 볶음 + 잡곡밥',desc:'철분+아연 · 면역세포 생성↑',kcal:500,need:['소고기','브로콜리'],
      recipe:['소고기 얇게 썰어 간장·참기름 밑간 10분','팬에 센불로 소고기 볶기','브로콜리 데쳐서 넣고 볶기','굴소스 1스푼 넣고 잡곡밥과']},
-    {name:'소고기 미역국 + 현미밥',desc:'철분+요오드 · 보양식',kcal:430,need:['소고기','미역','현미'],
+    {name:'소고기 미역국 + 현미밥',desc:'요오드+철분 · 면역 보양식',kcal:430,need:['소고기','미역','현미'],
      recipe:['미역 물에 불리기 (20분)','소고기 참기름에 볶다 물 붓기','미역 넣고 중불 20분 끓이기','국간장으로 간, 현미밥과']},
-    {name:'두부 버섯 된장찌개 + 현미',desc:'김치 곁들임 · 한식 정식',kcal:420,need:['두부','버섯','된장'],
+    {name:'두부 버섯 된장찌개 + 현미',desc:'버섯 면역다당체 · 장건강↑',kcal:420,need:['두부','버섯','된장'],
      recipe:['냄비에 멸치육수 끓이기','된장 1.5스푼 풀기','두부·버섯·양파·호박 넣기','10분 끓이고 현미밥과']},
-    {name:'두부 김치찌개 + 현미밥',desc:'발효 식품 · 장건강',kcal:410,need:['두부','김치','현미'],
+    {name:'두부 김치찌개 + 현미밥',desc:'유산균 발효식 · 장면역 강화',kcal:410,need:['두부','김치','현미'],
      recipe:['김치 송송 썰어 참기름에 볶기','물 400ml 붓고 끓이기','두부 넣고 5분 더','고춧가루 약간, 현미밥과']},
-    {name:'새우 파프리카 볶음 + 메밀면',desc:'가벼운 점심 · 저칼로리',kcal:400,need:['새우','파프리카','메밀면'],
+    {name:'새우 파프리카 볶음 + 메밀면',desc:'비타민C+셀레늄 · 항산화↑',kcal:400,need:['새우','파프리카','메밀면'],
      recipe:['메밀면 삶아 찬물에 헹구기','새우 껍질 벗겨 올리브오일에 볶기','파프리카 채 썰어 같이 볶기','간장 소스 만들어 면 위에']},
-    {name:'새우 애호박 볶음밥',desc:'현미 · 고단백 저탄수',kcal:420,need:['새우','애호박','현미'],
+    {name:'새우 애호박 볶음밥',desc:'셀레늄+아연 · 면역 미네랄↑',kcal:420,need:['새우','애호박','현미'],
      recipe:['새우·애호박 깍둑 썰기','팬에 기름, 새우 먼저 볶기','애호박·현미밥 넣고 볶기','간장 1스푼 + 참기름 마무리']},
-    {name:'닭다리살 카레 + 현미밥',desc:'양파 듬뿍 · 항염 향신료',kcal:460,need:['닭다리살','카레가루','현미'],
-     recipe:['닭다리살·양파·당근 한입 크기','팬에 닭 먼저 노릇하게','채소 넣고 물 400ml 붓기','카레가루 넣고 걸쭉해질 때까지']},
-    {name:'고등어 구이 정식',desc:'시금치 나물 + 김치',kcal:440,need:['고등어','시금치'],
+    {name:'닭다리살 강황카레 + 현미밥',desc:'강황 커큐민 · 강력 항염식',kcal:460,need:['닭다리살','카레가루','현미'],
+     recipe:['닭다리살·양파·당근 한입 크기','팬에 닭 먼저 노릇하게','채소 넣고 물 400ml 붓기','카레가루+강황 넣고 걸쭉해질 때까지']},
+    {name:'고등어 구이 정식',desc:'오메가3+비타민D · 면역 정식',kcal:440,need:['고등어','시금치'],
      recipe:['고등어 소금 뿌려 10분','에어프라이어 180°C 15분 또는 팬 구이','시금치 데쳐 참기름·간장·깨','현미밥·김치와 정식으로']},
-    {name:'참치 상추 쌈밥',desc:'잡곡밥 반공기 · 된장',kcal:430,need:['참치','상추','된장'],
+    {name:'참치 상추 쌈밥',desc:'셀레늄 · 면역+체력 간편식',kcal:430,need:['참치','상추','된장'],
      recipe:['참치캔 기름 빼기','상추 씻어 물기 제거','쌈장(된장+고추장+참기름)','상추에 밥+참치+쌈장 싸먹기']},
-    {name:'돼지고기 김치찌개 + 현미',desc:'한식 대표 · 발효식품',kcal:450,need:['돼지고기','김치','현미'],
+    {name:'돼지고기 김치찌개 + 현미',desc:'비타민B1+유산균 · 에너지↑',kcal:450,need:['돼지고기','김치','현미'],
      recipe:['돼지고기·김치 참기름에 볶기','물 500ml 붓고 끓이기','두부 넣고 10분 더','현미밥과 함께']},
-    {name:'목살 상추쌈 + 된장',desc:'쌈채소 듬뿍 · 고단백',kcal:470,need:['목살','상추','된장'],
+    {name:'목살 상추쌈 + 된장',desc:'비타민B군 · 체력 에너지원',kcal:470,need:['목살','상추','된장'],
      recipe:['목살 1cm 두께로 썰기','팬에 앞뒤 노릇하게 굽기','상추·깻잎 씻기','쌈장과 마늘 곁들여 싸먹기']},
-    {name:'렌틸콩 토마토 수프 + 통밀빵',desc:'식물성 단백질 · 식이섬유',kcal:380,need:['렌틸콩','토마토','통밀빵'],
+    {name:'렌틸콩 토마토 수프 + 통밀빵',desc:'식물성 단백+리코펜 · 항산화',kcal:380,need:['렌틸콩','토마토','통밀빵'],
      recipe:['양파 다져 올리브오일에 볶기','렌틸콩·토마토캔·물 넣기','중불 20분 끓이기','소금·후추 간, 통밀빵과']},
-    {name:'병아리콩 샐러드',desc:'올리브오일 + 파프리카 · 지중해식',kcal:360,need:['병아리콩','파프리카','올리브오일'],
+    {name:'병아리콩 샐러드',desc:'아연+식이섬유 · 면역 지중해식',kcal:360,need:['병아리콩','파프리카','올리브오일'],
      recipe:['병아리콩 삶거나 캔 헹구기','파프리카·오이·양파 깍둑 썰기','올리브오일+레몬즙+소금 드레싱','모두 섞어 완성']},
   ],
   dinner:[
-    {name:'닭가슴살 채소 수프',desc:'저탄수 · 가볍게 · 올리브오일',kcal:350,need:['닭가슴살','양파'],
+    {name:'닭가슴살 채소 수프',desc:'면역 회복 수프 · 비타민 가득',kcal:350,need:['닭가슴살','양파'],
      recipe:['닭가슴살 삶아서 찢기','양파·당근·셀러리 깍둑 썰기','육수에 채소 넣고 15분 끓이기','닭 넣고 소금·후추 간']},
-    {name:'닭가슴살 샐러드',desc:'아몬드 토핑 · 저녁 가볍게',kcal:300,need:['닭가슴살','상추'],
+    {name:'닭가슴살 샐러드',desc:'운동 후 회복식 · 근육 재생',kcal:300,need:['닭가슴살','상추'],
      recipe:['닭가슴살 소금·후추 간 후 굽기','식혀서 슬라이스','상추·토마토·오이 접시에','아몬드 뿌리고 드레싱']},
-    {name:'연어 아스파라거스 구이',desc:'올리브오일 · 오메가3 풍부',kcal:400,need:['연어','아스파라거스'],
+    {name:'연어 아스파라거스 구이',desc:'오메가3+엽산 · 세포 회복↑',kcal:400,need:['연어','아스파라거스'],
      recipe:['연어·아스파라거스 올리브오일 뿌리기','소금·후추 간','오븐 200°C 12분 또는 팬 굽기','레몬즙 뿌려 완성']},
-    {name:'두부 채소 찜',desc:'간장 소스 · 가벼운 저녁',kcal:320,need:['두부','애호박','간장'],
+    {name:'두부 채소 찜',desc:'소화 편한 면역식 · 장건강↑',kcal:320,need:['두부','애호박','간장'],
      recipe:['두부 2cm 두께로 썰기','애호박·당근 채 썰기','접시에 담고 전자레인지 5분','간장+참기름+깨 소스 뿌리기']},
-    {name:'두부 스테이크 + 버섯소스',desc:'양파 · 고단백 저칼로리',kcal:330,need:['두부','버섯','양파'],
+    {name:'두부 스테이크 + 버섯소스',desc:'버섯 면역다당체 · 고단백',kcal:330,need:['두부','버섯','양파'],
      recipe:['두부 물기 빼고 두껍게 썰기','팬에 노릇하게 양면 굽기','버섯·양파 볶아 간장소스 만들기','두부 위에 소스 끼얹기']},
-    {name:'소고기 버섯 전골',desc:'고단백 · 따뜻하게',kcal:420,need:['소고기','버섯'],
+    {name:'소고기 버섯 전골',desc:'아연+면역다당체 · 보양 전골',kcal:420,need:['소고기','버섯'],
      recipe:['소고기 얇게 썰기','버섯·두부·배추·대파 준비','냄비에 육수 끓이기','재료 돌려담고 끓이며 먹기']},
-    {name:'소고기 무국',desc:'깔끔한 국물 · 소화 좋은 저녁',kcal:350,need:['소고기','무'],
+    {name:'소고기 무국',desc:'소화↑ 체력 회복 · 따뜻한 저녁',kcal:350,need:['소고기','무'],
      recipe:['소고기 참기름에 볶기','무 나박썰기 넣고 같이 볶기','물 600ml 붓고 끓이기','국간장으로 간, 15분 더']},
-    {name:'새우 애호박 볶음',desc:'마늘 · 들기름 · 저칼로리',kcal:340,need:['새우','애호박','마늘'],
+    {name:'새우 마늘 애호박 볶음',desc:'셀레늄+알리신 · 면역 강화',kcal:340,need:['새우','애호박','마늘'],
      recipe:['새우 손질, 애호박 반달 썰기','팬에 들기름 + 마늘 볶기','새우 넣고 색 변할 때까지','애호박 넣고 소금 간']},
-    {name:'고등어 무조림',desc:'생강 · 항염 · 오메가3',kcal:380,need:['고등어','무','생강'],
+    {name:'고등어 생강 무조림',desc:'오메가3+진저롤 · 항염 저녁',kcal:380,need:['고등어','무','생강'],
      recipe:['무 1cm 두께 깔기','고등어 올리기','간장+고춧가루+생강+물 양념장','뚜껑 덮고 중불 20분 조리기']},
-    {name:'오징어 부추 볶음',desc:'고추장 양념 · 타우린 풍부',kcal:360,need:['오징어','부추','고추장'],
+    {name:'오징어 부추 볶음',desc:'타우린+비타민K · 체력 회복',kcal:360,need:['오징어','부추','고추장'],
      recipe:['오징어 칼집 내서 한입 크기','고추장+간장+고춧가루+설탕 양념','팬에 오징어 센불로 볶기','부추 마지막에 넣고 살짝']},
-    {name:'양배추 돼지고기 쌈',desc:'된장 소스 · 식이섬유',kcal:370,need:['돼지고기','양배추','된장'],
+    {name:'양배추 돼지고기 쌈',desc:'비타민U+B1 · 위장 면역↑',kcal:370,need:['돼지고기','양배추','된장'],
      recipe:['양배추 잎 데치기 (1분)','돼지고기 앞뒤 구워 썰기','양배추에 고기+밥 올리기','된장소스 곁들여 싸먹기']},
-    {name:'계란찜 + 미역국',desc:'부드러운 저녁 · 요오드 보충',kcal:280,need:['계란','미역'],
+    {name:'계란찜 + 미역국',desc:'요오드+단백질 · 면역 점막↑',kcal:280,need:['계란','미역'],
      recipe:['미역 불려서 참기름에 볶고 물 붓기','15분 끓이고 국간장 간','계란 3개+물 섞어 뚝배기에','약불 뚜껑 덮고 15분 찜']},
-    {name:'토마토 계란 볶음',desc:'올리브오일 · 리코펜+단백질',kcal:300,need:['토마토','계란','올리브오일'],
+    {name:'토마토 계란 볶음',desc:'리코펜+단백질 · 항산화 저녁',kcal:300,need:['토마토','계란','올리브오일'],
      recipe:['토마토 깍둑 썰기','올리브오일에 토마토 볶기 (3분)','계란 2개 풀어 넣기','저으며 익히고 소금·파 마무리']},
-    {name:'시금치 된장국 + 두부',desc:'철분 · 가벼운 한식 저녁',kcal:290,need:['시금치','된장','두부'],
+    {name:'시금치 된장국 + 두부',desc:'철분+유산균 · 면역 한식 저녁',kcal:290,need:['시금치','된장','두부'],
      recipe:['멸치육수 끓이기','된장 1스푼 풀기','두부 깍둑 넣고 5분','시금치 마지막에 넣고 한소끔']},
-    {name:'닭다리살 케일 샐러드',desc:'발사믹 드레싱 · 비타민 풍부',kcal:380,need:['닭다리살','케일'],
+    {name:'닭다리살 케일 샐러드',desc:'비타민K+A · 면역 슈퍼푸드',kcal:380,need:['닭다리살','케일'],
      recipe:['닭다리살 소금·후추 간 후 굽기','식혀서 슬라이스','케일 손으로 찢어 올리브오일 마사지','닭+견과류 올리고 발사믹 뿌리기']},
-    {name:'참치 김치찌개',desc:'고단백 · 매콤한 저녁',kcal:370,need:['참치','김치'],
+    {name:'참치 김치찌개',desc:'셀레늄+유산균 · 면역 저녁',kcal:370,need:['참치','김치'],
      recipe:['김치 송송 썰어 참기름에 볶기','물 400ml 붓고 끓이기','참치캔 (기름 빼고) 넣기','두부 넣고 5분 더 끓이기']},
   ],
   snack:[
-    {name:'아몬드 한 줌 + 두유',desc:'단백질 간식 · 혈당 안정',kcal:180,need:['아몬드','두유'],
+    {name:'아몬드 한 줌 + 두유',desc:'비타민E · 면역세포 보호',kcal:180,need:['아몬드','두유'],
      recipe:['아몬드 15~20알 준비','두유 한 잔 따르기','그대로 먹기!']},
-    {name:'삶은 계란 2개',desc:'간편 단백질 보충',kcal:140,need:['계란'],
+    {name:'삶은 계란 2개',desc:'간편 단백질 · 면역세포 재료',kcal:140,need:['계란'],
      recipe:['계란 냄비에 넣고 물 붓기','끓으면 중불 8분','찬물에 식혀 껍질 벗기기']},
-    {name:'땅콩버터 + 사과 슬라이스',desc:'건강한 지방 · 식이섬유',kcal:180,need:['땅콩버터','사과'],
+    {name:'땅콩버터 + 사과 슬라이스',desc:'비타민C+E · 항산화 간식',kcal:180,need:['땅콩버터','사과'],
      recipe:['사과 씻어 8등분 슬라이스','땅콩버터 1스푼 곁들이기','찍어 먹기!']},
-    {name:'그릭요거트 + 호두',desc:'포만감 · PCOS 추천 간식',kcal:170,need:['그릭요거트','호두'],
+    {name:'그릭요거트 + 호두',desc:'유산균+오메가3 · 장면역↑',kcal:170,need:['그릭요거트','호두'],
      recipe:['그릭요거트 100g 담기','호두 5~6개 부숴서 올리기','꿀 약간 (선택)']},
-    {name:'그릭요거트 + 블루베리',desc:'항산화 · 단백질 보충',kcal:160,need:['그릭요거트','블루베리'],
+    {name:'그릭요거트 + 블루베리',desc:'안토시아닌 항산화 · 면역↑',kcal:160,need:['그릭요거트','블루베리'],
      recipe:['그릭요거트 100g 담기','블루베리 한 줌 올리기','바로 먹기!']},
-    {name:'두유 한 잔 + 프로틴바',desc:'운동 후 회복 간식',kcal:200,need:['두유'],
+    {name:'두유 한 잔 + 프로틴바',desc:'운동 후 근회복 · 체력↑',kcal:200,need:['두유'],
      recipe:['두유 한 잔 준비','프로틴바 1개와 함께','운동 후 30분 내 섭취 추천']},
-    {name:'고구마 반개',desc:'저GI 탄수 보충 · 포만감',kcal:120,need:['고구마'],
+    {name:'고구마 반개',desc:'베타카로틴 · 면역 점막 보호',kcal:120,need:['고구마'],
      recipe:['고구마 씻기','전자레인지 5분 돌리기','반 갈라서 먹기']},
-    {name:'블루베리 + 캐슈넛',desc:'항산화 · 건강한 지방',kcal:160,need:['블루베리','캐슈넛'],
+    {name:'블루베리 + 캐슈넛',desc:'항산화 폭탄 · 아연+마그네슘',kcal:160,need:['블루베리','캐슈넛'],
      recipe:['블루베리 한 줌 씻기','캐슈넛 10알 준비','섞어서 먹기!']},
-    {name:'바나나 + 땅콩버터',desc:'에너지 보충 · 운동 전 간식',kcal:200,need:['바나나','땅콩버터'],
+    {name:'바나나 + 땅콩버터',desc:'에너지 충전 · 운동 전 체력↑',kcal:200,need:['바나나','땅콩버터'],
      recipe:['바나나 슬라이스','땅콩버터 1스푼 곁들이기','찍어 먹기!']},
-    {name:'치즈 + 당근 스틱',desc:'단백질+식이섬유',kcal:150,need:['치즈','당근'],
+    {name:'치즈 + 당근 스틱',desc:'비타민A+단백질 · 면역 점막↑',kcal:150,need:['치즈','당근'],
      recipe:['당근 스틱 모양으로 썰기','치즈 한 장과 함께','바로 먹기!']},
-    {name:'호두 + 다크초콜릿',desc:'항산화 · 마그네슘 보충',kcal:180,need:['호두'],
+    {name:'호두 + 다크초콜릿',desc:'폴리페놀 항산화 · 면역↑',kcal:180,need:['호두'],
      recipe:['호두 7~8개 준비','다크초콜릿 2~3조각','번갈아 먹기']},
-    {name:'오이 + 두부 딥',desc:'저칼로리 · 단백질',kcal:100,need:['오이','두부'],
-     recipe:['두부 으깨서 간장+참기름+깨 섞기','오이 스틱 모양으로 썰기','찍어 먹기!']},
-    {name:'사과 + 아몬드',desc:'식이섬유 + 건강한 지방',kcal:170,need:['사과','아몬드'],
-     recipe:['사과 슬라이스','아몬드 15알 준비','함께 먹기!']},
+    {name:'키위 + 요거트',desc:'비타민C 폭탄 · 면역 부스터',kcal:130,need:['키위'],
+     recipe:['키위 1~2개 껍질 벗기기','요거트와 함께 먹기','비타민C 하루 권장량 충족!']},
+    {name:'귤 2개 + 아몬드',desc:'비타민C+E · 면역 시너지',kcal:160,need:['귤','아몬드'],
+     recipe:['귤 2개 까기','아몬드 10알 준비','번갈아 먹기!']},
   ]
 };
 
