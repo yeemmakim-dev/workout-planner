@@ -402,7 +402,7 @@
     </div>
     <div class="days-row" id="days-row"></div>
     <div class="progress-wrap">
-      <div class="progress-meta"><span>완료율</span><span id="prog-text">0 / 0</span></div>
+      <div class="progress-meta"><span>운동 완료율</span><span id="prog-text">0%</span></div>
       <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
     </div>
     <div id="plan-meal-area"></div>
@@ -1042,7 +1042,7 @@ function renderPlan(){
   });
   const pct=totalUnits?Math.round(doneUnits/totalUnits*100):0;
   document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('prog-text').textContent=`${doneUnits} / ${totalUnits}`;
+  document.getElementById('prog-text').textContent=totalUnits?pct+'%':'0%';
 
   const list=document.getElementById('workout-list');
   if(!ws.length){
@@ -1100,10 +1100,26 @@ function renderPlan(){
   renderPlanMeal();
 }
 
+function planMealCheck(slotIdx){
+  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  var plan=saved.mealPlan;
+  if(!plan||!plan[0])return;
+  plan[0].slots[slotIdx].eaten=!plan[0].slots[slotIdx].eaten;
+  saved.mealPlan=plan;
+  S.mealPlan=plan;
+  localStorage.setItem('wapp',JSON.stringify(saved));
+  // Also sync mealPlanData if exists
+  if(typeof mealPlanData!=='undefined'&&mealPlanData&&mealPlanData[0]){
+    mealPlanData[0].slots[slotIdx].eaten=plan[0].slots[slotIdx].eaten;
+  }
+  renderPlanMeal();
+}
+
 function renderPlanMeal(){
   var area=document.getElementById('plan-meal-area');
-  var plan=S.mealPlan;
-  if(!plan||!plan.length||!S.mealCompleted){area.innerHTML='';return;}
+  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  var plan=saved.mealPlan;
+  if(!plan||!plan.length||!saved.mealCompleted){area.innerHTML='';return;}
   var today=plan[0];
   if(!today){area.innerHTML='';return;}
   var slots=['아침','점심','저녁','간식'];
@@ -1117,23 +1133,23 @@ function renderPlanMeal(){
   var progress=Math.round(eatenCount/today.slots.length*100);
   area.innerHTML=
     '<div class="sec-header"><span class="sec-title">🥗 오늘 식단</span><span class="sec-action" onclick="switchScreen(\'meal\')">수정</span></div>'+
-    '<div class="plan-meal-card" onclick="switchScreen(\'meal\')">'+
+    '<div class="plan-meal-card">'+
       '<div class="plan-meal-header">'+
         '<span class="plan-meal-title">'+today.day+'</span>'+
         '<span class="plan-meal-kcal">'+(totalKcal>0?totalKcal+'kcal':'미식사')+'</span>'+
       '</div>'+
       today.slots.map(function(sl,i){
         var m=sl.options[sl.picked||0];
-        return '<div class="plan-meal-row">'+
+        return '<div class="plan-meal-row" style="cursor:pointer" onclick="event.stopPropagation();planMealCheck('+i+')">'+
           '<span class="plan-meal-slot">'+slots[i]+'</span>'+
           '<span class="plan-meal-name">'+m.name+'</span>'+
-          '<span class="plan-meal-check">'+(sl.eaten?'✅':'⬜')+'</span>'+
+          '<button type="button" onclick="event.stopPropagation();planMealCheck('+i+')" style="background:none;border:none;font-size:16px;padding:4px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent">'+(sl.eaten?'✅':'⬜')+'</button>'+
         '</div>';
       }).join('')+
       '<div style="margin-top:8px;background:var(--border);border-radius:4px;height:4px;overflow:hidden">'+
         '<div style="height:100%;width:'+progress+'%;background:var(--green);border-radius:4px;transition:width .3s"></div>'+
       '</div>'+
-      '<div style="text-align:right;font-size:10px;color:var(--text-hint);margin-top:2px">'+eatenCount+'/'+today.slots.length+' 완료</div>'+
+      '<div style="text-align:right;font-size:10px;color:var(--text-hint);margin-top:2px">'+eatenCount+'/'+today.slots.length+' 완료 · '+(totalKcal>0?totalKcal+'kcal':'')+'</div>'+
     '</div>';
 }
 
