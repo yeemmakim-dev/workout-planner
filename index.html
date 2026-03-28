@@ -710,18 +710,75 @@ const EXERCISES = {
   ]
 };
 
-const AI_TIPS=[
-  '근력운동은 인슐린 감수성 개선에 가장 효과적이에요. 하체 위주로!',
-  '식후 15~20분 걷기만으로도 혈당 스파이크를 줄일 수 있어요.',
-  '과도한 유산소는 코르티솔을 높일 수 있어요. 적당한 걷기가 최고!',
-  '스트레칭으로 긴장을 풀면 코르티솔↓ PCOS 증상 완화에 도움돼요.',
-  '스쿼트·데드리프트 같은 복합운동이 인슐린저항성 개선에 효과적이에요.',
-  '주 3~4회 근력운동 + 매일 걷기가 PCOS 관리의 골든 조합이에요.',
-  '수면 부족은 인슐린저항성을 악화시켜요. 취침 전 스트레칭으로 숙면을!',
-  '하체 근육량이 늘면 포도당 흡수가 좋아져 인슐린 감수성이 올라가요.',
-  '운동 강도보다 꾸준함이 중요해요. 무리하지 말고 지속 가능하게!',
-  '필라테스 코어 운동은 복부 지방 감소와 자세 교정에 모두 좋아요.',
-];
+function getSmartTip(){
+  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  var wk=saved.weeks&&saved.weeks[getWeekKey(0)];
+  var todayW=wk&&wk[todayIdx()]||[];
+  var doneCount=todayW.filter(function(w){return w.done}).length;
+  var totalCount=todayW.length;
+  var plan=saved.mealPlan;
+  var todayMeal=plan&&plan[0];
+  var eatenCount=0,mealTotal=0,mealKcal=0;
+  if(todayMeal){mealTotal=todayMeal.slots.length;todayMeal.slots.forEach(function(sl){if(sl.eaten){eatenCount++;mealKcal+=(sl.options[sl.picked||0]||{}).kcal||0}});}
+  var weights=saved.weights||{};
+  var wKeys=Object.keys(weights).sort();
+  var wTrend=0;
+  if(wKeys.length>=2){wTrend=weights[wKeys[wKeys.length-1]]-weights[wKeys[wKeys.length-2]];}
+  var routine=saved.routine;
+  var hasStrength=routine&&routine.types&&routine.types.indexOf('strength')>=0;
+  var hasBallet=routine&&routine.types&&routine.types.indexOf('ballet')>=0;
+  var hasRunning=routine&&routine.types&&routine.types.indexOf('running')>=0;
+  var hasStretching=routine&&routine.types&&routine.types.indexOf('stretching')>=0;
+
+  var tips=[];
+  // 운동 상태 기반
+  if(totalCount>0&&doneCount===0) tips.push('오늘 운동 '+totalCount+'개가 기다리고 있어요! 하나씩 시작해볼까요?');
+  if(totalCount>0&&doneCount>0&&doneCount<totalCount) tips.push('오늘 '+doneCount+'/'+totalCount+' 완료! 나머지도 화이팅 💪');
+  if(totalCount>0&&doneCount===totalCount) tips.push('오늘 운동 올클리어! 내일도 이 페이스 유지해봐요 🎉');
+  if(totalCount===0) tips.push('오늘은 휴식일이에요. 가벼운 산책이나 스트레칭으로 몸을 풀어주세요.');
+
+  // 식단 상태 기반
+  if(mealTotal>0&&eatenCount===0) tips.push('아직 식사 기록이 없어요. 식단대로 먹으면 혈당 관리에 도움돼요!');
+  if(eatenCount>0&&mealKcal<800) tips.push('오늘 섭취 '+mealKcal+'kcal — 너무 적게 먹으면 오히려 코르티솔이 올라가요.');
+  if(mealKcal>1800) tips.push('오늘 '+mealKcal+'kcal 섭취 중. 저녁은 가볍게 단백질 위주로 추천해요.');
+  if(eatenCount>=3) tips.push('식사 '+eatenCount+'끼 완료! 규칙적인 식사가 인슐린 안정의 핵심이에요.');
+  if(mealTotal===0) tips.push('식단을 설정하면 칼로리·영양 관리가 훨씬 쉬워져요. 식단 탭에서 시작해보세요!');
+
+  // 몸무게 변화 기반
+  if(wTrend<-0.3) tips.push('체중이 조금씩 줄고 있어요! 근육은 유지하면서 체지방↓ 좋은 흐름이에요.');
+  if(wTrend>0.5) tips.push('체중이 약간 올랐어요. 근육 증가일 수도! 꾸준한 근력운동이 중요해요.');
+  if(wKeys.length===0) tips.push('몸무게를 기록하면 변화 추이를 한눈에 볼 수 있어요. 위에서 입력해보세요!');
+
+  // 운동 종목별 맞춤 팁
+  if(hasStrength) tips.push('근력운동 후 30분 내 단백질 섭취가 근육 회복에 최적이에요.');
+  if(hasStrength) tips.push('스쿼트·데드리프트 같은 하체 복합운동이 인슐린 감수성 개선에 가장 효과적이에요.');
+  if(hasBallet) tips.push('발레 수업 전 가볍게 바나나+두유로 에너지를 채워보세요.');
+  if(hasBallet) tips.push('발레 후 스트레칭을 10분만 해도 근육통이 확 줄어요.');
+  if(hasRunning) tips.push('런닝은 식후 1시간 뒤가 혈당 관리에 가장 좋은 타이밍이에요.');
+  if(hasRunning) tips.push('런닝 전 BCAA나 단백질쉐이크로 근손실을 예방하세요.');
+  if(hasStretching) tips.push('취침 전 스트레칭 10분으로 수면의 질이 확 올라가요. 코르티솔↓');
+
+  // 요일별 팁
+  var dow=new Date().getDay();
+  if(dow===1) tips.push('월요일! 이번 주 운동 목표를 세워보세요. 작은 목표가 큰 변화를 만들어요.');
+  if(dow===5) tips.push('금요일이에요! 이번 주 운동 잘 해왔다면 주말엔 가볍게 쉬어가도 괜찮아요.');
+  if(dow===0||dow===6) tips.push('주말에는 야외 걷기가 좋아요. 햇빛은 비타민D 합성에 도움돼요.');
+
+  // 일반 PCOS 팁 (fallback + 다양성)
+  tips.push('식후 15~20분 걷기만으로도 혈당 스파이크를 줄일 수 있어요.');
+  tips.push('수면 부족은 인슐린저항성을 악화시켜요. 7~8시간 수면을 목표로!');
+  tips.push('물을 하루 2L 이상 마시면 대사 활성화에 도움돼요.');
+  tips.push('계피·녹차는 인슐린 감수성 개선에 도움이 되는 식품이에요.');
+  tips.push('스트레스가 높으면 코르티솔↑ → 복부지방↑. 이완 시간을 꼭 가져요.');
+  tips.push('오메가3(연어·고등어)는 염증을 줄여 PCOS 증상 완화에 좋아요.');
+  tips.push('정제 탄수화물 대신 현미·고구마·오트밀 같은 저GI 식품을 선택하세요.');
+  tips.push('단백질은 매 끼니 손바닥 크기만큼! 포만감↑ 혈당 안정에 도움돼요.');
+
+  // Pick 1 random tip, but prioritize context-specific ones (first half)
+  var contextTips=tips.slice(0,Math.max(tips.length-8,1));
+  var pool=Math.random()<0.7?contextTips:tips;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
 
 /* ══ Routines (structured: e=eid, s=sets, r=reps, d=dur) ══ */
 /* ══ Routine Generator ══ */
@@ -907,7 +964,7 @@ if(!S.nextId)S.nextId=1;
 
 const RS={types:[],days:[],level:null,routine:null,durConfig:{}};
 const DUR_DEFAULTS={running:30,walking:30,ballet:90,pilates:40,stretching:20,hometraining:30};
-let aiIdx=0, selDay=todayIdx(), curPickerTab='running', expandedEid=null;
+let selDay=todayIdx(), curPickerTab='running', expandedEid=null;
 let calYear,calMonth,calSelectedDate=null;
 
 function save(){localStorage.setItem('wapp',JSON.stringify(S))}
@@ -1125,7 +1182,7 @@ function saveWeight(){
   save();renderPlan();showToast('몸무게 저장됨');
 }
 
-function refreshAI(){aiIdx=(aiIdx+1)%AI_TIPS.length;document.getElementById('ai-msg').textContent=AI_TIPS[aiIdx]}
+function refreshAI(){document.getElementById('ai-msg').textContent=getSmartTip()}
 
 /* ══ Delete ══ */
 let deleteTargetId=null;
@@ -1484,6 +1541,7 @@ function applyRoutine(){
       wk[d].push(w);
     });
   }
+  S.routine={types:RS.types,level:RS.level,name:r.name};
   save();switchScreen('plan');selDay=todayIdx();renderPlan();
   showToast(`"${r.name}" 적용 완료!`);
 }
@@ -1612,8 +1670,7 @@ if('serviceWorker' in navigator){
 
 /* ══ Init ══ */
 initCalendar();
-aiIdx=Math.floor(Math.random()*AI_TIPS.length);
-document.getElementById('ai-msg').textContent=AI_TIPS[aiIdx];
+document.getElementById('ai-msg').textContent=getSmartTip();
 renderPlan();
 
 /* ══ Meal Planner ══ */
