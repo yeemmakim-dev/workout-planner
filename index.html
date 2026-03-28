@@ -514,6 +514,12 @@
     <div class="weight-history" id="weight-history"></div>
     <div class="sec-header"><span class="sec-title">주간 요약</span></div>
     <div class="summary-rows" id="summary-rows"></div>
+    <div class="sec-header" style="margin-top:12px"><span class="sec-title">데이터 백업</span></div>
+    <div style="padding:0 16px 24px;display:flex;gap:8px">
+      <button class="btn-primary" onclick="exportBackup()" style="flex:1;font-size:13px">📥 백업 저장</button>
+      <button class="btn-ghost" onclick="document.getElementById('import-file').click()" style="flex:1;font-size:13px">📤 백업 복원</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
+    </div>
   </div>
 
   <div class="screen" id="screen-meal">
@@ -1651,6 +1657,40 @@ function renderCalDetail(date){
 
   html+='</div>';
   wrap.innerHTML=html;
+}
+
+/* ══ Backup ══ */
+function exportBackup(){
+  var data=localStorage.getItem('wapp')||'{}';
+  var blob=new Blob([data],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var d=new Date();
+  a.href=url;
+  a.download='workout-backup-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('백업 파일 저장 완료!');
+}
+function importBackup(e){
+  var file=e.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var parsed=JSON.parse(ev.target.result);
+      if(!parsed.weeks&&!parsed.weights){throw new Error('invalid');}
+      if(!confirm('기존 데이터를 백업 파일로 덮어쓸까요?'))return;
+      localStorage.setItem('wapp',JSON.stringify(parsed));
+      Object.assign(S,parsed);
+      showToast('복원 완료! 새로고침합니다');
+      setTimeout(function(){location.reload()},1000);
+    }catch(err){
+      showToast('유효하지 않은 백업 파일입니다');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value='';
 }
 
 /* ══ Stats ══ */
