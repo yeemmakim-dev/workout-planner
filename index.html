@@ -166,7 +166,7 @@
   .plan-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
   .plan-row:last-child{border-bottom:none}
   .plan-edit-hint{font-size:11px;color:var(--text-hint);padding:4px 16px 0;text-align:center}
-  #swrap-4 .plan-items button.pill{font-size:10px!important;padding:2px 7px!important}
+  #swrap-3 .plan-items button.pill{font-size:10px!important;padding:2px 7px!important}
   .move-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:flex-end;justify-content:center}
   .move-modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:500px;animation:slideUp .25s ease}
   @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -424,22 +424,9 @@
   <!-- ══ SCREEN: 루틴 ══ -->
   <div class="screen" id="screen-routine">
     <div class="page-header"><h1>루틴 선택</h1><p>PCOS·인슐린저항성 맞춤 루틴을 골라보세요</p></div>
-    <div class="step-dots" id="step-dots"><div class="sdot active"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div></div>
+    <div class="step-dots" id="step-dots"><div class="sdot active"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div></div>
+    <!-- Step 0: 운동 종목 선택 -->
     <div class="step-wrap active" id="swrap-0">
-      <div class="step-header">
-        <div class="step-title">어떤 걸 집중 관리할까요?</div>
-        <div class="step-sub">PCOS 증상에 맞게 루틴을 추천해 드려요</div>
-      </div>
-      <div class="goal-grid">
-        <div class="goal-card" onclick="selGoal(this,'insulin')"><div class="gc-icon">🩸</div><div class="gc-name">인슐린 감수성</div><div class="gc-desc">혈당 조절, 근력+유산소</div></div>
-        <div class="goal-card" onclick="selGoal(this,'hormone')"><div class="gc-icon">🧘</div><div class="gc-name">호르몬 밸런스</div><div class="gc-desc">코르티솔↓ 스트레스 완화</div></div>
-        <div class="goal-card" onclick="selGoal(this,'body')"><div class="gc-icon">💪</div><div class="gc-name">체성분 개선</div><div class="gc-desc">근육↑ 체지방↓ 대사 개선</div></div>
-        <div class="goal-card" onclick="selGoal(this,'total')"><div class="gc-icon">✨</div><div class="gc-name">PCOS 종합 관리</div><div class="gc-desc">인슐린·호르몬·체성분 종합</div></div>
-      </div>
-      <div style="padding:14px 16px 0"><button class="btn-primary" id="snext0" onclick="goSt(1)" disabled>다음</button></div>
-    </div>
-    <!-- Step 1: 운동 종목 선택 -->
-    <div class="step-wrap" id="swrap-1">
       <div class="step-header">
         <div class="step-title">어떤 운동을 할까요?</div>
         <div class="step-sub">하고 싶은 운동 종목을 골라주세요 (1개 이상)</div>
@@ -454,13 +441,12 @@
         <div class="goal-card" onclick="togType(this,'hometraining')"><div class="gc-icon">🏠</div><div class="gc-name">홈트레이닝</div><div class="gc-desc">맨몸·밴드 집에서 운동</div></div>
       </div>
       <div style="padding:14px 16px 0">
-        <button class="btn-primary" id="snext1" onclick="goSt(2)" disabled>다음</button>
-        <button class="btn-ghost" onclick="goSt(0)">이전</button>
+        <button class="btn-primary" id="snext0" onclick="goSt(1)" disabled>다음</button>
       </div>
     </div>
 
-    <!-- Step 2: 요일+강도 -->
-    <div class="step-wrap" id="swrap-2">
+    <!-- Step 1: 요일+강도 -->
+    <div class="step-wrap" id="swrap-1">
       <div class="step-header"><div class="step-title">운동 일정과 강도</div><div class="step-sub">요일과 강도를 선택해 주세요</div></div>
       <div class="days-selector" id="days-sel">
         <button class="dsel" onclick="togDsel(this,0)">월</button><button class="dsel" onclick="togDsel(this,1)">화</button><button class="dsel" onclick="togDsel(this,2)">수</button><button class="dsel" onclick="togDsel(this,3)">목</button><button class="dsel" onclick="togDsel(this,4)">금</button><button class="dsel" onclick="togDsel(this,5)">토</button><button class="dsel" onclick="togDsel(this,6)">일</button>
@@ -473,30 +459,30 @@
       </div>
       <div id="dur-config-area"></div>
       <div style="padding:14px 16px 0">
-        <button class="btn-primary" id="snext2" onclick="goSt(3)" disabled>다음</button>
+        <button class="btn-primary" id="snext1" onclick="goSt(2)" disabled>다음</button>
+        <button class="btn-ghost" onclick="goSt(0)">이전</button>
+      </div>
+    </div>
+
+    <!-- Step 2: 루틴 선택 -->
+    <div class="step-wrap" id="swrap-2">
+      <div class="step-header"><div class="step-title">루틴 스타일을 골라주세요</div><div class="step-sub" id="r-sub">선택한 운동 기반 맞춤 추천이에요</div></div>
+      <div id="routine-list"></div>
+      <div style="padding:4px 16px 0">
+        <button class="btn-primary" id="snext2" onclick="goSt(3)" disabled>이 루틴으로 할게요</button>
         <button class="btn-ghost" onclick="goSt(1)">이전</button>
       </div>
     </div>
 
-    <!-- Step 3: 루틴 선택 -->
+    <!-- Step 3: 주간 미리보기 -->
     <div class="step-wrap" id="swrap-3">
-      <div class="step-header"><div class="step-title">루틴을 선택해 주세요</div><div class="step-sub" id="r-sub">목표 맞춤 추천이에요</div></div>
-      <div id="routine-list"></div>
-      <div style="padding:4px 16px 0">
-        <button class="btn-primary" id="snext3" onclick="goSt(4)" disabled>이 루틴으로 할게요</button>
-        <button class="btn-ghost" onclick="goSt(2)">이전</button>
-      </div>
-    </div>
-
-    <!-- Step 4: 주간 미리보기 -->
-    <div class="step-wrap" id="swrap-4">
       <div class="step-header"><div class="step-title">주간 운동 계획</div><div class="step-sub" id="plan-sub"></div></div>
       <div class="confirm-box"><div class="cb-icon">✦</div><div><div class="cb-title" id="cb-title"></div><div class="cb-sub" id="cb-sub"></div></div></div>
       <div style="height:10px"></div>
       <div class="week-plan" id="week-plan-preview"></div>
       <div style="padding:14px 16px 0">
         <button class="btn-primary" onclick="applyRoutine()">플랜에 적용하기 ✓</button>
-        <button class="btn-ghost" onclick="goSt(3)">다른 루틴 보기</button>
+        <button class="btn-ghost" onclick="goSt(2)">다른 루틴 보기</button>
       </div>
     </div>
   </div>
@@ -739,18 +725,6 @@ const AI_TIPS=[
 
 /* ══ Routines (structured: e=eid, s=sets, r=reps, d=dur) ══ */
 /* ══ Routine Generator ══ */
-const GOAL_DESC={
-  insulin:'인슐린 감수성 개선에 집중. 하체 복합운동+유산소로 혈당 조절.',
-  hormone:'코르티솔↓ 스트레스 완화. 과도한 운동 없이 호르몬 밸런스.',
-  body:'근육↑ 체지방↓. 상하체 분할 근력으로 기초대사량 UP.',
-  total:'인슐린·호르몬·체성분을 골고루 관리하는 종합 플랜.'
-};
-const GOAL_PRIORITY={
-  insulin:['strength','walking','running','hometraining','pilates','ballet','stretching'],
-  hormone:['stretching','walking','pilates','ballet','hometraining','running','strength'],
-  body:['strength','hometraining','pilates','ballet','running','walking','stretching'],
-  total:['strength','hometraining','pilates','ballet','walking','running','stretching']
-};
 
 function pick(arr,n){return[...arr].sort(()=>Math.random()-.5).slice(0,Math.min(n,arr.length))}
 
@@ -788,114 +762,124 @@ function buildDayExercises(type, cfg, variant, dayIdx){
 }
 
 function generateRoutines(){
-  const {types,goal,level}=RS;
-  const sortedDays=[...RS.days].sort((a,b)=>a-b);
-  const nDays=sortedDays.length;
-  const ordered=GOAL_PRIORITY[goal].filter(t=>types.includes(t));
-  if(!ordered.length||!nDays) return [];
+  var types=RS.types;
+  var level=RS.level;
+  var sortedDays=[].concat(RS.days).sort(function(a,b){return a-b});
+  var nDays=sortedDays.length;
+  if(!types.length||!nDays) return [];
 
-  const cfgMap={
+  var cfgMap={
     beginner:{s:3,r:12,n:3,durS:20,durM:35,durL:45},
     intermediate:{s:3,r:10,n:4,durS:25,durM:40,durL:50},
     advanced:{s:4,r:8,n:5,durS:25,durM:40,durL:55}
   };
-  const cfg=cfgMap[level];
-  const typeLabel=ordered.map(t=>TYPE_NAME[t]).join('+');
-  const goalLabel={insulin:'혈당 케어',hormone:'호르몬 밸런스',body:'체성분 개선',total:'종합 관리'}[goal];
+  var cfg=cfgMap[level];
 
-  // Assign types to days: every selected type must appear at least once
-  function assignTypes(focusRatio){
-    const assignments=[];
-    if(ordered.length>=nDays){
-      // More types than days: primary types get their own day
-      for(let i=0;i<nDays;i++) assignments.push(ordered[i]);
-    } else {
-      ordered.forEach(t=>assignments.push(t));
-      while(assignments.length<nDays) assignments.push(ordered[0]);
-    }
-    return assignments;
-  }
-
-  // When types > days, find types that didn't get their own day
-  function getExtraTypes(assignments){
-    const assigned=new Set(assignments);
-    return ordered.filter(t=>!assigned.has(t));
-  }
+  // Categorize selected types
+  var strengthTypes=types.filter(function(t){return t==='strength'||t==='hometraining'});
+  var cardioTypes=types.filter(function(t){return t==='running'||t==='walking'});
+  var flexTypes=types.filter(function(t){return t==='stretching'||t==='pilates'||t==='ballet'});
 
   function getDur(type,fallback){return RS.durConfig[type]||fallback}
 
-  function buildSched(typeAssignments,c){
-    const sched={};
-    let strIdx=0;
-    const extras=getExtraTypes(typeAssignments);
+  function buildSched(focusOrder,c){
+    var sched={};
+    var strIdx=0;
+    // Assign focus types to days, cycling through
+    var assignments=[];
+    for(var i=0;i<nDays;i++) assignments.push(focusOrder[i%focusOrder.length]);
+    // Find types not assigned
+    var assigned={}; assignments.forEach(function(t){assigned[t]=true});
+    var extras=types.filter(function(t){return !assigned[t]});
 
-    typeAssignments.forEach((type,i)=>{
-      const day=sortedDays[i];
-      let items=[];
-      if(type==='strength'||type==='hometraining'){
-        if(type==='strength'){
-          const variant=['lower','upper','full'][strIdx%3];
-          strIdx++;
-          items=buildDayExercises('strength',{n:c.n,s:c.s,r:c.r},variant,day);
-        } else {
-          items=buildDayExercises('hometraining',{dur:getDur('hometraining',c.durL),gentle:false},undefined,day);
-        }
-        // Add short cardio after strength/hometraining
-        if(types.includes('walking')) items.push({e:'w1',d:Math.min(getDur('walking',c.durS),c.durS)});
-        else if(types.includes('running')) items.push({e:'r1',d:Math.min(getDur('running',c.durS),c.durS)});
-        // Add stretching cooldown if selected
-        if(types.includes('stretching')) items.push({e:'st1',d:Math.min(getDur('stretching',10),15)});
+    assignments.forEach(function(type,i){
+      var day=sortedDays[i];
+      var items=[];
+      if(type==='strength'){
+        var variant=['lower','upper','full'][strIdx%3]; strIdx++;
+        items=buildDayExercises('strength',{n:c.n,s:c.s,r:c.r},variant,day);
+      } else if(type==='hometraining'){
+        items=buildDayExercises('hometraining',{dur:getDur('hometraining',c.durL),gentle:false},undefined,day);
       } else {
         items=buildDayExercises(type,{dur:getDur(type,c.durL),gentle:false},undefined,day);
       }
+      // Add short cardio after strength/hometraining
+      if((type==='strength'||type==='hometraining')&&types.indexOf('walking')>=0) items.push({e:'w1',d:Math.min(getDur('walking',c.durS),c.durS)});
+      else if((type==='strength'||type==='hometraining')&&types.indexOf('running')>=0) items.push({e:'r1',d:Math.min(getDur('running',c.durS),c.durS)});
+      // Add stretching cooldown
+      if((type==='strength'||type==='hometraining')&&types.indexOf('stretching')>=0) items.push({e:'st1',d:Math.min(getDur('stretching',10),15)});
       sched[day]=items;
     });
 
-    // Add extra types (that didn't get their own day) to existing days
+    // Add extras to existing days
     if(extras.length>0){
-      const schedDays=Object.keys(sched).map(Number);
-      extras.forEach((extraType,ei)=>{
-        const targetDay=schedDays[ei%schedDays.length];
-        const extraItems=buildDayExercises(extraType,{dur:getDur(extraType,c.durS),gentle:true},undefined,targetDay);
+      var schedDays=Object.keys(sched).map(Number);
+      extras.forEach(function(extraType,ei){
+        var targetDay=schedDays[ei%schedDays.length];
+        var extraItems=buildDayExercises(extraType,{dur:getDur(extraType,c.durS),gentle:true},undefined,targetDay);
         sched[targetDay]=sched[targetDay].concat(extraItems);
       });
     }
-
     return sched;
   }
 
-  const routines=[];
+  var routines=[];
+  var allTypeNames=types.map(function(t){return TYPE_NAME[t]}).join('·');
 
-  // Routine 1: 집중 플랜 (primary type 70%)
-  routines.push({
-    id:'gen1',name:`${typeLabel} ${goalLabel} 집중`,level,popular:true,
-    desc:`${TYPE_NAME[ordered[0]]} 중심으로 ${goalLabel}에 최적화. PCOS 맞춤 구성.`,
-    tags:ordered.map(t=>TYPE_NAME[t]),
-    sched:buildSched(assignTypes(0.7),cfg)
-  });
-
-  // Routine 2: 밸런스 플랜 (even distribution)
-  if(ordered.length>=2){
-    const balanced=[];
-    for(let i=0;i<nDays;i++) balanced.push(ordered[i%ordered.length]);
+  // 1) 근력 위주 — only if strength or hometraining selected
+  if(strengthTypes.length>0){
+    var focusStr=strengthTypes.concat(types.filter(function(t){return strengthTypes.indexOf(t)<0}));
     routines.push({
-      id:'gen2',name:`${typeLabel} 밸런스 플랜`,level,
-      desc:`${ordered.map(t=>TYPE_NAME[t]).join('·')}를 골고루 배치. 다양하게 즐기는 루틴.`,
-      tags:ordered.map(t=>TYPE_NAME[t]),
+      id:'gen1',name:'💪 근력 위주',level:level,popular:true,
+      desc:'근력·홈트를 중심으로 배치. 근육량↑ 기초대사량↑ 인슐린 감수성 개선.',
+      tags:types.map(function(t){return TYPE_NAME[t]}),
+      sched:buildSched(focusStr,cfg)
+    });
+  }
+
+  // 2) 유산소 위주 — only if cardio selected
+  if(cardioTypes.length>0){
+    var focusCardio=cardioTypes.concat(types.filter(function(t){return cardioTypes.indexOf(t)<0}));
+    routines.push({
+      id:'gen2',name:'🏃 유산소 위주',level:level,
+      desc:'런닝·걷기를 중심으로 배치. 심폐 강화, 체지방↓ 혈당 조절.',
+      tags:types.map(function(t){return TYPE_NAME[t]}),
+      sched:buildSched(focusCardio,cfg)
+    });
+  }
+
+  // 3) 스트레칭/유연성 위주 — only if flex types selected
+  if(flexTypes.length>0){
+    var focusFlex=flexTypes.concat(types.filter(function(t){return flexTypes.indexOf(t)<0}));
+    routines.push({
+      id:'gen3',name:'🧘 유연성 위주',level:level,
+      desc:'스트레칭·필라테스·발레를 중심으로 배치. 유연성↑ 스트레스↓.',
+      tags:types.map(function(t){return TYPE_NAME[t]}),
+      sched:buildSched(focusFlex,cfg)
+    });
+  }
+
+  // 4) 전반적 밸런스 — always show if 2+ types
+  if(types.length>=2){
+    var balanced=[];
+    for(var i=0;i<nDays;i++) balanced.push(types[i%types.length]);
+    routines.push({
+      id:'gen4',name:'⚖️ 전반적 밸런스',level:level,
+      desc:allTypeNames+'를 골고루 배치. 다양하게 즐기는 균형 잡힌 루틴.',
+      tags:types.map(function(t){return TYPE_NAME[t]}),
       sched:buildSched(balanced,cfg)
     });
   }
 
-  // Routine 3: 가볍게 시작 (beginner-friendly)
-  const lightCfg={...cfgMap.beginner,n:Math.max(cfgMap.beginner.n-1,2),durL:cfgMap.beginner.durM};
-  const lightTypes=[];
-  for(let i=0;i<nDays;i++) lightTypes.push(ordered[i%ordered.length]);
-  routines.push({
-    id:'gen3',name:`${typeLabel} 가볍게 시작`,level:'beginner',
-    desc:'부담 없이 시작하는 가벼운 플랜. 무리하지 않고 꾸준히.',
-    tags:ordered.map(t=>TYPE_NAME[t]),
-    sched:buildSched(lightTypes,lightCfg)
-  });
+  // If only 1 type selected, just show one routine
+  if(routines.length===0){
+    routines.push({
+      id:'gen1',name:TYPE_NAME[types[0]]+' 루틴',level:level,popular:true,
+      desc:TYPE_NAME[types[0]]+' 집중 루틴. PCOS 맞춤 구성.',
+      tags:[TYPE_NAME[types[0]]],
+      sched:buildSched(types,cfg)
+    });
+  }
 
   return routines;
 }
@@ -921,7 +905,7 @@ if(!S.weights)S.weights={};
 if(!S.weekOffset)S.weekOffset=0;
 if(!S.nextId)S.nextId=1;
 
-const RS={goal:null,types:[],days:[],level:null,routine:null,durConfig:{}};
+const RS={types:[],days:[],level:null,routine:null,durConfig:{}};
 const DUR_DEFAULTS={running:30,walking:30,ballet:90,pilates:40,stretching:20,hometraining:30};
 let aiIdx=0, selDay=todayIdx(), curPickerTab='running', expandedEid=null;
 let calYear,calMonth,calSelectedDate=null;
@@ -1306,7 +1290,7 @@ function finishDrag(y){
 
 /* ══ Routine Picker ══ */
 function updateStepDots(n){document.querySelectorAll('.sdot').forEach((d,i)=>{d.className='sdot'+(i===n?' active':i<n?' done':'')})}
-function goSt(n){document.querySelectorAll('.step-wrap').forEach((s,i)=>s.classList.toggle('active',i===n));updateStepDots(n);if(n===2)renderDurConfig();if(n===3)renderRoutineList();if(n===4)renderWeekPreview()}
+function goSt(n){document.querySelectorAll('.step-wrap').forEach((s,i)=>s.classList.toggle('active',i===n));updateStepDots(n);if(n===1)renderDurConfig();if(n===2)renderRoutineList();if(n===3)renderWeekPreview()}
 
 function renderDurConfig(){
   const area=document.getElementById('dur-config-area');
@@ -1324,16 +1308,15 @@ function renderDurConfig(){
   }</div>`;
 }
 function updDur(t,v){RS.durConfig[t]=parseInt(v);document.getElementById('durv-'+t).textContent=v+'분'}
-function selGoal(el,g){document.querySelectorAll('.goal-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');RS.goal=g;document.getElementById('snext0').disabled=false}
 function togType(el,t){
   el.classList.toggle('sel');
   if(el.classList.contains('sel')){if(!RS.types.includes(t))RS.types.push(t)}
   else{RS.types=RS.types.filter(x=>x!==t)}
-  document.getElementById('snext1').disabled=RS.types.length===0;
+  document.getElementById('snext0').disabled=RS.types.length===0;
 }
-function togDsel(el,d){el.classList.toggle('sel');if(el.classList.contains('sel')){if(!RS.days.includes(d))RS.days.push(d)}else{RS.days=RS.days.filter(x=>x!==d)};chkSt2()}
-function selLevel(el,l){document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');RS.level=l;chkSt2()}
-function chkSt2(){document.getElementById('snext2').disabled=!(RS.days.length>=2&&RS.level)}
+function togDsel(el,d){el.classList.toggle('sel');if(el.classList.contains('sel')){if(!RS.days.includes(d))RS.days.push(d)}else{RS.days=RS.days.filter(x=>x!==d)};chkSt1()}
+function selLevel(el,l){document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');RS.level=l;chkSt1()}
+function chkSt1(){document.getElementById('snext1').disabled=!(RS.days.length>=2&&RS.level)}
 function levelText(l){return{beginner:'입문',intermediate:'중급',advanced:'고급'}[l]||'입문'}
 function levelPill(l){return{beginner:'pill-green',intermediate:'pill-amber',advanced:'pill-pink'}[l]||'pill-green'}
 
@@ -1357,7 +1340,7 @@ function selRoutine(id){
   document.querySelectorAll('.routine-card').forEach(c=>c.classList.remove('sel'));
   document.getElementById('rc'+id).classList.add('sel');
   RS.routine=(RS.generated||[]).find(r=>r.id===id);
-  document.getElementById('snext3').disabled=false;
+  document.getElementById('snext2').disabled=false;
 }
 
 /* ── Move exercise modal for routine preview ── */
