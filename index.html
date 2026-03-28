@@ -799,19 +799,23 @@ function generateRoutines(){
   const typeLabel=ordered.map(t=>TYPE_NAME[t]).join('+');
   const goalLabel={insulin:'혈당 케어',hormone:'호르몬 밸런스',body:'체성분 개선',total:'종합 관리'}[goal];
 
-  // Assign types to days: primary type gets more days, but every selected type appears at least once
+  // Assign types to days: every selected type must appear at least once
   function assignTypes(focusRatio){
     const assignments=[];
     if(ordered.length>=nDays){
-      // More types than days: cycle through in priority order
+      // More types than days: primary types get their own day
       for(let i=0;i<nDays;i++) assignments.push(ordered[i]);
     } else {
-      // Guarantee each type at least once first
       ordered.forEach(t=>assignments.push(t));
-      // Fill remaining days with primary type up to focusRatio
       while(assignments.length<nDays) assignments.push(ordered[0]);
     }
     return assignments;
+  }
+
+  // When types > days, find types that didn't get their own day
+  function getExtraTypes(assignments){
+    const assigned=new Set(assignments);
+    return ordered.filter(t=>!assigned.has(t));
   }
 
   function getDur(type,fallback){return RS.durConfig[type]||fallback}
@@ -819,6 +823,8 @@ function generateRoutines(){
   function buildSched(typeAssignments,c){
     const sched={};
     let strIdx=0;
+    const extras=getExtraTypes(typeAssignments);
+
     typeAssignments.forEach((type,i)=>{
       const day=sortedDays[i];
       let items=[];
@@ -840,6 +846,17 @@ function generateRoutines(){
       }
       sched[day]=items;
     });
+
+    // Add extra types (that didn't get their own day) to existing days
+    if(extras.length>0){
+      const schedDays=Object.keys(sched).map(Number);
+      extras.forEach((extraType,ei)=>{
+        const targetDay=schedDays[ei%schedDays.length];
+        const extraItems=buildDayExercises(extraType,{dur:getDur(extraType,c.durS),gentle:true},undefined,targetDay);
+        sched[targetDay]=sched[targetDay].concat(extraItems);
+      });
+    }
+
     return sched;
   }
 
