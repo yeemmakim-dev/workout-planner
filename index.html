@@ -402,12 +402,12 @@
       <div class="progress-meta"><span>완료율</span><span id="prog-text">0 / 0</span></div>
       <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
     </div>
+    <div id="plan-meal-area"></div>
     <div class="sec-header">
       <span class="sec-title" id="day-title">오늘 운동</span>
       <button class="sec-action" onclick="openPicker()">+ 운동 추가</button>
     </div>
     <div class="workout-list" id="workout-list"></div>
-    <div id="plan-meal-area"></div>
     <div class="ai-card">
       <div class="ai-icon">✦</div>
       <div style="flex:1">
@@ -561,7 +561,8 @@
       <div class="meal-summary" id="meal-summary"></div>
       <div id="meal-week-content"></div>
       <div style="padding:0 16px 16px">
-        <button class="btn-primary" onclick="generateMealPlan()" style="margin-bottom:8px">🔄 다시 추천받기</button>
+        <button class="btn-primary" onclick="completeMealPlan()" style="margin-bottom:8px">✅ 식단 선택 완료</button>
+        <button class="btn-ghost" onclick="generateMealPlan()" style="margin-bottom:8px">🔄 다시 추천받기</button>
         <button class="btn-ghost" onclick="mealTab('input')">재료 다시 선택</button>
       </div>
     </div>
@@ -1050,31 +1051,53 @@ function renderPlan(){
 }
 
 function renderPlanMeal(){
-  const area=document.getElementById('plan-meal-area');
-  const saved=JSON.parse(localStorage.getItem('wapp')||'{}');
-  const plan=saved.mealPlan;
-  if(!plan||!plan.length){area.innerHTML='';return;}
-  // Show today's meals (index 0 = today)
-  const today=plan[0];
+  var area=document.getElementById('plan-meal-area');
+  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  var plan=saved.mealPlan;
+  if(!plan||!plan.length||!saved.mealCompleted){area.innerHTML='';return;}
+  var today=plan[0];
   if(!today){area.innerHTML='';return;}
-  const slots=['아침','점심','저녁','간식'];
-  const totalKcal=today.slots.reduce((s,sl)=>{const m=sl.options[sl.picked||0];return s+(sl.eaten?m.kcal:0)},0);
-  area.innerHTML=`
-    <div class="sec-header"><span class="sec-title">오늘 식단</span></div>
-    <div class="plan-meal-card" onclick="switchScreen('meal')">
-      <div class="plan-meal-header">
-        <span class="plan-meal-title">🥗 ${today.day}</span>
-        <span class="plan-meal-kcal">${totalKcal>0?totalKcal+'kcal 섭취':''}</span>
-      </div>
-      ${today.slots.map((sl,i)=>{
-        const m=sl.options[sl.picked||0];
-        return `<div class="plan-meal-row">
-          <span class="plan-meal-slot">${slots[i]}</span>
-          <span class="plan-meal-name">${m.name}</span>
-          <span class="plan-meal-check">${sl.eaten?'✅':''}</span>
-        </div>`;
-      }).join('')}
-    </div>`;
+  var slots=['아침','점심','저녁','간식'];
+  var eatenCount=0;
+  var totalKcal=0;
+  for(var s=0;s<today.slots.length;s++){
+    var sl=today.slots[s];
+    var m=sl.options[sl.picked||0];
+    if(sl.eaten){eatenCount++;totalKcal+=m.kcal;}
+  }
+  var progress=Math.round(eatenCount/today.slots.length*100);
+  area.innerHTML=
+    '<div class="sec-header"><span class="sec-title">🥗 오늘 식단</span><span class="sec-action" onclick="switchScreen(\'meal\')">수정</span></div>'+
+    '<div class="plan-meal-card" onclick="switchScreen(\'meal\')">'+
+      '<div class="plan-meal-header">'+
+        '<span class="plan-meal-title">'+today.day+'</span>'+
+        '<span class="plan-meal-kcal">'+(totalKcal>0?totalKcal+'kcal':'미식사')+'</span>'+
+      '</div>'+
+      today.slots.map(function(sl,i){
+        var m=sl.options[sl.picked||0];
+        return '<div class="plan-meal-row">'+
+          '<span class="plan-meal-slot">'+slots[i]+'</span>'+
+          '<span class="plan-meal-name">'+m.name+'</span>'+
+          '<span class="plan-meal-check">'+(sl.eaten?'✅':'⬜')+'</span>'+
+        '</div>';
+      }).join('')+
+      '<div style="margin-top:8px;background:var(--border);border-radius:4px;height:4px;overflow:hidden">'+
+        '<div style="height:100%;width:'+progress+'%;background:var(--green);border-radius:4px;transition:width .3s"></div>'+
+      '</div>'+
+      '<div style="text-align:right;font-size:10px;color:var(--text-hint);margin-top:2px">'+eatenCount+'/'+today.slots.length+' 완료</div>'+
+    '</div>';
+}
+
+function completeMealPlan(){
+  if(!mealPlanData||!mealPlanData.length)return;
+  var saved=JSON.parse(localStorage.getItem('wapp')||'{}');
+  saved.mealPlan=mealPlanData;
+  saved.mealCompleted=true;
+  localStorage.setItem('wapp',JSON.stringify(saved));
+  switchScreen('plan');
+  renderPlan();
+  renderPlanMeal();
+  showToast('식단이 플랜에 적용됐어요! 🥗');
 }
 
 function toggleDone(id){
@@ -2075,4 +2098,3 @@ function saveCustomMeal(){
 </script>
 </body>
 </html>
-<!-- v1774657469 -->
