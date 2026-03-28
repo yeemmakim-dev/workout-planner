@@ -912,6 +912,11 @@ function findExercise(eid){
 const S=JSON.parse(localStorage.getItem('wapp')||'{}');
 if(S.workouts&&!S.weeks){S.weeks={};S.weeks[getWeekKey(0)]=S.workouts;delete S.workouts;save();}
 if(!S.weeks)S.weeks={};
+// migrate UTC keys to local keys
+(function(){var migrated=false;var keys=Object.keys(S.weeks);keys.forEach(function(k){
+  var d=new Date(k+'T00:00:00');var local=localDateStr(d);
+  if(local!==k&&S.weeks[k]){S.weeks[local]=S.weeks[k];delete S.weeks[k];migrated=true;}
+});if(migrated)save();})();
 if(!S.weights)S.weights={};
 if(!S.weekOffset)S.weekOffset=0;
 if(!S.nextId)S.nextId=1;
@@ -923,10 +928,11 @@ let calYear,calMonth,calSelectedDate=null;
 
 function save(){localStorage.setItem('wapp',JSON.stringify(S))}
 function todayIdx(){const d=new Date().getDay();return d===0?6:d-1}
+function localDateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function getWeekKey(offset){
   const now=new Date(),dow=now.getDay(),mon=new Date(now);
   mon.setDate(now.getDate()-(dow===0?6:dow-1)+(offset||0)*7);
-  return mon.toISOString().slice(0,10);
+  return localDateStr(mon);
 }
 function getWeekWorkouts(){
   const key=getWeekKey(S.weekOffset||0);
@@ -1504,7 +1510,7 @@ function applyRoutine(){
 /* ══ Calendar ══ */
 function initCalendar(){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth()}
 function calMove(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++}if(calMonth<0){calMonth=11;calYear--}calSelectedDate=null;renderCalendar()}
-function getWeekKeyForDate(date){const d=new Date(date),dow=d.getDay(),mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));return mon.toISOString().slice(0,10)}
+function getWeekKeyForDate(date){var d=new Date(date),dow=d.getDay(),mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));return localDateStr(mon)}
 function getDayIdxForDate(date){const dow=date.getDay();return dow===0?6:dow-1}
 function getWorkoutsForDate(date){const wKey=getWeekKeyForDate(date),dayIdx=getDayIdxForDate(date),week=S.weeks[wKey];return week?week[dayIdx]||[]:[]}
 
@@ -1558,7 +1564,7 @@ function renderCalCell(date,workouts,meal,isOther,today){
       if(eaten>0)dots+='<span class="dot-meal"></span>';}
     dots+='</div>';
   }
-  return '<div class="'+cls+'" onclick="calSelectDate(\''+date.toISOString().slice(0,10)+'\')">'+date.getDate()+dots+'</div>';
+  return '<div class="'+cls+'" onclick="calSelectDate(\''+localDateStr(date)+'\')">'+date.getDate()+dots+'</div>';
 }
 function calSelectDate(ds){calSelectedDate=new Date(ds+'T00:00:00');renderCalendar()}
 function renderCalDetail(date){
