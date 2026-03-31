@@ -67,6 +67,35 @@ body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);co
 
 .toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--tx);color:var(--bg);padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.reward{margin:12px 0;border-radius:16px;overflow:hidden;position:relative;background:linear-gradient(135deg,#fff5f5,#fff0f6,#f3f0ff);border:2px dashed #e9b0d3}
+@media(prefers-color-scheme:dark){.reward{background:linear-gradient(135deg,#2a1a2a,#1e1a2e,#1a1e2e);border-color:#6e4a6e}}
+.reward-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 0}
+.reward-title{font-size:13px;font-weight:600;color:#c06}
+@media(prefers-color-scheme:dark){.reward-title{color:#f0a0c0}}
+.reward-edit{font-size:11px;color:var(--th);background:none;border:none;cursor:pointer;font-family:inherit}
+.reward-body{padding:10px 14px 14px;display:flex;gap:12px;align-items:center}
+.reward-img-wrap{width:80px;height:80px;border-radius:12px;overflow:hidden;position:relative;flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.reward-img-wrap img{width:100%;height:100%;object-fit:cover}
+.reward-lock{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:24px;backdrop-filter:blur(2px)}
+.reward-unlocked .reward-lock{display:none}
+.reward-unlocked .reward-img-wrap{box-shadow:0 0 0 3px #c06,0 0 16px rgba(204,0,102,.3)}
+.reward-info{flex:1;min-width:0}
+.reward-month{font-size:11px;color:var(--th);margin-bottom:4px}
+.reward-progress{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.reward-bar{flex:1;height:8px;background:var(--bd);border-radius:4px;overflow:hidden}
+.reward-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#f9a8d4,#c06);transition:width .4s}
+.reward-pct{font-size:12px;font-weight:700;color:#c06}
+@media(prefers-color-scheme:dark){.reward-pct{color:#f0a0c0}}
+.reward-msg{font-size:11px;color:var(--tm);line-height:1.4}
+.reward-upload{padding:20px;text-align:center;cursor:pointer}
+.reward-upload-icon{font-size:32px;margin-bottom:6px}
+.reward-upload-text{font-size:12px;color:var(--th);line-height:1.5}
+.reward-upload-text b{color:#c06;display:block;margin-top:4px;font-size:13px}
+
+.confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall 2.5s ease-in forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(-20px) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
 </style>
 </head>
 <body>
@@ -112,6 +141,7 @@ if(S.idx===undefined)S.idx=0;
 if(!S.sets)S.sets={};
 if(!S.weights)S.weights=[];
 if(!S.history)S.history=[];
+if(!S.reward)S.reward={};
 function save(){localStorage.setItem('wk2',JSON.stringify(S))}
 
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)}
@@ -128,6 +158,9 @@ function render(){
   h+='<div class="routine-label">'+r.icon+' '+r.name+'</div>';
   h+='<div class="routine-sub">'+r.desc+'</div>';
   h+='</div>';
+
+  // Reward
+  h+=renderReward();
 
   // Weight
   var latestW=S.weights.length?S.weights[S.weights.length-1]:null;
@@ -234,6 +267,7 @@ function completeWalk(){
   save();
   toast('걷기 완료! 다음은 '+curRoutine().icon+' '+curRoutine().name);
   render();
+  checkRewardUnlock();
 }
 
 function nextRoutine(doNow){
@@ -249,6 +283,7 @@ function nextRoutine(doNow){
     toast('다음에 '+curRoutine().icon+' '+curRoutine().name+' 할게요!');
   }
   render();
+  checkRewardUnlock();
 }
 
 function saveW(){
@@ -258,6 +293,115 @@ function saveW(){
   S.weights.push({kg:v,date:(now.getMonth()+1)+'/'+now.getDate()});
   save();render();
   toast(v+'kg 저장!');
+}
+
+// --- Reward system ---
+function getMonthKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)}
+function getMonthGoal(){return 20} // 월 20회 완주 목표
+function getMonthCount(){
+  var mk=getMonthKey();
+  var now=new Date();
+  var m=now.getMonth()+1, y=now.getFullYear();
+  var count=0;
+  S.history.forEach(function(h){
+    // date format: "M/D"
+    var parts=h.date.split('/');
+    if(parseInt(parts[0])===m){count++;}
+  });
+  // also check year from history items that have year
+  return count;
+}
+
+function renderReward(){
+  var h='';
+  var mk=getMonthKey();
+  var count=getMonthCount();
+  var goal=getMonthGoal();
+  var pct=Math.min(100,Math.round(count/goal*100));
+  var unlocked=count>=goal;
+  var monthNames=['','1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  var now=new Date();
+  var monthLabel=monthNames[now.getMonth()+1];
+
+  if(!S.reward.img){
+    // 업로드 유도
+    h+='<div class="reward">';
+    h+='<div class="reward-upload" onclick="document.getElementById(\'rwdFile\').click()">';
+    h+='<div class="reward-upload-icon">🎁</div>';
+    h+='<div class="reward-upload-text">이번 달 완주하면 사고 싶은 거<b>사진 올리기 ✨</b></div>';
+    h+='</div>';
+    h+='<input type="file" id="rwdFile" accept="image/*" style="display:none" onchange="uploadReward(this)">';
+    h+='</div>';
+  } else {
+    h+='<div class="reward'+(unlocked?' reward-unlocked':'')+'">';
+    h+='<div class="reward-header">';
+    h+='<span class="reward-title">'+(unlocked?'🎉 GET IT!':'🔒 '+monthLabel+' 리워드')+'</span>';
+    h+='<button class="reward-edit" onclick="changeReward()">변경</button>';
+    h+='</div>';
+    h+='<div class="reward-body">';
+    h+='<div class="reward-img-wrap">';
+    h+='<img src="'+S.reward.img+'">';
+    if(!unlocked)h+='<div class="reward-lock">🔒</div>';
+    h+='</div>';
+    h+='<div class="reward-info">';
+    h+='<div class="reward-month">'+monthLabel+' 완주 현황</div>';
+    h+='<div class="reward-progress">';
+    h+='<div class="reward-bar"><div class="reward-bar-fill" style="width:'+pct+'%"></div></div>';
+    h+='<span class="reward-pct">'+count+'/'+goal+'</span>';
+    h+='</div>';
+    if(unlocked){
+      h+='<div class="reward-msg">축하해요! 이번 달 목표 달성 🥳<br>자신에게 선물하세요!</div>';
+    } else {
+      var left=goal-count;
+      h+='<div class="reward-msg">'+left+'번만 더 하면 언락! 힘내자 💪</div>';
+    }
+    h+='</div>';
+    h+='</div>';
+    h+='</div>';
+  }
+  return h;
+}
+
+function uploadReward(input){
+  var file=input.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    S.reward.img=e.target.result;
+    S.reward.month=getMonthKey();
+    save();render();
+    toast('리워드 등록 완료! ✨');
+  };
+  reader.readAsDataURL(file);
+}
+
+function changeReward(){
+  var el=document.createElement('input');
+  el.type='file';el.accept='image/*';
+  el.onchange=function(){uploadReward(el)};
+  el.click();
+}
+
+function checkRewardUnlock(){
+  if(!S.reward.img)return;
+  var count=getMonthCount();
+  if(count===getMonthGoal()){showConfetti();toast('🎉 리워드 언락! 자신에게 선물하세요!');}
+}
+
+function showConfetti(){
+  var c=document.createElement('div');c.className='confetti';
+  var colors=['#f9a8d4','#c06','#fbbf24','#a78bfa','#34d399','#60a5fa'];
+  for(var i=0;i<40;i++){
+    var p=document.createElement('div');p.className='confetti-piece';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay=Math.random()*1+'s';
+    p.style.width=(6+Math.random()*6)+'px';
+    p.style.height=(6+Math.random()*6)+'px';
+    c.appendChild(p);
+  }
+  document.body.appendChild(c);
+  setTimeout(function(){c.remove()},3000);
 }
 
 render();
