@@ -84,6 +84,15 @@ body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);co
 .how-btn{font-size:11px;color:var(--c);background:none;border:none;cursor:pointer;font-family:inherit;margin-top:8px;padding:0;font-weight:500}
 .how-text{font-size:11px;color:var(--tm);line-height:1.6;margin-top:6px;white-space:pre-line;display:none}
 
+/* Rest timer */
+.rest-timer{margin-top:10px;padding:8px 10px;background:var(--cl);border-radius:10px;display:flex;align-items:center;gap:8px}
+.rest-timer-bar{flex:1;height:6px;background:var(--bd);border-radius:3px;overflow:hidden}
+.rest-timer-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--c3),var(--c));width:0%;transition:width .3s linear}
+.rest-timer-text{font-size:11px;font-weight:700;color:var(--c);min-width:36px;text-align:right}
+.rest-timer.done-timer{background:var(--sf2)}
+.rest-timer.done-timer .rest-timer-fill{background:var(--c)}
+.rest-timer.done-timer .rest-timer-text{color:var(--cd)}
+
 .progress-bar{height:8px;background:var(--sf2);border-radius:4px;margin:12px 0 8px;overflow:hidden}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--c3),var(--c));border-radius:4px;transition:width .3s}
 .progress-text{font-size:11px;color:var(--th);text-align:center;margin-bottom:12px}
@@ -295,11 +304,18 @@ function renderWorkout(){
           h+='<button class="how-btn" onclick="togHow(this)">방법 보기 →</button>';
           h+='<div class="how-text">'+ex.how+'</div>';
         }
+        // rest timer placeholder for active set
+        if(!exDone&&restTimer&&restEi===i){
+          h+='<div class="rest-timer" id="rest-'+i+'-'+restSi+'">';
+          h+='<div class="rest-timer-bar"><div class="rest-timer-fill"></div></div>';
+          h+='<div class="rest-timer-text">60초</div>';
+          h+='</div>';
+        }
         h+='</div>';
       });
       h+='</div>';
       h+='<button class="btn-skip" onclick="showSkipConfirm()" style="margin-top:8px">오늘은 스킵 😴</button>';
-    } else {
+    }else{
       var next=ROUTINES[CYCLE[(S.idx+1)%CYCLE.length]];
       h+='<div class="done-card">';
       h+='<h2>🎊 완료!</h2>';
@@ -311,6 +327,7 @@ function renderWorkout(){
     }
   }
   document.getElementById('app').innerHTML=h;
+  setTimeout(restoreRestUI,50);
 }
 
 function renderReward(){
@@ -488,8 +505,64 @@ function drawChart(){
   });
 }
 
+// --- Rest timer ---
+var restTimer=null;
+var restEi=-1,restSi=-1;
+var restStart=0;
+var REST_SEC=60;
+function startRest(ei,si){
+  clearInterval(restTimer);
+  restEi=ei;restSi=si;
+  restStart=Date.now();
+  restTimer=setInterval(function(){
+    var elapsed=Math.floor((Date.now()-restStart)/1000);
+    if(elapsed>=REST_SEC){
+      clearInterval(restTimer);
+      updateRestUI(REST_SEC);
+      restTimer=null;
+    } else {
+      updateRestUI(elapsed);
+    }
+  },200);
+}
+// restore timer UI after render
+function restoreRestUI(){
+  if(!restTimer||restEi<0)return;
+  var elapsed=Math.floor((Date.now()-restStart)/1000);
+  if(elapsed<REST_SEC)updateRestUI(elapsed);
+  else updateRestUI(REST_SEC);
+}
+function updateRestUI(sec){
+  var el=document.getElementById('rest-'+restEi+'-'+restSi);
+  if(!el)return;
+  var pct=Math.min(100,Math.round(sec/REST_SEC*100));
+  var left=REST_SEC-sec;
+  var bar=el.querySelector('.rest-timer-fill');
+  var txt=el.querySelector('.rest-timer-text');
+  if(bar)bar.style.width=pct+'%';
+  if(txt)txt.textContent=left>0?left+'초':'GO!';
+  if(left<=0)el.classList.add('done-timer');
+}
+
 // --- Actions ---
-function togSet(ei,si){S.sets[ei+'_'+si]=!S.sets[ei+'_'+si];save();render()}
+function togSet(ei,si){
+  var key=ei+'_'+si;
+  var wasDone=S.sets[key];
+  S.sets[key]=!S.sets[key];
+  save();
+  // start rest timer when completing a set (not unchecking)
+  if(!wasDone&&S.sets[key]){
+    var r=curRoutine();
+    var ex=r.exercises[ei];
+    var allExDone=true;
+    for(var s=0;s<ex.sets;s++){if(!S.sets[ei+'_'+s]){allExDone=false;break;}}
+    if(!allExDone){startRest(ei,si);}
+    else{clearInterval(restTimer);restTimer=null;restEi=-1;}
+  } else {
+    clearInterval(restTimer);restTimer=null;restEi=-1;
+  }
+  render();
+}
 function togHow(btn){
   var txt=btn.nextElementSibling;
   if(txt.style.display==='block'){txt.style.display='none';btn.textContent='방법 보기 →';}
