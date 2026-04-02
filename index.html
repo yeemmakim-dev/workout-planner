@@ -180,29 +180,93 @@ body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);co
 <button class="tab" onclick="switchTab(2)"><span class="tab-icon">⚖️</span>몸무게</button>
 </div></div>
 <script>
-var ROUTINES=[
-  {type:'strength',name:'전신 근력 A',icon:'🏋️',short:'근력A',exercises:[
+// 운동 풀 — 부위별, 입문자 기준
+var POOL={
+  compound:[ // 대근육 복합운동
     {name:'스쿼트',sets:3,reps:10,how:'발 어깨너비, 발끝 살짝 바깥\n엉덩이 뒤로 빼며 허벅지 평행까지\n무릎이 발끝 방향 따라가게\n발뒤꿈치로 밀며 올라오기'},
-    {name:'루마니안 데드리프트',sets:3,reps:10,how:'발 골반너비, 무릎 살짝 굽힘 유지\n엉덩이를 뒤로 밀며 상체 숙이기\n햄스트링 당김 느끼면 멈추기\n둔근 쥐어짜며 올라오기'},
-    {name:'덤벨 로우',sets:3,reps:10,how:'한 손+한 무릎 벤치에 짚기\n반대 손으로 덤벨/밴드 당기기\n팔꿈치를 골반 쪽으로 당기듯\n천천히 내리기'},
-    {name:'데드버그',sets:2,reps:10,how:'누워서 양팔 천장, 무릎 90도\n오른팔+왼다리 동시에 뻗기\n허리가 바닥에서 뜨지 않게\n교대 반복'}
-  ]},
-  {type:'walk',name:'걷기',icon:'🚶‍♀️',short:'걷기',dur:'30-40분'},
-  {type:'strength',name:'전신 근력 B',icon:'💪',short:'근력B',exercises:[
-    {name:'런지',sets:3,reps:10,how:'한 발 앞으로 크게 내딛기\n뒷무릎 바닥 가까이 내려가기\n상체 곧게, 앞무릎 90도\n앞발 뒤꿈치로 밀며 원위치'},
-    {name:'힙쓰러스트',sets:3,reps:12,how:'등 상부를 의자/소파에 기대기\n발바닥 바닥, 무릎 90도\n둔근 힘주며 골반 들어올리기\n정점 2초 유지'},
-    {name:'숄더프레스',sets:3,reps:10,how:'양손 덤벨/밴드 어깨 높이\n머리 위로 밀어올리기\n팔꿈치 완전히 펴기\n천천히 내리기'},
-    {name:'플랭크',sets:2,reps:'30초',how:'팔꿈치 바닥, 어깨 바로 아래\n머리~발끝 일직선 유지\n배꼽 척추 쪽으로 당기듯\n엉덩이 올라가거나 처지지 않게'}
-  ]},
-  {type:'walk',name:'걷기',icon:'🚶‍♀️',short:'걷기',dur:'20-30분'},
-  {type:'strength',name:'전신 근력 C',icon:'🔥',short:'근력C',exercises:[
     {name:'고블릿 스쿼트',sets:3,reps:10,how:'덤벨/물병 가슴 앞에 잡기\n스쿼트 자세로 앉기\n팔꿈치가 무릎 안쪽에 닿을 정도\n발뒤꿈치로 밀며 올라오기'},
+    {name:'런지',sets:3,reps:10,how:'한 발 앞으로 크게 내딛기\n뒷무릎 바닥 가까이 내려가기\n상체 곧게, 앞무릎 90도\n앞발 뒤꿈치로 밀며 원위치'},
+    {name:'와이드 스쿼트',sets:3,reps:10,how:'발을 어깨보다 넓게, 발끝 45도 바깥\n엉덩이 뒤로 빼며 깊게 앉기\n내전근(허벅지 안쪽) 자극 느끼기\n발뒤꿈치로 밀며 올라오기'},
+    {name:'스플릿 스쿼트',sets:3,reps:10,how:'한 발 앞, 한 발 뒤로 벌리고 서기\n뒷무릎 바닥 가까이 내리기\n상체 곧게 유지\n앞발로 밀며 올라오기, 양쪽 번갈아'}
+  ],
+  hinge:[ // 힙힌지
+    {name:'루마니안 데드리프트',sets:3,reps:10,how:'발 골반너비, 무릎 살짝 굽힘 유지\n엉덩이를 뒤로 밀며 상체 숙이기\n햄스트링 당김 느끼면 멈추기\n둔근 쥐어짜며 올라오기'},
     {name:'덤벨 데드리프트',sets:3,reps:10,how:'양손 덤벨, 발 골반너비\n엉덩이 뒤로 밀며 숙이기\n덤벨이 정강이 따라 내려가게\n둔근·햄스트링으로 올라오기'},
+    {name:'힙쓰러스트',sets:3,reps:12,how:'등 상부를 의자/소파에 기대기\n발바닥 바닥, 무릎 90도\n둔근 힘주며 골반 들어올리기\n정점 2초 유지'},
+    {name:'글루트브릿지',sets:3,reps:12,how:'누워서 무릎 굽히고 발바닥 바닥에\n둔근 힘주며 골반 들어올리기\n어깨~무릎 일직선, 2초 유지\n천천히 내리기'},
+    {name:'싱글레그 데드리프트',sets:3,reps:10,how:'한 발로 서기, 반대 다리 뒤로 뻗기\n엉덩이 뒤로 밀며 상체 숙이기\n균형 잡으며 햄스트링 당김 느끼기\n천천히 올라오기, 양쪽 번갈아'}
+  ],
+  pull:[ // 당기기
+    {name:'덤벨 로우',sets:3,reps:10,how:'한 손+한 무릎 벤치에 짚기\n반대 손으로 덤벨/밴드 당기기\n팔꿈치를 골반 쪽으로 당기듯\n천천히 내리기'},
+    {name:'밴드 로우',sets:3,reps:10,how:'밴드를 문에 걸거나 높은 곳에 고정\n양손으로 당기기\n견갑골 모으듯 등 수축\n천천히 돌아가기'},
+    {name:'밴드 풀어파트',sets:3,reps:12,how:'밴드를 양손으로 어깨너비 잡기\n팔 펴고 가슴 높이에서 시작\n양쪽으로 당겨 벌리기\n견갑골 모으며 2초 유지'},
+    {name:'슈퍼맨',sets:3,reps:10,how:'엎드려서 팔다리 쭉 펴기\n동시에 팔·다리·가슴 들어올리기\n2초 유지 후 천천히 내리기\n허리 과하게 꺾지 않기'}
+  ],
+  push:[ // 밀기
+    {name:'인클라인 푸시업',sets:3,reps:10,how:'의자나 벽에 손 짚고 푸시업\n몸 일직선 유지\n가슴이 손 높이 가까이 올 때까지\n밀어 올리기'},
     {name:'푸시업',sets:3,reps:10,how:'손 어깨너비, 몸 일직선\n가슴이 바닥 가까이 올 때까지\n코어 힘주고 밀어 올리기\n어려우면 무릎 대고'},
-    {name:'팔로프 프레스',sets:2,reps:10,how:'밴드를 옆에 고정, 양손으로 잡기\n가슴 앞에서 팔 쭉 뻗기\n몸이 돌아가지 않게 코어 버티기\n천천히 당겨오기. 양쪽 반복'}
-  ]}
+    {name:'숄더프레스',sets:3,reps:10,how:'양손 덤벨/밴드 어깨 높이\n머리 위로 밀어올리기\n팔꿈치 완전히 펴기\n천천히 내리기'},
+    {name:'니 푸시업',sets:3,reps:12,how:'무릎 대고 푸시업 자세\n손 어깨너비, 몸 일직선(머리~무릎)\n가슴 바닥 가까이 내리기\n밀어 올리기'}
+  ],
+  core:[ // 코어 마무리
+    {name:'데드버그',sets:2,reps:10,how:'누워서 양팔 천장, 무릎 90도\n오른팔+왼다리 동시에 뻗기\n허리가 바닥에서 뜨지 않게\n교대 반복'},
+    {name:'플랭크',sets:2,reps:'30초',how:'팔꿈치 바닥, 어깨 바로 아래\n머리~발끝 일직선 유지\n배꼽 척추 쪽으로 당기듯\n엉덩이 올라가거나 처지지 않게'},
+    {name:'팔로프 프레스',sets:2,reps:10,how:'밴드를 옆에 고정, 양손으로 잡기\n가슴 앞에서 팔 쭉 뻗기\n몸이 돌아가지 않게 코어 버티기\n천천히 당겨오기. 양쪽 반복'},
+    {name:'바이시클 크런치',sets:2,reps:12,how:'누워서 머리 살짝 들기\n오른 팔꿈치-왼 무릎 터치\n반대쪽 다리는 쭉 뻗기\n교대로 자전거 페달 돌리듯'},
+    {name:'사이드 플랭크',sets:2,reps:'20초',how:'옆으로 누워 팔꿈치 짚기\n골반 들어올려 몸 일직선\n위쪽 손 허리 또는 하늘\n양쪽 각각 수행'}
+  ]
+};
+
+// 시드 기반 랜덤 — 같은 날은 같은 루틴
+function seededRand(seed){return function(){seed=(seed*16807+0)%2147483647;return(seed-1)/2147483646}}
+function pickRandom(arr,n,rng){
+  var a=arr.slice();var res=[];
+  for(var i=0;i<n&&a.length;i++){var idx=Math.floor(rng()*a.length);res.push(a.splice(idx,1)[0])}
+  return res;
+}
+function generateRoutine(idx){
+  // 시드: 루틴 인덱스 기반 → 같은 인덱스면 같은 조합 (완료 전까지)
+  var seed=idx*7919+31;
+  var rng=seededRand(seed);
+  var labels=['A','B','C'];
+  var icons=['🏋️','💪','🔥'];
+  var li=idx%3;
+  return {
+    type:'strength',
+    name:'전신 근력 '+labels[li],
+    icon:icons[li],
+    short:'근력'+labels[li],
+    exercises:[
+      pickRandom(POOL.compound,1,rng)[0],
+      pickRandom(POOL.hinge,1,rng)[0],
+      pickRandom(rng()<0.5?POOL.pull:POOL.push,1,rng)[0],
+      pickRandom(POOL.core,1,rng)[0]
+    ]
+  };
+}
+var CARDIO_OPTIONS=[
+  {name:'런닝',dur:'20-30분',desc:'가볍게 달리기, 심폐 강화'},
+  {name:'빠르게 걷기',dur:'30-40분',desc:'경사 걷기, 파워워킹'},
+  {name:'발레',dur:'30-40분',desc:'발레 기초 동작, 유연성+근력'},
+  {name:'실내자전거',dur:'20-30분',desc:'저강도 사이클링, 관절 부담 적음'}
 ];
-var CYCLE=[0,1,2,3,4];
+function generateCardio(idx){
+  var seed=idx*4219+17;
+  var rng=seededRand(seed);
+  var pick=CARDIO_OPTIONS[Math.floor(rng()*CARDIO_OPTIONS.length)];
+  return {type:'cardio',name:pick.name,icon:'🏃‍♀️',short:'유산소',dur:pick.dur,desc:pick.desc};
+}
+
+// 5-cycle: 근력A → 유산소 → 근력B → 유산소 → 근력C
+var CYCLE_PATTERN=['strength','cardio','strength','cardio','strength']; // 0,1,2,3,4
+function getRoutineForCycle(globalIdx){
+  var pos=globalIdx%5;
+  if(CYCLE_PATTERN[pos]==='cardio'){
+    return generateCardio(globalIdx);
+  } else {
+    return generateRoutine(globalIdx);
+  }
+}
 var SKIP_MAX=3;
 var GOAL=20;
 
@@ -219,7 +283,7 @@ var calYear,calMonth;
 var calSelected=null;
 function save(){localStorage.setItem('wk2',JSON.stringify(S))}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
-function curRoutine(){return ROUTINES[CYCLE[S.idx%CYCLE.length]]}
+function curRoutine(){return getRoutineForCycle(S.idx)}
 function monthKey(y,m){return y+'-'+(m+1)}
 function curMonthKey(){var d=new Date();return monthKey(d.getFullYear(),d.getMonth())}
 function getMonthCount(){
@@ -249,12 +313,12 @@ function renderWorkout(){
 
   // Cycle guide with highlight
   h+='<div class="cycle-bar">';
-  var ci=S.idx%CYCLE.length;
-  CYCLE.forEach(function(ri,i){
-    var rt=ROUTINES[ri];
-    var cls=i===ci?'now':(i<ci?'done-step':'');
+  var ci=S.idx%5;
+  for(var gi=0;gi<5;gi++){
+    var rt=getRoutineForCycle(S.idx-ci+gi);
+    var cls=gi===ci?'now':(gi<ci?'done-step':'');
     h+='<div class="cycle-step '+cls+'"><span class="step-icon">'+rt.icon+'</span>'+rt.short+'</div>';
-  });
+  }
   h+='</div>';
 
   // Weight
@@ -268,11 +332,11 @@ function renderWorkout(){
   // Reward
   h+=renderReward();
 
-  if(r.type==='walk'){
+  if(r.type==='cardio'){
     h+='<div class="walk-card">';
-    h+='<h2>'+r.icon+' 걷기 '+r.dur+'</h2>';
-    h+='<p>빠르게 걷기, 경사 걷기, 실내자전거 등<br>심폐 회복 + 활동량 확보</p>';
-    h+='<button class="btn-primary" onclick="completeWalk()">걷기 완료! 🎉</button>';
+    h+='<h2>'+r.icon+' '+r.name+' '+r.dur+'</h2>';
+    h+='<p>'+r.desc+'</p>';
+    h+='<button class="btn-primary" onclick="completeWalk()">유산소 완료! 🎉</button>';
     h+='<button class="btn-skip" onclick="showSkipConfirm()">오늘은 스킵 😴</button>';
     h+='</div>';
   } else {
@@ -293,7 +357,7 @@ function renderWorkout(){
         for(var s=0;s<ex.sets;s++){if(!S.sets[i+'_'+s]){exDone=false;break;}}
         h+='<div class="ex-card'+(exDone?' done':'')+'">';
         h+='<div class="ex-name">'+ex.name+'</div>';
-        h+='<div class="ex-desc">'+ex.sets+'세트 × '+ex.reps+(typeof ex.reps==='number'?'회':'')+(ex.sets<=2?' · 마무리':' · 세트 간 60-90초 휴식')+'</div>';
+        h+='<div class="ex-desc">'+ex.sets+'세트 × '+ex.reps+(typeof ex.reps==='number'?'회':'')+(ex.sets<=2?' · 마무리':' · 세트 간 60초 휴식')+'</div>';
         h+='<div class="ex-sets">';
         for(var s=0;s<ex.sets;s++){
           var done=S.sets[i+'_'+s];
@@ -316,7 +380,7 @@ function renderWorkout(){
       h+='</div>';
       h+='<button class="btn-skip" onclick="showSkipConfirm()" style="margin-top:8px">오늘은 스킵 😴</button>';
     }else{
-      var next=ROUTINES[CYCLE[(S.idx+1)%CYCLE.length]];
+      var next=getRoutineForCycle(S.idx+1);
       h+='<div class="done-card">';
       h+='<h2>🎊 완료!</h2>';
       h+='<p>고생했어요!<br>다음: <strong>'+next.icon+' '+next.name+'</strong></p>';
@@ -574,7 +638,7 @@ function addHistory(r){
 }
 function completeWalk(){
   addHistory(curRoutine());S.idx++;save();
-  toast('걷기 완료! 💖');render();checkRewardUnlock();
+  toast('유산소 완료! 💖');render();checkRewardUnlock();
 }
 function nextRoutine(doNow){
   addHistory(curRoutine());S.idx++;S.sets={};save();
