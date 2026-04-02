@@ -308,7 +308,7 @@ function render(){
 function renderWorkout(){
   var r=curRoutine();
   var h='<div class="header"><h1>PCOS 맞춤 루틴</h1>';
-  h+='<div class="routine-label">'+r.icon+' '+r.name+'</div>';
+  h+='<div class="routine-label">'+(r.type==='cardio'?'🏃‍♀️ 유산소 Day':r.icon+' '+r.name)+'</div>';
   h+='</div>';
 
   // Cycle guide with highlight
@@ -334,9 +334,16 @@ function renderWorkout(){
 
   if(r.type==='cardio'){
     h+='<div class="walk-card">';
-    h+='<h2>'+r.icon+' '+r.name+' '+r.dur+'</h2>';
-    h+='<p>'+r.desc+'</p>';
-    h+='<button class="btn-primary" onclick="completeWalk()">유산소 완료! 🎉</button>';
+    h+='<h2>🏃‍♀️ 유산소 Day</h2>';
+    h+='<p>오늘 할 유산소를 골라주세요!</p>';
+    h+='<div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">';
+    CARDIO_OPTIONS.forEach(function(c,i){
+      h+='<button class="btn-ghost" style="text-align:left;padding:12px 14px" onclick="completeCardio('+i+')">';
+      h+='<strong>'+c.name+'</strong> <span style="color:var(--th);font-size:12px">'+c.dur+'</span><br>';
+      h+='<span style="font-size:11px;color:var(--tm)">'+c.desc+'</span>';
+      h+='</button>';
+    });
+    h+='</div>';
     h+='<button class="btn-skip" onclick="showSkipConfirm()">오늘은 스킵 😴</button>';
     h+='</div>';
   } else {
@@ -639,6 +646,13 @@ function addHistory(r){
 function completeWalk(){
   addHistory(curRoutine());S.idx++;save();
   toast('유산소 완료! 💖');render();checkRewardUnlock();
+}
+function completeCardio(ci){
+  var c=CARDIO_OPTIONS[ci];
+  var now=new Date();
+  S.history.push({name:c.name,icon:'🏃‍♀️',year:now.getFullYear(),month:now.getMonth(),day:now.getDate(),date:(now.getMonth()+1)+'/'+now.getDate()});
+  S.idx++;save();
+  toast(c.name+' 완료! 💖');render();checkRewardUnlock();
 }
 function nextRoutine(doNow){
   addHistory(curRoutine());S.idx++;S.sets={};save();
