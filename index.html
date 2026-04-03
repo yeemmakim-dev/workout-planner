@@ -186,7 +186,9 @@ body{font-family:'Gowun Batang','Noto Sans KR',-apple-system,sans-serif;backgrou
 .hidden{display:none!important}
 
 /* Floating sparkles */
-.sparkles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sparkles{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.sparkles.back{z-index:0}
+.sparkles.front{z-index:999}
 .sparkle{position:absolute;font-size:12px;opacity:0;animation:sparkleFloat linear infinite;pointer-events:none}
 @keyframes sparkleFloat{
 0%{opacity:0;transform:translateY(100vh) rotate(0deg)}
@@ -915,9 +917,10 @@ S.history.forEach(function(h){
 save();
 render();
 
-// floating sparkles
+// floating sparkles — half behind, half in front
 (function(){
-  var box=document.createElement('div');box.className='sparkles';
+  var backBox=document.createElement('div');backBox.className='sparkles back';
+  var frontBox=document.createElement('div');frontBox.className='sparkles front';
   var items=['✦','♡','✧','⋆','♥','✦','✧','⋆','♡','✦','✧','♡'];
   for(var i=0;i<12;i++){
     var s=document.createElement('span');s.className='sparkle';
@@ -927,9 +930,10 @@ render();
     s.style.animationDuration=(13+Math.random()*20)+'s';
     s.style.animationDelay=(Math.random()*15)+'s';
     s.style.color=['#FFB6D9','#D8A7FF','#A0D4FF','#FF69B4','#FFD1E8'][Math.floor(Math.random()*5)];
-    box.appendChild(s);
+    if(i<6) backBox.appendChild(s); else frontBox.appendChild(s);
   }
-  document.body.appendChild(box);
+  document.body.appendChild(backBox);
+  document.body.appendChild(frontBox);
 })();
 </script>
 </body>
