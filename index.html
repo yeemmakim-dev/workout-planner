@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overscroll-behavior:none}
 body{font-family:'Gowun Batang','Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--tx);background-image:radial-gradient(circle at 20% 20%,rgba(255,182,217,.08) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(216,167,255,.08) 0%,transparent 50%)}
-#app{max-width:480px;margin:0 auto;min-height:100dvh;padding:env(safe-area-inset-top) 16px 80px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#app{max-width:480px;margin:0 auto;min-height:100dvh;padding:env(safe-area-inset-top) 16px 80px;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
 
 /* Sparkle float animation */
 @keyframes floaty{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-6px) rotate(5deg)}}
@@ -187,7 +187,7 @@ body{font-family:'Gowun Batang','Noto Sans KR',-apple-system,sans-serif;backgrou
 
 /* Floating sparkles */
 .sparkles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.sparkle{position:absolute;font-size:12px;opacity:0;animation:sparkleFloat linear infinite}
+.sparkle{position:absolute;font-size:12px;opacity:0;animation:sparkleFloat linear infinite;pointer-events:none}
 @keyframes sparkleFloat{
 0%{opacity:0;transform:translateY(100vh) rotate(0deg)}
 10%{opacity:.6}
