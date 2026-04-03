@@ -194,6 +194,11 @@ body{font-family:'Gowun Batang','Noto Sans KR',-apple-system,sans-serif;backgrou
 90%{opacity:.6}
 100%{opacity:0;transform:translateY(-20px) rotate(360deg)}
 }
+.sparkle.silver{text-shadow:0 0 6px rgba(220,220,255,.9),0 0 12px rgba(200,200,255,.5);animation:sparkleFloat linear infinite,silverGlint 1.5s ease-in-out infinite}
+@keyframes silverGlint{
+0%,100%{text-shadow:0 0 4px rgba(220,220,255,.6),0 0 8px rgba(200,200,255,.3);opacity:.5}
+50%{text-shadow:0 0 10px rgba(240,240,255,1),0 0 20px rgba(220,220,255,.7),0 0 30px rgba(200,200,255,.4);opacity:.9}
+}
 </style>
 </head>
 <body>
@@ -859,7 +864,14 @@ render();
     s.style.fontSize=(20+Math.random()*35)+'px';
     s.style.animationDuration=(12+Math.random()*18)+'s';
     s.style.animationDelay=(Math.random()*15)+'s';
-    s.style.color=['#FFB6D9','#D8A7FF','#A0D4FF','#FF69B4','#FFD1E8'][Math.floor(Math.random()*5)];
+    var isSilver=Math.random()<0.3;
+    if(isSilver){
+      s.classList.add('silver');
+      s.style.color=['#C0C0D0','#D0D0E0','#E0E0F0'][Math.floor(Math.random()*3)];
+      s.textContent=['✦','✧','⋆','✶','✴'][Math.floor(Math.random()*5)];
+    } else {
+      s.style.color=['#FFB6D9','#D8A7FF','#A0D4FF','#FF69B4','#FFD1E8'][Math.floor(Math.random()*5)];
+    }
     box.appendChild(s);
   }
   document.body.appendChild(box);
