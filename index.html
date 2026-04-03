@@ -184,6 +184,16 @@ body{font-family:'Gowun Batang','Noto Sans KR',-apple-system,sans-serif;backgrou
 @keyframes confettiFall{0%{opacity:1;transform:translateY(-20px) rotate(0deg) scale(1)}50%{opacity:1}100%{opacity:0;transform:translateY(100vh) rotate(1080deg) scale(.5)}}
 
 .hidden{display:none!important}
+
+/* Floating sparkles */
+.sparkles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sparkle{position:absolute;font-size:12px;opacity:0;animation:sparkleFloat linear infinite}
+@keyframes sparkleFloat{
+0%{opacity:0;transform:translateY(100vh) rotate(0deg)}
+10%{opacity:.6}
+90%{opacity:.6}
+100%{opacity:0;transform:translateY(-20px) rotate(360deg)}
+}
 </style>
 </head>
 <body>
@@ -837,6 +847,23 @@ S.history.forEach(function(h){
 });
 save();
 render();
+
+// floating sparkles
+(function(){
+  var box=document.createElement('div');box.className='sparkles';
+  var items=['✦','♡','✧','⋆','♥','✦','✧','⋆','♡','✦','✧','♡'];
+  for(var i=0;i<12;i++){
+    var s=document.createElement('span');s.className='sparkle';
+    s.textContent=items[i];
+    s.style.left=Math.random()*100+'%';
+    s.style.fontSize=(8+Math.random()*10)+'px';
+    s.style.animationDuration=(12+Math.random()*18)+'s';
+    s.style.animationDelay=(Math.random()*15)+'s';
+    s.style.color=['#FFB6D9','#D8A7FF','#A0D4FF','#FF69B4','#FFD1E8'][Math.floor(Math.random()*5)];
+    box.appendChild(s);
+  }
+  document.body.appendChild(box);
+})();
 </script>
 </body>
 </html>
