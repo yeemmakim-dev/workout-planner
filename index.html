@@ -271,10 +271,10 @@ function generateRoutine(idx){
   };
 }
 var CARDIO_OPTIONS=[
-  {name:'런닝',dur:'20-30분',desc:'가볍게 달리기, 심폐 강화'},
-  {name:'빠르게 걷기',dur:'30-40분',desc:'경사 걷기, 파워워킹'},
-  {name:'발레',dur:'30-40분',desc:'발레 기초 동작, 유연성+근력'},
-  {name:'실내자전거',dur:'20-30분',desc:'저강도 사이클링, 관절 부담 적음'}
+  {name:'런닝',icon:'🏃‍♀️',dur:'20-30분',desc:'가볍게 달리기, 심폐 강화'},
+  {name:'빠르게 걷기',icon:'🚶‍♀️',dur:'30-40분',desc:'경사 걷기, 파워워킹'},
+  {name:'발레',icon:'🩰',dur:'30-40분',desc:'발레 기초 동작, 유연성+근력'},
+  {name:'실내자전거',icon:'🚴‍♀️',dur:'20-30분',desc:'저강도 사이클링, 관절 부담 적음'}
 ];
 function generateCardio(idx){
   var seed=idx*4219+17;
@@ -367,14 +367,14 @@ function renderWorkout(){
       h+='<div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">';
       CARDIO_OPTIONS.forEach(function(c,i){
         h+='<button class="btn-ghost" style="text-align:left;padding:12px 14px" onclick="pickCardio('+i+')">';
-        h+='<strong>'+c.name+'</strong> <span style="color:var(--th);font-size:12px">'+c.dur+'</span><br>';
+        h+='<strong>'+c.icon+' '+c.name+'</strong> <span style="color:var(--th);font-size:12px">'+c.dur+'</span><br>';
         h+='<span style="font-size:11px;color:var(--tm)">'+c.desc+'</span>';
         h+='</button>';
       });
       h+='</div>';
     } else {
       var cc=CARDIO_OPTIONS[picked];
-      h+='<h2>🏃‍♀️ '+cc.name+' '+cc.dur+'</h2>';
+      h+='<h2>'+cc.icon+' '+cc.name+' '+cc.dur+'</h2>';
       h+='<p>'+cc.desc+'</p>';
       h+='<button class="btn-primary" onclick="completeCardio('+picked+')">'+cc.name+' 완료! 🎉</button>';
       h+='<button class="btn-ghost" style="margin-top:8px" onclick="pickCardio(null)">다른 유산소 고르기</button>';
@@ -695,7 +695,7 @@ function pickCardio(ci){
 function completeCardio(ci){
   var c=CARDIO_OPTIONS[ci];
   var now=new Date();
-  S.history.push({name:c.name,icon:'🏃‍♀️',year:now.getFullYear(),month:now.getMonth(),day:now.getDate(),date:(now.getMonth()+1)+'/'+now.getDate()});
+  S.history.push({name:c.name,icon:c.icon,year:now.getFullYear(),month:now.getMonth(),day:now.getDate(),date:(now.getMonth()+1)+'/'+now.getDate()});
   S.idx++;S.cardioChoice=null;save();
   toast(c.name+' 완료! 💖');render();checkRewardUnlock();
 }
