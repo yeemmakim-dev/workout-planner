@@ -380,7 +380,7 @@ function renderWorkout(){
       h+='<button class="btn-ghost" style="margin-top:8px" onclick="pickCardio(null)">다른 유산소 고르기</button>';
     }
     h+='<button class="btn-skip" onclick="showSkipConfirm()">오늘은 스킵 😴</button>';
-    if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">← 이전 루틴으로 돌아가기</button>';
+    if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">↩ 잘못 눌렀어요! 되돌리기</button>';
     h+='</div>';
   } else {
     var totalSets=0,doneSets=0;
@@ -422,7 +422,7 @@ function renderWorkout(){
       });
       h+='</div>';
       h+='<button class="btn-skip" onclick="showSkipConfirm()" style="margin-top:8px">오늘은 스킵 😴</button>';
-      if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">← 이전 루틴으로 돌아가기</button>';
+      if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">↩ 잘못 눌렀어요! 되돌리기</button>';
     }else{
       var next=getRoutineForCycle(S.idx+1);
       h+='<div class="done-card">';
@@ -709,20 +709,16 @@ function nextRoutine(doNow){
 }
 function goBack(){
   if(S.idx>0){
-    S.idx--;S.sets={};
-    // 마지막 기록이 현재 루틴과 같으면 기록도 되돌리기
+    S.idx--;S.sets={};S.cardioChoice=null;
+    // 마지막 기록 되돌리기 (오늘 날짜 기록이면 제거)
     if(S.history.length>0){
       var last=S.history[S.history.length-1];
-      var r=getRoutineForCycle(S.idx);
-      var isCardio=r.type==='cardio';
-      if(isCardio){
-        var match=CARDIO_OPTIONS.some(function(c){return c.name===last.name});
-        if(match) S.history.pop();
-      } else if(last.name===r.name){
+      var now=new Date();
+      if(last.year===now.getFullYear()&&last.month===now.getMonth()&&last.day===now.getDate()){
         S.history.pop();
       }
     }
-    save();render();toast('이전 루틴으로 돌아왔어요!');
+    save();render();toast('되돌렸어요! ↩');
   }
 }
 function exportBackup(){
