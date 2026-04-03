@@ -431,7 +431,7 @@ function renderWorkout(){
       h+='<div class="done-btns">';
       h+='<button class="btn-primary" onclick="nextRoutine(true)">바로 다음 하기 →</button>';
       h+='<button class="btn-ghost" onclick="nextRoutine(false)">다음에 할게요 👋</button>';
-      h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">← 이전 루틴으로 돌아가기</button>';
+      h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">↩ 잘못 눌렀어요! 되돌리기</button>';
       h+='</div></div>';
     }
   }
@@ -708,7 +708,22 @@ function nextRoutine(doNow){
   render();checkRewardUnlock();
 }
 function goBack(){
-  if(S.idx>0){S.idx--;S.sets={};save();render();toast('이전 루틴으로 돌아왔어요!');}
+  if(S.idx>0){
+    S.idx--;S.sets={};
+    // 마지막 기록이 현재 루틴과 같으면 기록도 되돌리기
+    if(S.history.length>0){
+      var last=S.history[S.history.length-1];
+      var r=getRoutineForCycle(S.idx);
+      var isCardio=r.type==='cardio';
+      if(isCardio){
+        var match=CARDIO_OPTIONS.some(function(c){return c.name===last.name});
+        if(match) S.history.pop();
+      } else if(last.name===r.name){
+        S.history.pop();
+      }
+    }
+    save();render();toast('이전 루틴으로 돌아왔어요!');
+  }
 }
 function exportBackup(){
   var data=JSON.stringify(S,null,2);
