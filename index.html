@@ -333,17 +333,26 @@ function renderWorkout(){
   h+=renderReward();
 
   if(r.type==='cardio'){
+    var picked=S.cardioChoice;
     h+='<div class="walk-card">';
-    h+='<h2>🏃‍♀️ 유산소 Day</h2>';
-    h+='<p>오늘 할 유산소를 골라주세요!</p>';
-    h+='<div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">';
-    CARDIO_OPTIONS.forEach(function(c,i){
-      h+='<button class="btn-ghost" style="text-align:left;padding:12px 14px" onclick="completeCardio('+i+')">';
-      h+='<strong>'+c.name+'</strong> <span style="color:var(--th);font-size:12px">'+c.dur+'</span><br>';
-      h+='<span style="font-size:11px;color:var(--tm)">'+c.desc+'</span>';
-      h+='</button>';
-    });
-    h+='</div>';
+    if(picked===undefined||picked===null){
+      h+='<h2>🏃‍♀️ 유산소 Day</h2>';
+      h+='<p>오늘 할 유산소를 골라주세요!</p>';
+      h+='<div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">';
+      CARDIO_OPTIONS.forEach(function(c,i){
+        h+='<button class="btn-ghost" style="text-align:left;padding:12px 14px" onclick="pickCardio('+i+')">';
+        h+='<strong>'+c.name+'</strong> <span style="color:var(--th);font-size:12px">'+c.dur+'</span><br>';
+        h+='<span style="font-size:11px;color:var(--tm)">'+c.desc+'</span>';
+        h+='</button>';
+      });
+      h+='</div>';
+    } else {
+      var cc=CARDIO_OPTIONS[picked];
+      h+='<h2>🏃‍♀️ '+cc.name+' '+cc.dur+'</h2>';
+      h+='<p>'+cc.desc+'</p>';
+      h+='<button class="btn-primary" onclick="completeCardio('+picked+')">'+cc.name+' 완료! 🎉</button>';
+      h+='<button class="btn-ghost" style="margin-top:8px" onclick="pickCardio(null)">다른 유산소 고르기</button>';
+    }
     h+='<button class="btn-skip" onclick="showSkipConfirm()">오늘은 스킵 😴</button>';
     h+='</div>';
   } else {
@@ -647,11 +656,15 @@ function completeWalk(){
   addHistory(curRoutine());S.idx++;save();
   toast('유산소 완료! 💖');render();checkRewardUnlock();
 }
+function pickCardio(ci){
+  S.cardioChoice=ci;
+  save();render();
+}
 function completeCardio(ci){
   var c=CARDIO_OPTIONS[ci];
   var now=new Date();
   S.history.push({name:c.name,icon:'🏃‍♀️',year:now.getFullYear(),month:now.getMonth(),day:now.getDate(),date:(now.getMonth()+1)+'/'+now.getDate()});
-  S.idx++;save();
+  S.idx++;S.cardioChoice=null;save();
   toast(c.name+' 완료! 💖');render();checkRewardUnlock();
 }
 function nextRoutine(doNow){
