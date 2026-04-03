@@ -194,11 +194,6 @@ body{font-family:'Gowun Batang','Noto Sans KR',-apple-system,sans-serif;backgrou
 90%{opacity:.6}
 100%{opacity:0;transform:translateY(-20px) rotate(360deg)}
 }
-.sparkle.silver{color:#E8E8F8!important;animation:sparkleFloat linear infinite,silverGlint 1.2s ease-in-out infinite}
-@keyframes silverGlint{
-0%,100%{text-shadow:0 0 8px rgba(255,255,255,.8),0 0 16px rgba(210,210,255,.5);opacity:.4;transform:scale(1)}
-50%{text-shadow:0 0 16px rgba(255,255,255,1),0 0 32px rgba(220,210,255,.8),0 0 48px rgba(200,200,255,.4);opacity:1;transform:scale(1.15)}
-}
 </style>
 </head>
 <body>
@@ -862,21 +857,10 @@ render();
     s.textContent=items[i];
     s.style.left=Math.random()*100+'%';
     s.style.fontSize=(20+Math.random()*35)+'px';
-    s.style.animationDuration=(12+Math.random()*18)+'s';
+    s.style.animationDuration=(13+Math.random()*20)+'s';
     s.style.animationDelay=(Math.random()*15)+'s';
     s.style.color=['#FFB6D9','#D8A7FF','#A0D4FF','#FF69B4','#FFD1E8'][Math.floor(Math.random()*5)];
     box.appendChild(s);
-  }
-  // silver glint stars — separate batch
-  for(var j=0;j<5;j++){
-    var sv=document.createElement('span');sv.className='sparkle silver';
-    sv.textContent=['✦','✧','✶'][Math.floor(Math.random()*3)];
-    sv.style.left=Math.random()*100+'%';
-    sv.style.fontSize=(18+Math.random()*28)+'px';
-    sv.style.animationDuration=(15+Math.random()*20)+'s';
-    sv.style.animationDelay=(Math.random()*20)+'s';
-    sv.style.color='#E8E8F8';
-    box.appendChild(sv);
   }
   document.body.appendChild(box);
 })();
