@@ -250,24 +250,31 @@ function pickRandom(arr,n,rng){
   for(var i=0;i<n&&a.length;i++){var idx=Math.floor(rng()*a.length);res.push(a.splice(idx,1)[0])}
   return res;
 }
+var EX_CATS=['compound','hinge','pull_push','core'];
 function generateRoutine(idx){
-  // 시드: 루틴 인덱스 기반 → 같은 인덱스면 같은 조합 (완료 전까지)
   var seed=idx*7919+31;
   var rng=seededRand(seed);
   var labels=['A','B','C'];
   var icons=['🏋️','💪','🔥'];
   var li=idx%3;
+  var base=[
+    pickRandom(POOL.compound,1,rng)[0],
+    pickRandom(POOL.hinge,1,rng)[0],
+    pickRandom(rng()<0.5?POOL.pull:POOL.push,1,rng)[0],
+    pickRandom(POOL.core,1,rng)[0]
+  ];
+  // 교체된 운동 적용
+  var exercises=base.map(function(ex,i){
+    var key=idx+'_'+i;
+    if(S.swapped&&S.swapped[key]){return S.swapped[key]}
+    return ex;
+  });
   return {
     type:'strength',
     name:'전신 근력 '+labels[li],
     icon:icons[li],
     short:'근력'+labels[li],
-    exercises:[
-      pickRandom(POOL.compound,1,rng)[0],
-      pickRandom(POOL.hinge,1,rng)[0],
-      pickRandom(rng()<0.5?POOL.pull:POOL.push,1,rng)[0],
-      pickRandom(POOL.core,1,rng)[0]
-    ]
+    exercises:exercises
   };
 }
 var CARDIO_OPTIONS=[
@@ -293,7 +300,7 @@ function getRoutineForCycle(globalIdx){
     return generateRoutine(globalIdx);
   }
 }
-var SKIP_MAX=3;
+var SWAP_MAX=3;
 var GOAL=20;
 
 var S=JSON.parse(localStorage.getItem('wk2')||'{}');
@@ -302,7 +309,8 @@ if(!S.sets)S.sets={};
 if(!S.weights)S.weights=[];
 if(!S.history)S.history=[];
 if(!S.reward)S.reward={};
-if(!S.skips)S.skips={};
+if(!S.swaps)S.swaps={};
+if(!S.swapped)S.swapped={};
 var curTab=0;
 var calYear,calMonth;
 (function(){var d=new Date();calYear=d.getFullYear();calMonth=d.getMonth()})();
@@ -317,7 +325,7 @@ function getMonthCount(){
   S.history.forEach(function(h){if(h.year===y&&h.month===m)c++});
   return c;
 }
-function getSkipsUsed(){return S.skips[curMonthKey()]||0}
+function getSwapsUsed(){return S.swaps[curMonthKey()]||0}
 
 function switchTab(n){
   curTab=n;
@@ -379,7 +387,6 @@ function renderWorkout(){
       h+='<button class="btn-primary" onclick="completeCardio('+picked+')">'+cc.name+' 완료! 🎉</button>';
       h+='<button class="btn-ghost" style="margin-top:8px" onclick="pickCardio(null)">다른 유산소 고르기</button>';
     }
-    h+='<button class="btn-skip" onclick="showSkipConfirm()">오늘은 스킵 😴</button>';
     if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">↩ 잘못 눌렀어요! 되돌리기</button>';
     h+='</div>';
   } else {
@@ -399,7 +406,10 @@ function renderWorkout(){
         var exDone=true;
         for(var s=0;s<ex.sets;s++){if(!S.sets[i+'_'+s]){exDone=false;break;}}
         h+='<div class="ex-card'+(exDone?' done':'')+'">';
-        h+='<div class="ex-name">'+ex.name+'</div>';
+        var swapsLeft=SWAP_MAX-getSwapsUsed();
+        h+='<div class="ex-name" style="display:flex;justify-content:space-between;align-items:center">'+ex.name;
+        if(!exDone&&swapsLeft>0) h+='<button onclick="showSwapConfirm('+i+')" style="font-size:10px;padding:3px 8px;border:1.5px dashed var(--c3);border-radius:8px;background:var(--sf);color:var(--th);cursor:pointer;font-family:inherit">🔄 변경</button>';
+        h+='</div>';
         h+='<div class="ex-desc">'+ex.sets+'세트 × '+ex.reps+(typeof ex.reps==='number'?'회':'')+(ex.sets<=2?' · 마무리':' · 세트 간 60초 휴식')+'</div>';
         h+='<div class="ex-sets">';
         for(var s=0;s<ex.sets;s++){
@@ -421,8 +431,7 @@ function renderWorkout(){
         h+='</div>';
       });
       h+='</div>';
-      h+='<button class="btn-skip" onclick="showSkipConfirm()" style="margin-top:8px">오늘은 스킵 😴</button>';
-      if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">↩ 잘못 눌렀어요! 되돌리기</button>';
+      if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:8px">↩ 잘못 눌렀어요! 되돌리기</button>';
     }else{
       var next=getRoutineForCycle(S.idx+1);
       h+='<div class="done-card">';
@@ -442,13 +451,12 @@ function renderWorkout(){
 function renderReward(){
   var h='';
   var count=getMonthCount();
-  var skips=getSkipsUsed();
-  var effectiveGoal=GOAL;
-  var pct=Math.min(100,Math.round(count/effectiveGoal*100));
-  var unlocked=count>=effectiveGoal;
+  var swaps=getSwapsUsed();
+  var pct=Math.min(100,Math.round(count/GOAL*100));
+  var unlocked=count>=GOAL;
   var now=new Date();
   var ml=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][now.getMonth()];
-  var skipsLeft=SKIP_MAX-skips;
+  var swapsLeft=SWAP_MAX-swaps;
 
   if(!S.reward.img){
     h+='<div class="reward"><div class="reward-upload" onclick="document.getElementById(\'rwdFile\').click()">';
@@ -472,9 +480,9 @@ function renderReward(){
     if(unlocked){
       h+='<div class="reward-msg">🥳 목표 달성! 자신에게 선물하세요!</div>';
     } else {
-      h+='<div class="reward-msg">'+(effectiveGoal-count)+'번만 더! 힘내자 💪</div>';
+      h+='<div class="reward-msg">'+(GOAL-count)+'번만 더! 힘내자 💪</div>';
     }
-    h+='<div class="reward-skip-info">스킵 '+skips+'/'+SKIP_MAX+'회 사용'+(skipsLeft>0?' ('+skipsLeft+'번 남음)':' (소진)')+'</div>';
+    h+='<div class="reward-skip-info">🔄 운동 변경 '+swaps+'/'+SWAP_MAX+'회 사용'+(swapsLeft>0?' ('+swapsLeft+'번 남음)':' (소진)')+'</div>';
     h+='</div></div></div>';
   }
   return h;
@@ -752,33 +760,47 @@ function saveW(){
   save();render();toast(v+'kg 저장! 💖');
 }
 
-// --- Skip ---
-function showSkipConfirm(){
-  var skips=getSkipsUsed();
-  var left=SKIP_MAX-skips;
+// --- Swap exercise ---
+function showSwapConfirm(exIdx){
+  var swaps=getSwapsUsed();
+  var left=SWAP_MAX-swaps;
+  var r=curRoutine();
+  var ex=r.exercises[exIdx];
   var h='<div class="skip-modal" onclick="if(event.target===this)closeModal()">';
   h+='<div class="skip-box">';
   if(left<=0){
-    h+='<h3>😥 스킵 소진!</h3>';
-    h+='<p>이번 달 스킵 '+SKIP_MAX+'번을 다 썼어요.<br>리워드를 위해 힘내봐요!</p>';
+    h+='<h3>😥 변경 소진!</h3>';
+    h+='<p>이번 달 변경 '+SWAP_MAX+'번을 다 썼어요.<br>지금 운동으로 힘내봐요!</p>';
     h+='<div class="skip-btns"><button style="flex:1;background:var(--c);color:#fff" onclick="closeModal()">알겠어요 💪</button></div>';
   } else {
-    h+='<h3>스킵할 거야? 🤔</h3>';
-    h+='<span class="skip-count">남은 스킵: '+left+'번</span>';
-    h+='<p>스킵하면 리워드 카운트에 포함되지 않아요!</p>';
+    h+='<h3>'+ex.name+' 변경할까요? 🔄</h3>';
+    h+='<span class="skip-count">남은 변경: '+left+'번</span>';
+    h+='<p>같은 부위의 다른 운동으로 바꿔요!</p>';
     h+='<div class="skip-btns">';
-    h+='<button style="background:var(--sf);color:var(--tm)" onclick="closeModal()">안 할래</button>';
-    h+='<button style="background:var(--c);color:#fff" onclick="doSkip()">스킵!</button>';
+    h+='<button style="background:var(--sf);color:var(--tm)" onclick="closeModal()">그냥 할게</button>';
+    h+='<button style="background:var(--c);color:#fff" onclick="doSwap('+exIdx+')">변경!</button>';
     h+='</div>';
   }
   h+='</div></div>';
   document.getElementById('modal').innerHTML=h;
 }
-function doSkip(){
+function doSwap(exIdx){
+  var cats=['compound','hinge',null,'core'];
+  var catName=cats[exIdx];
+  if(catName===null) catName=POOL.pull.some(function(e){return e.name===curRoutine().exercises[exIdx].name})?'pull':'push';
+  var pool=POOL[catName];
+  var cur=curRoutine().exercises[exIdx].name;
+  var others=pool.filter(function(e){return e.name!==cur});
+  if(others.length===0){closeModal();toast('다른 운동이 없어요!');return;}
+  var pick=others[Math.floor(Math.random()*others.length)];
+  var key=S.idx+'_'+exIdx;
+  S.swapped[key]=pick;
+  // clear done sets for this exercise
+  for(var s=0;s<10;s++){delete S.sets[exIdx+'_'+s]}
   var mk=curMonthKey();
-  S.skips[mk]=(S.skips[mk]||0)+1;
-  S.idx++;S.sets={};save();closeModal();
-  toast('스킵! 다음에 힘내자 💤');render();
+  S.swaps[mk]=(S.swaps[mk]||0)+1;
+  save();closeModal();
+  toast('🔄 '+pick.name+'(으)로 변경!');render();
 }
 function closeModal(){document.getElementById('modal').innerHTML=''}
 
