@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FF6B9D">
+<title>공주 수련</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--c:#FF69B4;--c2:#FF85C8;--c3:#FFB6D9;--c4:#D8A7FF;--c5:#A0D4FF;--cl:#FFF0F8;--cd:#E0408A;--bg:#FFFAFD;--sf:#FFF2F8;--sf2:#FFECF4;--tx:#3D2040;--tm:#9A7090;--th:#C8A0B8;--bd:rgba(255,105,180,.12);--r:20px;--r2:24px;--glow:0 4px 20px rgba(255,105,180,.15)}
+@media(prefers-color-scheme:dark){:root{--bg:#1C1020;--sf:#281828;--sf2:#321A30;--tx:#F8E8F4;--tm:#B888A8;--th:#7A5068;--bd:rgba(255,105,180,.18);--cl:#301828}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Gowun Batang','Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--tx);background-image:radial-gradient(circle at 20% 20%,rgba(255,182,217,.08) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(216,167,255,.08) 0%,transparent 50%)}
+#app{max-width:480px;margin:0 auto;min-height:100dvh;padding:env(safe-area-inset-top) 16px 80px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-6px) rotate(5deg)}}
+@keyframes twinkle{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes bounceIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.05)}70%{transform:scale(.95)}100%{transform:scale(1);opacity:1}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes jelly{0%,100%{transform:scale(1)}25%{transform:scale(.95,1.05)}50%{transform:scale(1.05,.95)}75%{transform:scale(.98,1.02)}}
+
+.tabs{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(255,250,253,0),var(--bg) 20%);border-top:none;display:flex;justify-content:center;z-index:100;padding:8px 0 env(safe-area-inset-bottom);backdrop-filter:blur(10px)}
+.tabs-inner{display:flex;max-width:480px;width:100%}
+.tab{flex:1;padding:8px 0;text-align:center;font-size:10px;color:var(--th);border:none;background:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.tab-icon{font-size:22px;display:block;margin-bottom:2px}
+.tab.active{color:var(--c);font-weight:700;transform:scale(1.08)}
+.tab.active .tab-icon{animation:jelly .5s ease}
+
+.header{padding:20px 0 8px;text-align:center;position:relative}
+.header::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(255,105,180,.06) 0%,transparent 70%);pointer-events:none}
+.header h1{font-size:28px;font-weight:900;letter-spacing:2px;color:#FF69B4}
+.routine-label{font-size:16px;font-weight:700;margin:6px 0 2px;color:var(--tm)}
+.routine-sub{font-size:11px;color:var(--th)}
+
+.cycle-bar{display:flex;gap:5px;margin:14px 0;padding:10px 12px;background:linear-gradient(135deg,var(--sf),var(--sf2));border-radius:var(--r);overflow-x:auto;box-shadow:var(--glow)}
+.cycle-step{flex:1;text-align:center;padding:7px 4px;border-radius:14px;font-size:10px;color:var(--th);line-height:1.3;min-width:0;transition:all .3s}
+.cycle-step.now{background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;font-weight:700;transform:scale(1.1);box-shadow:0 3px 12px rgba(255,105,180,.35);animation:jelly .6s ease}
+.cycle-step.done-step{color:var(--c);font-weight:500}
+.cycle-step .step-icon{font-size:15px;display:block;margin-bottom:2px}
+
+.weight-row{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--sf),#F8ECFF);border-radius:var(--r);padding:10px 14px;margin:8px 0;box-shadow:var(--glow)}
+.weight-row .wv{font-size:20px;font-weight:900;flex:1;background:linear-gradient(135deg,var(--c),var(--c4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.weight-row .wv span{font-size:12px;-webkit-text-fill-color:var(--tm);font-weight:400}
+.weight-row input{width:64px;border:2.5px solid var(--c3);border-radius:12px;padding:6px;font-size:14px;text-align:center;background:var(--bg);color:var(--tx);font-family:inherit;transition:border-color .2s}
+.weight-row input:focus{border-color:var(--c);outline:none;box-shadow:0 0 0 3px rgba(255,105,180,.15)}
+.weight-row button{background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;border:none;border-radius:12px;padding:7px 16px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 3px 10px rgba(255,105,180,.25);transition:transform .15s}
+.weight-row button:active{transform:scale(.92)}
+
+/* ========== Royal Pink Safe Card v3 ========== */
+.safe-card{margin:14px 0;border-radius:var(--r2);overflow:visible;position:relative;background:linear-gradient(150deg,#FFF2FA,#F8EAFF,#FFF0F8);border:2.5px solid var(--c3);box-shadow:var(--glow);transition:all .4s}
+@media(prefers-color-scheme:dark){.safe-card{background:linear-gradient(150deg,#2A1A28,#241A30,#2A1A2F);border-color:#6B3050}}
+.safe-card.stage-preapproved,.safe-card.stage-approved{border-color:#FF6B9D;box-shadow:0 6px 30px rgba(255,107,157,.22),var(--glow)}
+.safe-header{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 8px}
+.safe-header-title{font-size:17px;font-weight:900;letter-spacing:1px;color:#FF69B4;flex:1;text-align:center}
+.safe-header-edit{font-size:12px;color:var(--tm);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500;flex-shrink:0}
+.safe-body{padding:0 16px 20px;display:flex;flex-direction:column;align-items:center;gap:14px}
+
+/* ---- Vault Assembly (PNG frame, transparent heart) ---- */
+.safe-assembly{position:relative;width:300px;height:380px;margin:0 auto;overflow:hidden}
+/* Reward image BEHIND frame — positioned exactly at heart hole */
+.safe-img-layer{position:absolute;top:148px;left:89px;width:123px;height:114px;z-index:0;pointer-events:none;overflow:hidden}
+.safe-img-layer img{width:100%;height:100%;object-fit:cover;object-position:center;transition:filter .5s}
+/* PNG safe frame — cropped bottom (no legs) */
+.safe-frame-img{position:absolute;top:0;left:0;width:300px;height:450px;z-index:1;pointer-events:none;object-fit:contain;transition:filter .4s}
+/* Stage tints for frame — no grayscale, keep original colors */
+.stage-approved .safe-frame-img{filter:brightness(1.1) drop-shadow(0 0 12px rgba(255,200,100,.4))}
+/* Stage filters for reward image — no grayscale */
+.stage-approved .safe-img-layer img{filter:brightness(1.1) saturate(1.15);animation:itemShine 3s ease-in-out infinite}
+@keyframes itemShine{0%,100%{filter:brightness(1.1) saturate(1.15)}50%{filter:brightness(1.2) saturate(1.25)}}
+/* Stamp */
+.safe-stamp{position:absolute;top:70px;right:-8px;background:linear-gradient(135deg,#FF3E7A,#E8205A);color:#fff;font-family:'Gowun Batang',Georgia,serif;font-size:20px;font-weight:700;padding:11px 24px;border-radius:4px;transform:rotate(12deg) scale(0);transition:transform .4s;box-shadow:0 4px 14px rgba(255,62,122,.35);letter-spacing:3px;border:2.5px solid rgba(255,255,255,.5);z-index:6}
+.stage-approved .safe-stamp{transform:rotate(12deg) scale(1);animation:stampPop .5s ease}
+@keyframes stampPop{0%{transform:rotate(12deg) scale(0)}60%{transform:rotate(12deg) scale(1.2)}80%{transform:rotate(12deg) scale(.95)}100%{transform:rotate(12deg) scale(1)}}
+/* Glow */
+.safe-glow{display:none;position:absolute;inset:-16px;z-index:0;border-radius:36px;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(255,220,130,.22) 0%,rgba(255,105,180,.12) 45%,transparent 70%);
+  animation:safeGlowPulse 2.5s ease-in-out infinite}
+.stage-approved .safe-glow{display:block}
+@keyframes safeGlowPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+/* Sparkles — approved only */
+.safe-sparkles{position:absolute;inset:-6px;pointer-events:none;overflow:visible;z-index:5;display:none}
+.stage-approved .safe-sparkles{display:block}
+.safe-sparkle{position:absolute;opacity:0;animation:safeSparkle 3s ease-in-out infinite}
+@keyframes safeSparkle{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:.7;transform:scale(1)}}
+
+/* ---- Status & Info ---- */
+.safe-status{text-align:center;margin-top:-4px}
+.safe-status-badge{display:inline-block;padding:7px 22px;border-radius:20px;font-size:14px;font-weight:900;transition:all .4s}
+.stage-stored .safe-status-badge{background:rgba(200,180,190,.18);color:var(--tm)}
+.stage-review .safe-status-badge{background:rgba(255,105,180,.1);color:var(--c)}
+.stage-examining .safe-status-badge{background:rgba(255,105,180,.15);color:var(--cd)}
+.stage-preapproved .safe-status-badge{background:linear-gradient(135deg,rgba(255,107,157,.15),rgba(255,105,180,.12));color:#FF69B4;border:1.5px solid rgba(255,107,157,.35);font-size:15px}
+.stage-approved .safe-status-badge{background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;box-shadow:0 4px 14px rgba(255,105,180,.3);font-size:15px}
+.safe-status-sub{font-size:12px;color:var(--tm);margin-top:4px;font-weight:500}
+
+.safe-info{width:100%}
+.safe-price{font-size:16px;color:#FF69B4;font-weight:900;text-align:center}
+.safe-progress-label{font-size:13px;color:var(--tm);margin-top:10px;font-weight:700}
+.safe-progress-wrap{display:flex;align-items:center;gap:8px;margin-top:5px}
+.safe-progress-bar{flex:1;height:12px;background:var(--bd);border-radius:6px;overflow:hidden}
+.safe-progress-fill{height:100%;border-radius:6px;transition:width .5s;background:linear-gradient(90deg,var(--c3),var(--c),var(--c4))}
+.stage-preapproved .safe-progress-fill,.stage-approved .safe-progress-fill{background:linear-gradient(90deg,var(--c),#FF6B9D,#FFB3C6)}
+.safe-progress-pct{font-size:16px;font-weight:900;background:linear-gradient(135deg,var(--c),var(--c4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;min-width:40px;text-align:right}
+
+.safe-comment{font-size:13px;color:var(--tx);margin-top:10px;padding:10px 14px;background:rgba(255,105,180,.05);border-radius:12px;line-height:1.6;border-left:3.5px solid var(--c);font-style:italic;text-align:left;font-weight:500}
+.safe-days-left{font-size:13px;color:var(--tm);margin-top:8px;text-align:center;font-weight:700}
+.safe-swaps{font-size:12px;color:var(--tm);margin-top:4px;text-align:center;font-weight:500}
+
+.safe-cta{margin-top:10px;padding:14px;background:linear-gradient(135deg,#FF6B9D,#FFB3C6);color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;width:100%;box-shadow:0 4px 15px rgba(255,107,157,.35);transition:transform .15s;letter-spacing:.5px}
+.safe-cta:active{transform:scale(.94)}
+
+/* Upload empty state */
+.safe-upload{padding:32px 20px;text-align:center;cursor:pointer}
+.safe-upload-icon{font-size:52px;margin-bottom:10px;animation:floaty 3s ease-in-out infinite}
+.safe-upload-title{font-size:17px;font-weight:900;background:linear-gradient(90deg,var(--c),var(--c4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.safe-upload-text{font-size:14px;color:var(--tm);line-height:1.8;font-weight:500}
+.safe-upload-text b{color:var(--c);display:block;margin-top:8px;font-size:16px;font-weight:700}
+
+.ex-list{display:flex;flex-direction:column;gap:10px;margin:10px 0}
+.ex-card{background:linear-gradient(135deg,var(--sf),#FDF0FF);border-radius:var(--r);padding:16px;transition:all .3s;border:2.5px solid transparent;box-shadow:0 2px 12px rgba(255,105,180,.06)}
+.ex-card.done{opacity:.4;border-color:var(--c3);background:var(--sf2)}
+.ex-card.done .ex-name{text-decoration:line-through;color:var(--c)}
+.ex-name{font-size:15px;font-weight:900;margin-bottom:3px;color:var(--tx)}
+.ex-desc{font-size:12px;color:var(--tm);margin-bottom:10px;font-weight:500}
+.ex-sets{display:flex;gap:8px;flex-wrap:wrap}
+.set-btn{width:40px;height:40px;border-radius:50%;border:3px solid var(--c3);background:var(--bg);font-size:12px;font-weight:900;color:var(--c);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:inherit;box-shadow:0 2px 8px rgba(255,105,180,.08)}
+.set-btn.done{background:linear-gradient(135deg,var(--c),var(--c4));border-color:transparent;color:#fff;transform:scale(1.1);box-shadow:0 3px 12px rgba(255,105,180,.3);animation:bounceIn .3s ease}
+.set-btn:active{transform:scale(.8)}
+.how-btn{font-size:11px;color:var(--c);background:none;border:none;cursor:pointer;font-family:inherit;margin-top:10px;padding:0;font-weight:700}
+.how-text{font-size:11px;color:var(--tm);line-height:1.6;margin-top:6px;white-space:pre-line;display:none;background:rgba(255,105,180,.04);padding:10px;border-radius:12px}
+
+.rest-timer{margin-top:10px;padding:10px 12px;background:linear-gradient(135deg,var(--cl),#F0E8FF);border-radius:14px;display:flex;align-items:center;gap:8px;animation:bounceIn .3s ease}
+.rest-timer-bar{flex:1;height:8px;background:var(--bd);border-radius:4px;overflow:hidden}
+.rest-timer-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--c3),var(--c),var(--c4));width:0%;transition:width .3s linear}
+.rest-timer-text{font-size:12px;font-weight:900;color:var(--c);min-width:36px;text-align:right}
+.rest-timer.done-timer{background:linear-gradient(135deg,#E8FFE8,#E8F4FF)}
+.rest-timer.done-timer .rest-timer-fill{background:linear-gradient(90deg,#66CC99,#44AA88)}
+.rest-timer.done-timer .rest-timer-text{color:#22AA66;animation:jelly .5s ease}
+
+.progress-bar{height:10px;background:var(--sf2);border-radius:5px;margin:14px 0 8px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.05)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--c3),var(--c),var(--c4));border-radius:5px;transition:width .3s}
+.progress-text{font-size:13px;color:var(--tm);text-align:center;margin-bottom:12px;font-weight:700}
+
+.walk-card{text-align:center;padding:40px 16px;margin:16px 0;background:linear-gradient(135deg,var(--cl),#F0E8FF);border-radius:var(--r2);border:2.5px dashed var(--c3);box-shadow:var(--glow)}
+.walk-card h2{font-size:22px;margin-bottom:8px;font-weight:900}
+.walk-card p{font-size:13px;color:var(--tm);line-height:1.5;margin-bottom:16px}
+
+.done-card{text-align:center;padding:36px 16px;margin:16px 0;animation:bounceIn .5s ease}
+.done-card h2{font-size:28px;margin-bottom:8px;animation:jelly .8s ease}
+.done-card p{font-size:13px;color:var(--tm);margin-bottom:20px;line-height:1.5}
+.done-btns{display:flex;flex-direction:column;gap:10px}
+.btn-primary{padding:16px;background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;border:none;border-radius:var(--r);font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;width:100%;box-shadow:0 6px 20px rgba(255,105,180,.3);transition:all .15s;letter-spacing:.5px}
+.btn-primary:active{transform:scale(.96);box-shadow:0 3px 10px rgba(255,105,180,.2)}
+.btn-ghost{padding:14px;background:rgba(255,105,180,.05);border:2.5px solid var(--c3);border-radius:var(--r);font-size:14px;color:var(--c);cursor:pointer;font-family:inherit;width:100%;font-weight:600;transition:all .15s}
+.btn-ghost:active{transform:scale(.96);background:rgba(255,105,180,.1)}
+.btn-skip{padding:12px;background:var(--sf);border:2.5px dashed var(--c3);border-radius:var(--r);font-size:13px;color:var(--th);cursor:pointer;font-family:inherit;width:100%;margin-top:4px;transition:all .15s}
+.btn-skip:active{transform:scale(.96)}
+
+.cal-month{text-align:center;font-size:18px;font-weight:900;margin:20px 0 14px;display:flex;align-items:center;justify-content:center;gap:14px}
+.cal-nav{background:linear-gradient(135deg,var(--sf),var(--sf2));border:2px solid var(--c3);font-size:16px;cursor:pointer;color:var(--c);padding:6px 12px;border-radius:12px;transition:all .15s}
+.cal-nav:active{transform:scale(.9)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:16px}
+.cal-day-header{text-align:center;font-size:10px;color:var(--th);padding:4px 0;font-weight:700}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;font-size:12px;color:var(--tm);cursor:pointer;transition:all .2s;position:relative;font-weight:500}
+.cal-day:active{transform:scale(.85)}
+.cal-day.today{font-weight:900;color:var(--tx);background:rgba(255,105,180,.06)}
+.cal-day.has-record{background:linear-gradient(135deg,var(--cl),#F0E8FF);color:var(--c);font-weight:700;box-shadow:0 2px 8px rgba(255,105,180,.1)}
+.cal-day.has-record::after{content:'';width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,var(--c),var(--c4));position:absolute;bottom:4px;animation:twinkle 2s infinite}
+.cal-day.selected{background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;font-weight:900;box-shadow:0 3px 12px rgba(255,105,180,.3)}
+.cal-day.selected::after{background:#fff;animation:none}
+.cal-detail{background:linear-gradient(135deg,var(--sf),#FDF0FF);border-radius:var(--r);padding:16px;margin:8px 0;box-shadow:var(--glow);animation:bounceIn .3s ease}
+.cal-detail-title{font-size:14px;font-weight:900;margin-bottom:8px;color:var(--c)}
+.cal-detail-item{font-size:12px;color:var(--tm);padding:5px 0}
+
+.wt-current{text-align:center;padding:24px 0}
+.wt-current .wt-num{font-size:48px;font-weight:900;background:linear-gradient(135deg,var(--c),var(--c4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wt-current .wt-unit{font-size:14px;color:var(--tm);font-weight:500}
+.wt-input-row{display:flex;gap:8px;margin:0 0 16px;align-items:center}
+.wt-input-row input{flex:1;border:2.5px solid var(--c3);border-radius:var(--r);padding:14px;font-size:16px;text-align:center;background:var(--bg);color:var(--tx);font-family:inherit;transition:all .2s}
+.wt-input-row input:focus{border-color:var(--c);outline:none;box-shadow:0 0 0 4px rgba(255,105,180,.12)}
+.wt-input-row button{background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;border:none;border-radius:var(--r);padding:14px 22px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 4px 15px rgba(255,105,180,.25);transition:transform .15s}
+.wt-input-row button:active{transform:scale(.92)}
+.wt-chart{background:linear-gradient(135deg,var(--sf),#FDF0FF);border-radius:var(--r);padding:16px;margin:14px 0;box-shadow:var(--glow)}
+.wt-chart canvas{width:100%;height:200px}
+.wt-list{margin:14px 0}
+.wt-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:2px solid rgba(255,105,180,.06);font-size:13px;font-weight:500}
+.wt-item .wt-d{color:var(--th)}
+
+.crop-modal{position:fixed;inset:0;background:rgba(30,10,30,.9);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
+.crop-title{color:#fff;font-size:15px;margin-bottom:14px;font-weight:900}
+.crop-area{width:240px;height:240px;overflow:hidden;border-radius:20px;border:3px solid var(--c);position:relative;touch-action:none;cursor:grab;box-shadow:0 0 30px rgba(255,105,180,.3)}
+.crop-area img{position:absolute;max-width:none;max-height:none;user-select:none;-webkit-user-drag:none}
+.crop-btns{display:flex;gap:14px;margin-top:18px}
+.crop-btns button{padding:12px 28px;border-radius:16px;font-size:14px;font-weight:900;border:none;cursor:pointer;font-family:inherit;transition:transform .15s}
+.crop-btns button:active{transform:scale(.92)}
+.crop-save{background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;box-shadow:0 4px 15px rgba(255,105,180,.3)}
+.crop-cancel{background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.2)!important}
+
+.skip-modal{position:fixed;inset:0;background:rgba(30,10,30,.6);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)}
+.skip-box{background:var(--bg);border-radius:var(--r2);padding:28px;max-width:320px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(255,105,180,.15);animation:bounceIn .3s ease}
+.skip-box h3{font-size:20px;margin-bottom:10px;font-weight:900}
+.skip-box p{font-size:13px;color:var(--tm);margin-bottom:16px;line-height:1.6}
+.skip-box .skip-count{font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--c),var(--c4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;margin:10px 0}
+.skip-btns{display:flex;gap:10px}
+.skip-btns button{flex:1;padding:14px;border-radius:14px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:transform .15s}
+.skip-btns button:active{transform:scale(.92)}
+
+/* Complete popup */
+.complete-popup{position:fixed;inset:0;background:rgba(30,10,30,.6);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)}
+.complete-box{background:var(--bg);border-radius:var(--r2);padding:28px;max-width:320px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(255,105,180,.15);animation:bounceIn .4s ease}
+.complete-box h3{font-size:22px;margin-bottom:14px;font-weight:900}
+.complete-item{font-size:13px;color:var(--tm);line-height:2;text-align:left;padding:0 8px}
+.complete-item b{color:var(--c);font-weight:700}
+.complete-comment{font-size:12px;color:var(--tm);margin:12px 0;padding:10px 12px;background:rgba(255,105,180,.04);border-radius:12px;line-height:1.6;border-left:3px solid var(--c3);font-style:italic;text-align:left}
+.complete-btn{margin-top:14px;padding:14px;background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;width:100%;box-shadow:0 4px 15px rgba(255,105,180,.3);transition:transform .15s}
+.complete-btn:active{transform:scale(.92)}
+
+/* Unlock popup — 20/20 */
+.unlock-box{background:linear-gradient(150deg,#FFF0F0,#FFF0F8,#F8EAFF)!important;border:3px solid #FF6B9D;box-shadow:0 10px 50px rgba(255,107,157,.25),0 0 80px rgba(255,105,180,.15)!important;padding:32px 24px!important}
+@media(prefers-color-scheme:dark){.unlock-box{background:linear-gradient(150deg,#2A1818,#2A1A28,#241A30)!important;border-color:#E0408A}}
+.unlock-crown{font-size:56px;animation:floaty 2s ease-in-out infinite;margin-bottom:4px}
+.unlock-stamp{display:inline-block;font-size:24px;font-weight:900;color:#D42B2B;border:5px double #D42B2B;outline:3px solid rgba(212,43,43,.35);outline-offset:3px;border-radius:10px;padding:10px 22px;letter-spacing:4px;white-space:nowrap;transform:rotate(-9deg);font-family:'Gowun Batang',Georgia,serif;margin:16px 0;text-shadow:0 2px 4px rgba(212,43,43,.25);box-shadow:inset 0 0 0 2px rgba(212,43,43,.15),0 4px 20px rgba(212,43,43,.2),0 0 40px rgba(255,105,180,.18);animation:unlockStamp .4s ease-out forwards}
+@keyframes unlockStamp{0%{transform:rotate(-9deg) scale(3);opacity:0}70%{transform:rotate(-9deg) scale(.95);opacity:1}100%{transform:rotate(-9deg) scale(1);opacity:1}}
+.unlock-stats{display:flex;justify-content:center;gap:16px;margin:12px 0}
+.unlock-stat{font-size:13px;color:var(--tm);padding:6px 14px;background:rgba(255,107,157,.08);border-radius:12px;border:1px solid rgba(255,107,157,.2)}
+.unlock-stat b{color:#FF69B4;font-weight:900}
+.unlock-comment{font-size:13px;font-weight:700;color:var(--tm);margin:14px 0 6px;white-space:nowrap}
+@media(prefers-color-scheme:dark){.unlock-comment{background:linear-gradient(160deg,#2A1A1A,#28181A,#2A1818);color:#F0A0A8;border-color:#E0408A}
+.unlock-comment::before{background:linear-gradient(160deg,#2A2418,#28201A)}}
+.unlock-congrats{font-size:14px;font-weight:900;background:linear-gradient(135deg,var(--c),#FF6B9D,#FFB3C6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:6px;letter-spacing:.5px}
+
+/* Price input in upload */
+.price-row{display:flex;align-items:center;gap:8px;margin-top:12px;justify-content:center}
+.price-row input{width:120px;border:2.5px solid var(--c3);border-radius:12px;padding:8px 10px;font-size:14px;text-align:center;background:var(--bg);color:var(--tx);font-family:inherit}
+.price-row input:focus{border-color:var(--c);outline:none;box-shadow:0 0 0 3px rgba(255,105,180,.15)}
+.price-row span{font-size:13px;color:var(--th);font-weight:700}
+
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--c),var(--c4));color:#fff;padding:12px 24px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;transition:all .3s;pointer-events:none;z-index:999;box-shadow:0 6px 20px rgba(255,105,180,.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);animation:jelly .4s ease}
+
+.confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000}
+.confetti-piece{position:absolute;border-radius:3px;animation:confettiFall 2.5s ease-in forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(-20px) rotate(0deg) scale(1)}50%{opacity:1}100%{opacity:0;transform:translateY(100vh) rotate(1080deg) scale(.5)}}
+.confetti-piece.from-bottom{top:auto;bottom:0;animation:confettiRise 2.5s ease-in forwards}
+@keyframes confettiRise{0%{opacity:1;transform:translateY(20px) rotate(0deg) scale(1)}50%{opacity:1}100%{opacity:0;transform:translateY(-100vh) rotate(-1080deg) scale(.5)}}
+
+.hidden{display:none!important}
+
+/* ===== Approval Mode (Minister/Result) ===== */
+.approval-wrap{padding:20px 0 40px;min-height:100dvh}
+.approval-card{background:linear-gradient(150deg,#FFF5FB,#FAF0FF,#FFF8FA);border:3px solid #FFB6D9;border-radius:24px;padding:24px 18px;box-shadow:0 10px 40px rgba(255,105,180,.15);position:relative;overflow:hidden}
+@media(prefers-color-scheme:dark){.approval-card{background:linear-gradient(150deg,#2A1828,#251A30,#281828);border-color:#6B3050}}
+.approval-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(255,105,180,.15),transparent 70%);border-radius:50%}
+.approval-header{text-align:center;margin-bottom:18px;position:relative;z-index:1}
+.approval-crown{font-size:48px;animation:floaty 2.5s ease-in-out infinite;margin-bottom:8px}
+.approval-from,.approval-to{font-size:12px;color:var(--tm);font-weight:600;letter-spacing:.5px}
+.approval-from b,.approval-to b{color:var(--c);font-weight:900}
+.approval-title{text-align:center;font-size:18px;font-weight:900;color:#FF69B4;margin:14px 0 16px;padding:10px;background:rgba(255,255,255,.5);border-radius:14px;border:2px dashed #FFB6D9;letter-spacing:1px}
+@media(prefers-color-scheme:dark){.approval-title{background:rgba(255,255,255,.05)}}
+.approval-thumb-wrap{text-align:center;margin:14px 0}
+.approval-thumb{width:160px;height:160px;object-fit:cover;border-radius:20px;border:4px solid #fff;box-shadow:0 6px 20px rgba(255,105,180,.25)}
+.approval-item{background:rgba(255,255,255,.6);border-radius:16px;padding:14px;margin:14px 0;border:1.5px solid rgba(255,105,180,.15)}
+@media(prefers-color-scheme:dark){.approval-item{background:rgba(255,255,255,.04)}}
+.approval-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed rgba(255,105,180,.15)}
+.approval-row:last-child{border-bottom:none}
+.approval-label{font-size:12px;color:var(--tm);font-weight:600}
+.approval-val{font-size:14px;color:var(--tx);font-weight:700;text-align:right;max-width:65%}
+.approval-reason{margin-top:10px;padding:12px;background:rgba(255,105,180,.05);border-radius:12px;border-left:3px solid var(--c)}
+.approval-stats{display:flex;gap:8px;margin:14px 0;padding:14px;background:linear-gradient(135deg,rgba(255,105,180,.08),rgba(216,167,255,.08));border-radius:16px}
+.approval-stat{flex:1;text-align:center}
+.approval-stat-num{font-size:22px;font-weight:900;color:#FF69B4;line-height:1}
+.approval-stat-num small{font-size:11px;color:var(--tm);font-weight:600}
+.approval-stat-lbl{font-size:10px;color:var(--tm);margin-top:4px;font-weight:600}
+.goal-setter{margin-top:16px;padding:16px;background:linear-gradient(135deg,rgba(255,180,80,.1),rgba(255,200,100,.06));border-radius:16px;border:2px dashed #E0A040}
+@media(prefers-color-scheme:dark){.goal-setter{background:linear-gradient(135deg,rgba(255,180,80,.06),rgba(255,200,100,.04))}}
+.goal-counter{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px}
+.goal-btn{width:42px;height:42px;border-radius:12px;border:2px solid #E0A040;background:#fff;font-size:13px;font-weight:900;color:#A06820;cursor:pointer;font-family:inherit;transition:transform .12s;box-shadow:0 2px 6px rgba(224,160,64,.15)}
+@media(prefers-color-scheme:dark){.goal-btn{background:#3A2818;color:#FFD080}}
+.goal-btn:active{transform:scale(.88)}
+.goal-num{min-width:90px;text-align:center;padding:0 10px}
+.goal-num b{font-size:36px;font-weight:900;color:#C08020;line-height:1;background:linear-gradient(135deg,#E0A040,#C08020);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.goal-num small{display:block;font-size:11px;color:var(--tm);font-weight:600;margin-top:2px}
+.goal-preset{padding:5px 10px;border-radius:14px;border:1.5px solid #E0A040;background:rgba(255,255,255,.6);font-size:11px;font-weight:700;color:#A06820;cursor:pointer;font-family:inherit;transition:transform .12s}
+@media(prefers-color-scheme:dark){.goal-preset{background:rgba(255,255,255,.04);color:#FFC080}}
+.goal-preset:active{transform:scale(.9)}
+.approval-actions{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.approval-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border:2.5px solid;border-radius:16px;background:#fff;cursor:pointer;font-family:inherit;text-align:left;transition:transform .15s;box-shadow:0 3px 10px rgba(0,0,0,.04)}
+@media(prefers-color-scheme:dark){.approval-btn{background:rgba(255,255,255,.05);color:var(--tx)}}
+.approval-btn:active{transform:scale(.97)}
+.approval-btn b{font-size:15px;font-weight:900;display:block}
+.approval-btn small{font-size:11px;color:var(--tm);font-weight:500}
+.approval-btn.approve{border-color:#22AA66;color:#1A8855}
+.approval-btn.approve b{color:#1A8855}
+.approval-btn.conditional{border-color:#FFA040;color:#C06010}
+.approval-btn.conditional b{color:#C06010}
+.approval-btn.reject{border-color:#B898C8;color:#7050A0}
+.approval-btn.reject b{color:#7050A0}
+/* 최종 결재 — 도장 버튼 */
+.approval-btn.stamp-btn{border-color:#E0A040;background:linear-gradient(135deg,#FFF8E8,#FFE8C8);box-shadow:0 4px 18px rgba(224,160,64,.25);position:relative;overflow:hidden}
+@media(prefers-color-scheme:dark){.approval-btn.stamp-btn{background:linear-gradient(135deg,#2E2418,#322818);color:#FFD080}}
+.approval-btn.stamp-btn b{color:#A06820;font-size:16px}
+.approval-btn.stamp-btn small{color:#C08020;font-weight:600}
+.approval-btn.stamp-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,200,80,.3),transparent);background-size:200% 100%;animation:shimmer 2.5s infinite;pointer-events:none}
+.approval-btn.hold-btn{border-color:#B898C8;color:#7050A0}
+.approval-btn.hold-btn b{color:#7050A0}
+.report-card{margin:14px 0;padding:16px;background:linear-gradient(150deg,#FFFEF7,#FFF8E8,#FFFCEF);border-radius:18px;border:2px solid #E0A040;box-shadow:0 4px 16px rgba(224,160,64,.12)}
+@media(prefers-color-scheme:dark){.report-card{background:linear-gradient(150deg,#2C2418,#2A2014,#2E2618);border-color:#A06820}}
+.report-title{font-size:15px;font-weight:900;color:#C08020;text-align:center;margin-bottom:14px;letter-spacing:1px}
+.report-goal{margin-bottom:14px}
+.report-goal-bar{height:14px;background:rgba(224,160,64,.15);border-radius:7px;overflow:hidden;margin-bottom:6px}
+.report-goal-fill{height:100%;background:linear-gradient(90deg,#FFD080,#E0A040,#C08020);border-radius:7px;transition:width .8s ease;box-shadow:inset 0 1px 2px rgba(255,255,255,.3)}
+.report-goal-text{text-align:center;font-size:14px;color:var(--tx);font-weight:700}
+.report-goal-text b{font-size:18px;color:#C08020}
+.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.report-cell{padding:10px 6px;background:rgba(255,255,255,.5);border-radius:12px;text-align:center;border:1px solid rgba(224,160,64,.2)}
+@media(prefers-color-scheme:dark){.report-cell{background:rgba(255,255,255,.04)}}
+.report-cell-num{font-size:22px;font-weight:900;color:#A06820;line-height:1.1}
+.report-cell-num small{font-size:11px;color:var(--tm);font-weight:600}
+.report-cell-lbl{font-size:10px;color:var(--tm);margin-top:4px;font-weight:600}
+.final-card{border-color:#E0A040 !important;background:linear-gradient(150deg,#FFFAEC,#FFF3D8,#FFF8E8) !important}
+@media(prefers-color-scheme:dark){.final-card{background:linear-gradient(150deg,#2E2418,#2A2218,#322818) !important;border-color:#A06820 !important}}
+/* 도장 쾅 오버레이 */
+.stamp-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:300;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);animation:stampFadeIn .3s ease}
+@keyframes stampFadeIn{0%{opacity:0}100%{opacity:1}}
+.stamp-big{font-family:'Gowun Batang',Georgia,serif;font-size:54px;font-weight:900;color:#D42B2B;border:8px double #D42B2B;outline:5px solid rgba(212,43,43,.35);outline-offset:5px;border-radius:14px;padding:24px 44px;letter-spacing:8px;white-space:nowrap;transform:rotate(-12deg) scale(4);opacity:0;text-shadow:0 4px 8px rgba(212,43,43,.3);box-shadow:inset 0 0 0 3px rgba(212,43,43,.2),0 8px 40px rgba(212,43,43,.4);animation:stampDrop .8s cubic-bezier(.5,1.6,.5,1) .15s forwards}
+@keyframes stampDrop{0%{transform:rotate(-12deg) scale(4);opacity:0}60%{transform:rotate(-12deg) scale(.9);opacity:1}80%{transform:rotate(-12deg) scale(1.05)}100%{transform:rotate(-12deg) scale(1);opacity:1}}
+.result-stamp{display:inline-block;font-family:'Gowun Batang',Georgia,serif;font-size:30px;font-weight:900;color:#D42B2B;border:6px double #D42B2B;outline:4px solid rgba(212,43,43,.3);outline-offset:4px;border-radius:12px;padding:14px 28px;letter-spacing:5px;white-space:nowrap;transform:rotate(-9deg);margin:18px 0 8px;box-shadow:inset 0 0 0 2px rgba(212,43,43,.15),0 6px 24px rgba(212,43,43,.25);animation:stampDrop .7s cubic-bezier(.5,1.6,.5,1) forwards}
+
+.sparkles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sparkle{position:absolute;font-size:12px;opacity:0;animation:sparkleFloat linear infinite}
+@keyframes sparkleFloat{
+0%{opacity:0;transform:translateY(100vh) rotate(0deg)}
+10%{opacity:.6}
+90%{opacity:.6}
+100%{opacity:0;transform:translateY(-20px) rotate(360deg)}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal"></div>
+<div class="toast" id="toast"></div>
+<div class="tabs"><div class="tabs-inner">
+<button class="tab active" onclick="switchTab(0)"><span class="tab-icon">👸</span>수련</button>
+<button class="tab" onclick="switchTab(1)"><span class="tab-icon">📅</span>왕실 출석부</button>
+<button class="tab" onclick="switchTab(2)"><span class="tab-icon">🏛️</span>기록 보관함</button>
+</div></div>
+<script>
+// --- Royal Comments ---
+var COMMENTS_EARLY=[
+'왕실이 오늘 운동을 확인했어요. 일단 지켜보는 중입니다.',
+'오늘 기록이 접수되었어요. 시작이 꽤 괜찮습니다.',
+'이틀째 수련 확인. 생각보다 진심이시군요.',
+'왕실이 공주님의 의지를 조금 인정하기 시작했어요.',
+'구매 명분이 조금씩 쌓이고 있어요.',
+'심사위원회 반응: "생각보다 꽤 성실하신데요?"',
+'오늘 운동이 심사 기록에 반영되었어요.',
+'재무대신이 오늘 운동을 긍정적으로 봤어요.',
+'왕실이 이번 기록을 조용히 높게 평가했어요.',
+'공주님의 꾸준함이 슬슬 눈에 띄고 있어요.',
+'오늘도 명분 1스푼이 추가되었어요.',
+'심사 분위기가 나쁘지 않아요. 계속 가봅시다.',
+'왕실이 아직은 신중하지만, 반응은 괜찮아요.',
+'오늘 수련으로 첫 인상이 꽤 좋아졌어요.',
+'충동구매보다는 계획된 소비에 가까워지고 있어요.',
+'왕실이 공주님의 페이스를 체크하는 중이에요.',
+'심사표에 작은 플러스가 찍혔어요.',
+'오늘 운동은 꽤 모범적으로 기록되었어요.'
+];
+var COMMENTS_MID=[
+'분위기가 꽤 좋아졌어요. 왕실도 진지하게 보고 있어요.',
+'이번 소비를 진지하게 검토 중이에요.',
+'사치라기보다 보상에 가까워지고 있어요.',
+'왕실도 슬슬 말릴 명분이 줄어들고 있어요.',
+'이 정도면 이유 있는 소비라는 의견이 나왔어요.',
+'재무부의 눈치 강도가 확실히 줄었습니다.',
+'구매 명분이 꽤 탄탄해졌어요.',
+'예비 승인 직전이에요. 흐름이 좋습니다.',
+'오늘 기록이 허가 쪽으로 힘을 보탰어요.',
+'왕실 내부 분위기가 꽤 우호적으로 바뀌었어요.',
+'공주님의 꾸준함이 설득력을 얻고 있어요.',
+'오늘 운동은 꽤 인상적인 자료로 남았어요.',
+'이제는 변덕보다 의지로 보이고 있어요.',
+'심사위원회가 조용히 고개를 끄덕였어요.',
+'보상으로 인정될 가능성이 점점 커지고 있어요.',
+'왕실이 이번 소비를 조금 덜 의심하고 있어요.',
+'허가 게이지가 제법 안정적으로 오르고 있어요.',
+'이쯤 되니 분위기가 꽤 진지해졌어요.'
+];
+var COMMENTS_LATE=[
+'왕실이 공주님의 꾸준함에 감동했어요.',
+'후회 가능성이 낮은 소비로 평가받고 있어요.',
+'이제 꽤 정당한 보상으로 보입니다.',
+'최종 심사 직전. 거의 다 왔어요.',
+'내부 의견이 거의 "사게 해드리자" 쪽입니다.',
+'구매 허가에 가까운 분위기가 형성됐어요.',
+'왕실도 이제는 꽤 납득한 것 같아요.',
+'말리기보다 응원하는 쪽으로 기울고 있어요.',
+'예비 승인이 사실상 내려진 분위기예요.',
+'지금 흐름이면 아주 무난하게 통과할 것 같아요.',
+'공주님의 성실함이 최종 심사에 잘 반영되고 있어요.',
+'허가 보류 사유가 거의 사라졌어요.',
+'왕실이 이번 소비를 보상으로 받아들이는 중이에요.'
+];
+function getRoyalComment(count){
+  var pool;
+  if(count<=7) pool=COMMENTS_EARLY;
+  else if(count<=14) pool=COMMENTS_MID;
+  else pool=COMMENTS_LATE;
+  // seed by count for consistency
+  var idx=((count*7919+31)%pool.length+pool.length)%pool.length;
+  return pool[idx];
+}
+
+// --- Exercise Pool ---
+var POOL={
+  compound:[
+    {name:'스쿼트',sets:3,reps:10,how:'발 어깨너비, 발끝 살짝 바깥\n엉덩이 뒤로 빼며 허벅지 평행까지\n무릎이 발끝 방향 따라가게\n발뒤꿈치로 밀며 올라오기'},
+    {name:'고블릿 스쿼트',sets:3,reps:10,how:'덤벨/물병 가슴 앞에 잡기\n스쿼트 자세로 앉기\n팔꿈치가 무릎 안쪽에 닿을 정도\n발뒤꿈치로 밀며 올라오기'},
+    {name:'런지',sets:3,reps:10,how:'한 발 앞으로 크게 내딛기\n뒷무릎 바닥 가까이 내려가기\n상체 곧게, 앞무릎 90도\n앞발 뒤꿈치로 밀며 원위치'},
+    {name:'와이드 스쿼트',sets:3,reps:10,how:'발을 어깨보다 넓게, 발끝 45도 바깥\n엉덩이 뒤로 빼며 깊게 앉기\n내전근(허벅지 안쪽) 자극 느끼기\n발뒤꿈치로 밀며 올라오기'},
+    {name:'스플릿 스쿼트',sets:3,reps:10,how:'한 발 앞, 한 발 뒤로 벌리고 서기\n뒷무릎 바닥 가까이 내리기\n상체 곧게 유지\n앞발로 밀며 올라오기, 양쪽 번갈아'}
+  ],
+  hinge:[
+    {name:'루마니안 데드리프트',sets:3,reps:10,how:'발 골반너비, 무릎 살짝 굽힘 유지\n엉덩이를 뒤로 밀며 상체 숙이기\n햄스트링 당김 느끼면 멈추기\n둔근 쥐어짜며 올라오기'},
+    {name:'덤벨 데드리프트',sets:3,reps:10,how:'양손 덤벨, 발 골반너비\n엉덩이 뒤로 밀며 숙이기\n덤벨이 정강이 따라 내려가게\n둔근·햄스트링으로 올라오기'},
+    {name:'힙쓰러스트',sets:3,reps:12,how:'등 상부를 의자/소파에 기대기\n발바닥 바닥, 무릎 90도\n둔근 힘주며 골반 들어올리기\n정점 2초 유지'},
+    {name:'글루트브릿지',sets:3,reps:12,how:'누워서 무릎 굽히고 발바닥 바닥에\n둔근 힘주며 골반 들어올리기\n어깨~무릎 일직선, 2초 유지\n천천히 내리기'},
+    {name:'싱글레그 데드리프트',sets:3,reps:10,how:'한 발로 서기, 반대 다리 뒤로 뻗기\n엉덩이 뒤로 밀며 상체 숙이기\n균형 잡으며 햄스트링 당김 느끼기\n천천히 올라오기, 양쪽 번갈아'}
+  ],
+  pull:[
+    {name:'덤벨 로우',sets:3,reps:10,how:'한 손+한 무릎 벤치에 짚기\n반대 손으로 덤벨/밴드 당기기\n팔꿈치를 골반 쪽으로 당기듯\n천천히 내리기'},
+    {name:'밴드 로우',sets:3,reps:10,how:'밴드를 문에 걸거나 높은 곳에 고정\n양손으로 당기기\n견갑골 모으듯 등 수축\n천천히 돌아가기'},
+    {name:'밴드 풀어파트',sets:3,reps:12,how:'밴드를 양손으로 어깨너비 잡기\n팔 펴고 가슴 높이에서 시작\n양쪽으로 당겨 벌리기\n견갑골 모으며 2초 유지'},
+    {name:'슈퍼맨',sets:3,reps:10,how:'엎드려서 팔다리 쭉 펴기\n동시에 팔·다리·가슴 들어올리기\n2초 유지 후 천천히 내리기\n허리 과하게 꺾지 않기'}
+  ],
+  push:[
+    {name:'인클라인 푸시업',sets:3,reps:10,how:'의자나 벽에 손 짚고 푸시업\n몸 일직선 유지\n가슴이 손 높이 가까이 올 때까지\n밀어 올리기'},
+    {name:'푸시업',sets:3,reps:10,how:'손 어깨너비, 몸 일직선\n가슴이 바닥 가까이 올 때까지\n코어 힘주고 밀어 올리기\n어려우면 무릎 대고'},
+    {name:'숄더프레스',sets:3,reps:10,how:'양손 덤벨/밴드 어깨 높이\n머리 위로 밀어올리기\n팔꿈치 완전히 펴기\n천천히 내리기'},
+    {name:'니 푸시업',sets:3,reps:12,how:'무릎 대고 푸시업 자세\n손 어깨너비, 몸 일직선(머리~무릎)\n가슴 바닥 가까이 내리기\n밀어 올리기'}
+  ],
+  core:[
+    {name:'데드버그',sets:2,reps:10,how:'누워서 양팔 천장, 무릎 90도\n오른팔+왼다리 동시에 뻗기\n허리가 바닥에서 뜨지 않게\n교대 반복'},
+    {name:'플랭크',sets:2,reps:'30초',how:'팔꿈치 바닥, 어깨 바로 아래\n머리~발끝 일직선 유지\n배꼽 척추 쪽으로 당기듯\n엉덩이 올라가거나 처지지 않게'},
+    {name:'팔로프 프레스',sets:2,reps:10,how:'밴드를 옆에 고정, 양손으로 잡기\n가슴 앞에서 팔 쭉 뻗기\n몸이 돌아가지 않게 코어 버티기\n천천히 당겨오기. 양쪽 반복'},
+    {name:'바이시클 크런치',sets:2,reps:12,how:'누워서 머리 살짝 들기\n오른 팔꿈치-왼 무릎 터치\n반대쪽 다리는 쭉 뻗기\n교대로 자전거 페달 돌리듯'},
+    {name:'사이드 플랭크',sets:2,reps:'20초',how:'옆으로 누워 팔꿈치 짚기\n골반 들어올려 몸 일직선\n위쪽 손 허리 또는 하늘\n양쪽 각각 수행'}
+  ]
+};
+
+function seededRand(seed){return function(){seed=(seed*16807+0)%2147483647;return(seed-1)/2147483646}}
+function pickRandom(arr,n,rng){
+  var a=arr.slice();var res=[];
+  for(var i=0;i<n&&a.length;i++){var idx=Math.floor(rng()*a.length);res.push(a.splice(idx,1)[0])}
+  return res;
+}
+function generateRoutine(idx){
+  var seed=idx*7919+31;
+  var rng=seededRand(seed);
+  var labels=['A','C','B'];
+  var icons=['👸','🌸','💎'];
+  var li=idx%3;
+  var base=[
+    pickRandom(POOL.compound,1,rng)[0],
+    pickRandom(POOL.hinge,1,rng)[0],
+    pickRandom(rng()<0.5?POOL.pull:POOL.push,1,rng)[0],
+    pickRandom(POOL.core,1,rng)[0]
+  ];
+  var exercises=base.map(function(ex,i){
+    var key=idx+'_'+i;
+    if(S.swapped&&S.swapped[key]){return S.swapped[key]}
+    return ex;
+  });
+  return {
+    type:'strength',
+    name:'왕실 근력 수련 '+labels[li],
+    icon:icons[li],
+    short:'근력'+labels[li],
+    exercises:exercises
+  };
+}
+var CARDIO_OPTIONS=[
+  {name:'런닝',icon:'🏃‍♀️',dur:'20-30분',desc:'가볍게 달리기, 심폐 강화'},
+  {name:'빠르게 걷기',icon:'🚶‍♀️',dur:'30-40분',desc:'경사 걷기, 파워워킹'},
+  {name:'발레',icon:'🩰',dur:'30-40분',desc:'발레 기초 동작, 유연성+근력'},
+  {name:'실내자전거',icon:'🚴‍♀️',dur:'20-30분',desc:'저강도 사이클링, 관절 부담 적음'}
+];
+function generateCardio(idx){
+  var seed=idx*4219+17;
+  var rng=seededRand(seed);
+  var pick=CARDIO_OPTIONS[Math.floor(rng()*CARDIO_OPTIONS.length)];
+  return {type:'cardio',name:pick.name,icon:'🏃‍♀️',short:'유산소',dur:pick.dur,desc:pick.desc};
+}
+
+var CYCLE_PATTERN=['strength','cardio','strength','cardio','strength'];
+function getRoutineForCycle(globalIdx){
+  var pos=globalIdx%5;
+  if(CYCLE_PATTERN[pos]==='cardio') return generateCardio(globalIdx);
+  else return generateRoutine(globalIdx);
+}
+var SWAP_MAX=3;
+var GOAL=20; // 기본값 (재무대신이 정하지 않은 경우)
+function getGoal(){return (S.reward&&S.reward.goalCount)||GOAL}
+
+var S=JSON.parse(localStorage.getItem('wk_princess')||'{}');
+if(S.idx===undefined)S.idx=0;
+if(!S.sets)S.sets={};
+if(!S.weights)S.weights=[];
+if(!S.history)S.history=[];
+if(!S.reward)S.reward={};
+if(!S.swaps)S.swaps={};
+if(!S.swapped)S.swapped={};
+if(!S.extras)S.extras=[];
+if(!S.customPool)S.customPool=[];
+if(!S.streak)S.streak=0;
+// 왕실 재무대신 정보 + 결재 상태
+if(!S.minister)S.minister={name:'',title:'왕실 재무대신'};
+if(!S.princessName)S.princessName='공주';
+// 기존 직책 표기 마이그레이션 (왕실재무부장/왕실재무대신 → 왕실 재무대신)
+if(S.minister.title==='왕실재무부장'||S.minister.title==='왕실재무대신')S.minister.title='왕실 재무대신';
+// reward.status:
+//  'none'(미등록) / 'awaiting'(사전 심사 대기) / 'approved'(사전 승인) / 'conditional'(조건부)
+//  / 'holding'(보류) / 'awaiting_final'(최종 결재 대기) / 'unlocked'(구매 허가 완료)
+if(S.reward&&S.reward.img&&!S.reward.status)S.reward.status='approved';
+// 기존 'rejected' → 'holding' 마이그레이션
+if(S.reward&&S.reward.status==='rejected')S.reward.status='holding';
+var curTab=0;
+var calYear,calMonth;
+(function(){var d=new Date();calYear=d.getFullYear();calMonth=d.getMonth()})();
+var calSelected=null;
+function save(){localStorage.setItem('wk_princess',JSON.stringify(S))}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
+function curRoutine(){return getRoutineForCycle(S.idx)}
+function monthKey(y,m){return y+'-'+(m+1)}
+function curMonthKey(){var d=new Date();return monthKey(d.getFullYear(),d.getMonth())}
+function getMonthCount(){
+  var now=new Date(),m=now.getMonth(),y=now.getFullYear(),c=0;
+  S.history.forEach(function(h){if(h.year===y&&h.month===m)c++});
+  return c;
+}
+function getSwapsUsed(){return S.swaps[curMonthKey()]||0}
+function getStreak(){
+  // count consecutive days with records ending today or yesterday
+  var days={};
+  S.history.forEach(function(h){
+    var k=h.year+'-'+h.month+'-'+h.day;
+    days[k]=true;
+  });
+  var d=new Date();
+  // check if today has record, if not start from yesterday
+  var tk=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+  if(!days[tk]){
+    d.setDate(d.getDate()-1);
+  }
+  var streak=0;
+  for(var i=0;i<365;i++){
+    var k=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+    if(days[k]){streak++;d.setDate(d.getDate()-1);}
+    else break;
+  }
+  return streak;
+}
+function getDaysLeftInMonth(){
+  var now=new Date();
+  var last=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  return last-now.getDate();
+}
+// ===== 이번 달 수련 통계 (최종 결재 보고서용) =====
+function getMonthStats(){
+  var now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  var items=S.history.filter(function(h){return h.year===y&&h.month===m});
+  var strength=0,cardio=0;
+  var dayMap={};
+  items.forEach(function(h){
+    if(h.icon==='🏃‍♀️'||/유산소|런닝|걷기|발레|자전거/.test(h.name||''))cardio++;
+    else strength++;
+    dayMap[h.day]=true;
+  });
+  var days=Object.keys(dayMap).map(function(d){return parseInt(d)}).sort(function(a,b){return a-b});
+  var firstDay=days[0]||null;
+  var lastDay=days[days.length-1]||null;
+  // 연속 최장
+  var maxStreak=0,curStreak=0,prev=null;
+  days.forEach(function(d){
+    if(prev!==null&&d===prev+1)curStreak++;
+    else curStreak=1;
+    if(curStreak>maxStreak)maxStreak=curStreak;
+    prev=d;
+  });
+  var lastInMonth=new Date(y,m+1,0).getDate();
+  var consideredDays=now.getDate(); // 오늘까지의 일수
+  var missedDays=Math.max(0,consideredDays-days.length);
+  return {
+    total:items.length,
+    strength:strength,
+    cardio:cardio,
+    workoutDays:days.length,
+    firstDay:firstDay,
+    lastDay:lastDay,
+    maxStreak:maxStreak,
+    missedDays:missedDays,
+    monthLen:lastInMonth,
+    consideredDays:consideredDays,
+    month:m+1
+  };
+}
+
+function switchTab(n){
+  curTab=n;
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===n)});
+  render();
+}
+
+// ===== 결재 시스템: URL 인코딩/디코딩 =====
+function encodePayload(obj){
+  try{
+    var json=JSON.stringify(obj);
+    // UTF-8 안전한 base64
+    var b64=btoa(unescape(encodeURIComponent(json)));
+    return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }catch(e){return ''}
+}
+function decodePayload(str){
+  try{
+    var b64=str.replace(/-/g,'+').replace(/_/g,'/');
+    while(b64.length%4)b64+='=';
+    var json=decodeURIComponent(escape(atob(b64)));
+    return JSON.parse(json);
+  }catch(e){return null}
+}
+function buildShareUrl(kind, payload){
+  var base=location.origin+location.pathname;
+  return base+'?'+kind+'='+encodePayload(payload);
+}
+// 메인 모드(공주) / 결재 모드(재무대신) / 회신 처리 모드
+var APPROVAL_MODE=null; // null | 'minister' | 'result'
+var APPROVAL_DATA=null;
+function checkUrlParams(){
+  var params=new URLSearchParams(location.search);
+  var req=params.get('req');
+  var res=params.get('res');
+  if(req){
+    var d=decodePayload(req);
+    if(d){APPROVAL_MODE='minister';APPROVAL_DATA=d;return true}
+  }
+  if(res){
+    var d=decodePayload(res);
+    if(d){APPROVAL_MODE='result';APPROVAL_DATA=d;return true}
+  }
+  return false;
+}
+function clearUrlParams(){
+  history.replaceState({},'',location.pathname);
+}
+
+function render(){
+  if(APPROVAL_MODE==='minister'){renderMinisterMode();return}
+  if(APPROVAL_MODE==='result'){renderResultMode();return}
+  if(curTab===0)renderWorkout();
+  else if(curTab===1)renderCalendar();
+  else renderWeight();
+}
+
+function renderWorkout(){
+  var r=curRoutine();
+  var h='<div class="header"><h1>오늘의 공주 수련</h1>';
+  h+='<div class="routine-label">'+(r.type==='cardio'?'🏃‍♀️ 유산소 Day':r.icon+' '+r.name)+'</div>';
+  h+='</div>';
+
+  // Cycle guide
+  h+='<div class="cycle-bar">';
+  var ci=S.idx%5;
+  for(var gi=0;gi<5;gi++){
+    var rt=getRoutineForCycle(S.idx-ci+gi);
+    var cls=gi===ci?'now':(gi<ci?'done-step':'');
+    h+='<div class="cycle-step '+cls+'"><span class="step-icon">'+rt.icon+'</span>'+rt.short+'</div>';
+  }
+  h+='</div>';
+
+  // Weight
+  var latestW=S.weights.length?S.weights[S.weights.length-1]:null;
+  h+='<div class="weight-row">';
+  h+='<div class="wv">'+(latestW?latestW.kg+'<span> kg</span>':'<span style="font-size:14px">몸무게</span>')+'</div>';
+  h+='<input type="number" id="wi" placeholder="kg" step="0.1">';
+  h+='<button onclick="saveW()">저장</button>';
+  h+='</div>';
+
+  // Royal Reward
+  h+=renderReward();
+
+  if(r.type==='cardio'){
+    var picked=S.cardioChoice;
+    h+='<div class="walk-card">';
+    if(picked===undefined||picked===null){
+      h+='<h2>🫶 오늘의 소비 정당화 미션</h2>';
+      h+='<p>오늘 할 유산소를 골라주세요!</p>';
+      h+='<div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">';
+      CARDIO_OPTIONS.forEach(function(c,i){
+        h+='<button class="btn-ghost" style="text-align:left;padding:12px 14px" onclick="pickCardio('+i+')">';
+        h+='<strong>'+c.icon+' '+c.name+'</strong> <span style="color:var(--th);font-size:12px">'+c.dur+'</span><br>';
+        h+='<span style="font-size:11px;color:var(--tm)">'+c.desc+'</span>';
+        h+='</button>';
+      });
+      h+='</div>';
+    } else {
+      var cc=CARDIO_OPTIONS[picked];
+      h+='<h2>'+cc.icon+' '+cc.name+' '+cc.dur+'</h2>';
+      h+='<p>'+cc.desc+'</p>';
+      h+='<button class="btn-primary" onclick="completeCardio('+picked+')">오늘의 수련 완료하기 👸</button>';
+      h+='<button class="btn-ghost" style="margin-top:8px" onclick="pickCardio(null)">다른 유산소 고르기</button>';
+    }
+    if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">↩ 잘못 눌렀어요! 되돌리기</button>';
+    h+='</div>';
+  } else {
+    var totalSets=0,doneSets=0;
+    r.exercises.forEach(function(ex,i){
+      for(var s=0;s<ex.sets;s++){totalSets++;if(S.sets[i+'_'+s])doneSets++;}
+    });
+    var pct=totalSets?Math.round(doneSets/totalSets*100):0;
+    var allDone=doneSets===totalSets;
+
+    h+='<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>';
+    h+='<div class="progress-text">'+doneSets+' / '+totalSets+' 세트 ('+pct+'%)</div>';
+
+    if(!allDone){
+      h+='<div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:8px">';
+      h+='<span style="font-size:14px;color:var(--tm);font-weight:700">🏰 왕실이 지정한 오늘의 근력 퀘스트</span>';
+      h+='<span style="font-size:11px;color:var(--th);font-weight:500">🔄 변경 '+getSwapsUsed()+'/'+SWAP_MAX+'</span>';
+      h+='</div>';
+      h+='<div class="ex-list">';
+      r.exercises.forEach(function(ex,i){
+        var exDone=true;
+        for(var s=0;s<ex.sets;s++){if(!S.sets[i+'_'+s]){exDone=false;break;}}
+        h+='<div class="ex-card'+(exDone?' done':'')+'">';
+        var swapsLeft=SWAP_MAX-getSwapsUsed();
+        h+='<div class="ex-name" style="display:flex;justify-content:space-between;align-items:center">'+ex.name;
+        if(!exDone&&swapsLeft>0) h+='<button onclick="showSwapConfirm('+i+')" style="font-size:10px;padding:3px 8px;border:1.5px dashed var(--c3);border-radius:8px;background:var(--sf);color:var(--th);cursor:pointer;font-family:inherit">🔄 변경</button>';
+        h+='</div>';
+        h+='<div class="ex-desc">'+ex.sets+'세트 × '+ex.reps+(typeof ex.reps==='number'?'회':'')+(ex.sets<=2?' · 마무리':'')+'</div>';
+        h+='<div class="ex-sets">';
+        for(var s=0;s<ex.sets;s++){
+          var done=S.sets[i+'_'+s];
+          h+='<button class="set-btn'+(done?' done':'')+'" onclick="togSet('+i+','+s+')">'+(done?'✓':(s+1))+'</button>';
+        }
+        h+='</div>';
+        if(ex.how){
+          h+='<button class="how-btn" onclick="togHow(this)">방법 보기 →</button>';
+          h+='<div class="how-text">'+ex.how+'</div>';
+        }
+        if(!exDone&&restTimer&&restEi===i){
+          h+='<div class="rest-timer" id="rest-'+i+'-'+restSi+'">';
+          h+='<span style="font-size:11px;color:var(--tm);font-weight:600;white-space:nowrap">☕ 왕실 티타임</span>';
+          h+='<div class="rest-timer-bar"><div class="rest-timer-fill"></div></div>';
+          h+='<div class="rest-timer-text">60초</div>';
+          h+='</div>';
+        }
+        h+='</div>';
+      });
+      h+='</div>';
+      // 추가 운동 목록
+      if(S.extras.length>0){
+        h+='<div style="margin:10px 0">';
+        h+='<div style="font-size:13px;color:var(--tm);font-weight:700;margin-bottom:6px">💪 추가 운동</div>';
+        h+='<div class="ex-list">';
+        S.extras.forEach(function(ex,i){
+          var exDone=true;
+          for(var s=0;s<ex.sets;s++){if(!S.sets['ex_'+i+'_'+s]){exDone=false;break;}}
+          h+='<div class="ex-card'+(exDone?' done':'')+'">';
+          h+='<div class="ex-name">'+ex.name+'</div>';
+          h+='<div class="ex-desc">'+ex.sets+'세트 × '+ex.reps+(typeof ex.reps==='number'?'회':'')+'</div>';
+          h+='<div class="ex-sets">';
+          for(var s=0;s<ex.sets;s++){
+            var done=S.sets['ex_'+i+'_'+s];
+            h+='<button class="set-btn'+(done?' done':'')+'" onclick="togExtraSet('+i+','+s+')">'+(done?'✓':(s+1))+'</button>';
+          }
+          h+='</div></div>';
+        });
+        h+='</div></div>';
+      }
+      h+='<button class="btn-ghost" style="margin-top:8px;font-size:13px" onclick="showAddExtraModal()">💪 운동 추가하기</button>';
+      if(S.idx>0) h+='<button class="btn-skip" onclick="goBack()" style="margin-top:8px">↩ 잘못 눌렀어요! 되돌리기</button>';
+    }else{
+      var next=getRoutineForCycle(S.idx+1);
+      h+='<div class="done-card">';
+      h+='<h2>👸✨ 수련 완료!</h2>';
+      h+='<p>고생했어요!<br>다음: <strong>'+next.icon+' '+next.name+'</strong></p>';
+      h+='<div class="done-btns">';
+      h+='<button class="btn-primary" onclick="nextRoutine(true)">바로 다음 하기 →</button>';
+      h+='<button class="btn-ghost" onclick="nextRoutine(false)">다음에 할게요 👋</button>';
+      h+='<button class="btn-skip" onclick="goBack()" style="margin-top:4px">↩ 잘못 눌렀어요! 되돌리기</button>';
+      h+='</div></div>';
+    }
+  }
+  document.getElementById('app').innerHTML=h;
+  setTimeout(restoreRestUI,50);
+}
+
+// ========== Royal Pink Safe Card ==========
+var SAFE_STAGES=[
+  {key:'stored',label:'보관 중',sub:'',max:19},
+  {key:'review',label:'심사 중',sub:'',max:44},
+  {key:'examining',label:'검토 중',sub:'',max:74},
+  {key:'preapproved',label:'승인 직전',sub:'',max:99},
+  {key:'approved',label:'사도 됨',sub:'',max:100}
+];
+var SAFE_COMMENTS_LOCKED=[
+  '아직 왕실 허가가 나지 않았어요.',
+  '심사 자료를 수집하고 있어요.',
+  '왕실도 슬슬 납득 중이에요.',
+  '이제 정말 거의 다 왔어요.',
+  '공주님의 꾸준함에 감동 중...'
+];
+var SAFE_COMMENTS_APPROVED=[
+  '"이제 사도 아무도 뭐라 안 함" 인증서 발급',
+  '공주님의 꾸준함이 이 소비를 정당화했습니다.',
+  '봉인 해제 완료! 데려오세요.',
+  '이 아이템은 이제 공주님의 것입니다.',
+  '오늘부터 이건 사치가 아니라 보상입니다.',
+  '왕실도 인정한 정당한 소비예요.',
+  '공주님의 성실함이 결국 왕실을 설득했어요.',
+  '이 정도면 누구나 고개를 끄덕일 만한 보상이에요.'
+];
+function getSafeStage(pct){
+  for(var i=0;i<SAFE_STAGES.length;i++){if(pct<=SAFE_STAGES[i].max)return SAFE_STAGES[i]}
+  return SAFE_STAGES[4];
+}
+function getSafeComment(pct,count){
+  if(pct>=100){
+    var idx=((count*3571+7)%SAFE_COMMENTS_APPROVED.length+SAFE_COMMENTS_APPROVED.length)%SAFE_COMMENTS_APPROVED.length;
+    return SAFE_COMMENTS_APPROVED[idx];
+  }
+  // map count to comment pool
+  var ci=Math.min(Math.floor(count/4), SAFE_COMMENTS_LOCKED.length-1);
+  return SAFE_COMMENTS_LOCKED[ci];
+}
+
+function renderReward(){
+  var h='';
+  var count=getMonthCount();
+  var swaps=getSwapsUsed();
+  var goal=getGoal();
+  var pct=Math.min(100,Math.round(count/goal*100));
+  var unlocked=count>=goal;
+  var now=new Date();
+  var ml=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][now.getMonth()];
+  var swapsLeft=SWAP_MAX-swaps;
+  var daysLeft=getDaysLeftInMonth();
+  var stage=getSafeStage(pct);
+
+  if(!S.reward.img){
+    // Empty state — upload prompt
+    h+='<div class="safe-card stage-stored">';
+    h+='<div class="safe-upload" onclick="showPriceUpload()">';
+    h+='<div class="safe-upload-icon">👑</div>';
+    h+='<div class="safe-upload-title">'+ml+' 왕실 구매 심사 품목</div>';
+    h+='<div class="safe-upload-text">왕실 재무대신이 다음 심사 품목을 기다리는 중입니다<b>✨ 왕실 구매 심사 제출하기</b></div>';
+    h+='</div></div>';
+    // 재무대신 미설정 안내
+    if(!S.minister.name){
+      h+='<div style="margin:10px 0;padding:14px;background:linear-gradient(135deg,var(--sf),#FDF0FF);border-radius:var(--r);border:2px dashed var(--c3);text-align:center;cursor:pointer" onclick="showMinisterSetup()">';
+      h+='<div style="font-size:13px;color:var(--tm);font-weight:700;margin-bottom:4px">⚜️ 왕실 재무대신을 임명하세요</div>';
+      h+='<div style="font-size:11px;color:var(--th)">구매 결재를 봐줄 사람을 지정해두면<br>심사 요청을 보낼 수 있어요</div>';
+      h+='</div>';
+    } else {
+      h+='<div style="text-align:center;margin:6px 0;font-size:11px;color:var(--th)">⚜️ '+S.minister.title+': <b style="color:var(--c)">'+S.minister.name+'</b> <button onclick="showMinisterSetup()" style="background:none;border:none;color:var(--th);cursor:pointer;font-family:inherit;font-size:11px;text-decoration:underline">변경</button></div>';
+    }
+  } else if(S.reward.status==='awaiting'){
+    // 결재 대기 중
+    h+='<div class="safe-card stage-review">';
+    h+='<div class="safe-header">';
+    h+='<span class="safe-header-title">📨 재무대신 결재 대기 중</span>';
+    h+='<button class="safe-header-edit" onclick="cancelApprovalRequest()">취소</button>';
+    h+='</div>';
+    h+='<div class="safe-body">';
+    h+='<div style="text-align:center;padding:20px 12px">';
+    h+='<div style="font-size:48px;margin-bottom:8px;animation:floaty 2s ease-in-out infinite">📜</div>';
+    if(S.reward.name)h+='<div style="font-size:15px;font-weight:900;color:var(--c);margin-bottom:4px">🏷️ '+S.reward.name+'</div>';
+    if(S.reward.price)h+='<div style="font-size:14px;color:var(--tm);font-weight:700;margin-bottom:10px">💰 '+S.reward.price+'</div>';
+    h+='<div style="font-size:12px;color:var(--tm);line-height:1.6;margin-bottom:14px">';
+    h+='<b style="color:var(--c)">'+(S.minister.name||'재무대신')+'</b>'+(S.minister.title?' '+S.minister.title:'')+'님의<br>결재를 기다리고 있어요</div>';
+    h+='<button class="safe-cta" style="background:linear-gradient(135deg,var(--c),var(--c4))" onclick="resendApprovalRequest()">📨 결재 링크 다시 보내기</button>';
+    h+='<button class="btn-skip" style="margin-top:8px" onclick="cancelApprovalRequest()">품목 바꿀게요 ↩</button>';
+    h+='</div></div></div>';
+  } else if(S.reward.status==='holding'){
+    // 보류됨 — "조금 더 고민 후 다시 신청"
+    h+='<div class="safe-card" style="border-color:#B898C8">';
+    h+='<div class="safe-header">';
+    h+='<span class="safe-header-title" style="color:#9070A0">⏸️ 사전 심사 보류</span>';
+    h+='<button class="safe-header-edit" onclick="resetReward()">변경</button>';
+    h+='</div>';
+    h+='<div class="safe-body">';
+    h+='<div style="text-align:center;padding:14px 12px">';
+    if(S.reward.name)h+='<div style="font-size:15px;font-weight:900;color:var(--tm);margin-bottom:4px">🏷️ '+S.reward.name+'</div>';
+    if(S.reward.holdReason){
+      h+='<div class="safe-comment" style="border-left-color:#9070A0;background:rgba(144,112,160,.06);margin-top:10px">💬 '+S.reward.holdReason+'</div>';
+    }
+    h+='<div style="font-size:12px;color:var(--tm);margin-top:12px;line-height:1.6"><b style="color:#9070A0">'+(S.minister.name||'재무대신')+'</b>께서 조금 더<br>고민 후 다시 신청해 달라셨어요</div>';
+    h+='<button class="safe-cta" onclick="resetReward()" style="margin-top:14px;background:linear-gradient(135deg,#9070A0,#B898C8)">🔄 품목 다시 제출하기</button>';
+    h+='<button class="btn-skip" style="margin-top:8px" onclick="resendApprovalRequest()">📨 같은 품목으로 재신청</button>';
+    h+='</div></div></div>';
+  } else if(S.reward.status==='awaiting_final'){
+    // 최종 결재 대기 중
+    h+='<div class="safe-card stage-preapproved">';
+    h+='<div class="safe-header">';
+    h+='<span class="safe-header-title">⏳ 최종 구매 허가 대기 중</span>';
+    h+='<button class="safe-header-edit" onclick="cancelFinalApproval()">취소</button>';
+    h+='</div>';
+    h+='<div class="safe-body">';
+    h+='<div style="text-align:center;padding:14px 12px">';
+    h+='<div style="font-size:48px;margin-bottom:8px;animation:floaty 2s ease-in-out infinite">📜</div>';
+    if(S.reward.name)h+='<div style="font-size:15px;font-weight:900;color:var(--c);margin-bottom:4px">🏷️ '+S.reward.name+'</div>';
+    if(S.reward.price)h+='<div style="font-size:14px;color:var(--tm);font-weight:700;margin-bottom:10px">💰 '+S.reward.price+'</div>';
+    h+='<div style="font-size:12px;color:var(--tm);line-height:1.6;margin-bottom:14px">수련 완주 보고가 올라갔어요.<br><b style="color:var(--c)">'+(S.minister.name||'재무대신')+'</b>께서 도장을 찍어주실 거예요 👑</div>';
+    h+='<button class="safe-cta" onclick="resendFinalApprovalRequest()">📨 결재 링크 다시 보내기</button>';
+    h+='<button class="btn-skip" style="margin-top:8px" onclick="cancelFinalApproval()">↩ 대기 취소</button>';
+    h+='</div></div></div>';
+  } else {
+    // --- The Safe Card ---
+    // 게이지 100%여도 최종 결재 전이면 'preapproved'로 고정 (도장은 unlocked일 때만)
+    var displayStage=stage;
+    if(pct>=100&&S.reward.status!=='unlocked')displayStage=SAFE_STAGES[3];
+    h+='<div class="safe-card stage-'+displayStage.key+'">';
+    h+='<div class="safe-header">';
+    h+='<span class="safe-header-title">'+(S.reward.status==='unlocked'?'🎉 구매 허가 승인':'✨'+ml+' 왕실 구매 심사 품목')+'</span>';
+    h+='<button class="safe-header-edit" onclick="changeReward()">변경</button>';
+    h+='</div>';
+    h+='<div class="safe-body">';
+
+    // ---- Vault Assembly (PNG frame) ----
+    h+='<div class="safe-assembly">';
+    h+='<div class="safe-img-layer"><img src="'+S.reward.img+'" draggable="false"></div>';
+    h+='<img class="safe-frame-img" src="safe-frame.png" draggable="false">';
+    h+='</div>'; // safe-assembly
+    h+='<div class="safe-status">';
+    h+='<div class="safe-status-badge">'+displayStage.label+'</div>';
+    if(displayStage.sub) h+='<div class="safe-status-sub">'+displayStage.sub+'</div>';
+    h+='</div>';
+
+    // ---- Info section ----
+    h+='<div class="safe-info">';
+
+    if(S.reward.name) h+='<div class="safe-price" style="font-size:17px;margin-bottom:2px">🏷️ '+S.reward.name+'</div>';
+    if(S.reward.price) h+='<div class="safe-price">💰 '+S.reward.price+'</div>';
+
+    // 조건부 승인 배지
+    if(S.reward.status==='conditional'&&S.reward.condition){
+      h+='<div style="margin-top:10px;padding:10px 12px;background:linear-gradient(135deg,rgba(255,180,80,.12),rgba(255,140,80,.08));border-radius:12px;border-left:3.5px solid #FFA040;text-align:left">';
+      h+='<div style="font-size:11px;font-weight:900;color:#E08020;margin-bottom:3px">🤝 조건부 승인</div>';
+      h+='<div style="font-size:12px;color:var(--tx);line-height:1.5;font-weight:500">'+S.reward.condition+'</div>';
+      h+='</div>';
+    }
+    // 재무대신 결재 표시
+    if(S.minister.name&&(S.reward.status==='approved'||S.reward.status==='conditional')){
+      h+='<div style="margin-top:8px;text-align:center;font-size:11px;color:var(--th)">⚜️ 결재: <b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'</div>';
+    }
+
+    h+='<div class="safe-progress-label">소비 정당화 게이지</div>';
+    h+='<div class="safe-progress-wrap">';
+    h+='<div class="safe-progress-bar"><div class="safe-progress-fill" style="width:'+pct+'%"></div></div>';
+    h+='<span class="safe-progress-pct">'+pct+'%</span>';
+    h+='</div>';
+
+    if(unlocked){
+      if(S.reward.status==='unlocked'){
+        h+='<button class="safe-cta" onclick="toast(\'장바구니 말고 진짜 데려오세요! 👑\')">👑 구매 허가 — 도장 쾅 완료!</button>';
+      } else {
+        // 게이지는 다 찼지만 최종 결재는 아직
+        h+='<div style="margin-top:8px;padding:10px 12px;background:linear-gradient(135deg,rgba(255,200,80,.12),rgba(255,180,100,.08));border-radius:12px;border:1.5px dashed #FFB060;font-size:12px;color:#C08020;font-weight:700;text-align:center;line-height:1.5">🎉 수련 완주!<br>이제 <b>최종 구매 허가</b> 결재만 남았어요</div>';
+        h+='<button class="safe-cta" onclick="requestFinalApproval()" style="background:linear-gradient(135deg,#E0A040,#FFC870)">👑 재무대신께 최종 결재 요청</button>';
+      }
+    } else {
+      h+='<div class="safe-days-left">완주까지 '+(goal-count)+'회 남음 · '+daysLeft+'일 남음</div>';
+    }
+
+    if(count>0){
+      var comment=unlocked?getSafeComment(100,count):(S.lastComment||getRoyalComment(count));
+      h+='<div class="safe-comment">💬 '+comment+'</div>';
+    }
+
+    h+='</div>'; // safe-info
+    h+='</div>'; // safe-body
+    h+='</div>'; // safe-card
+  }
+  return h;
+}
+
+// --- Price Upload Modal ---
+function showPriceUpload(){
+  var hasMinister=!!S.minister.name;
+  var h='<div class="skip-modal" onclick="if(event.target===this)closeModal()">';
+  h+='<div class="skip-box" style="max-height:90vh;overflow-y:auto">';
+  h+='<h3>✨ 왕실 구매 심사 제출</h3>';
+  h+='<p>'+(hasMinister?'<b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'님께<br>심사 요청을 보낼게요!':'사고 싶은 물품을 제출해주세요!')+'</p>';
+  h+='<div class="price-row"><span>🏷️</span><input type="text" id="nameInput" placeholder="예: 에어팟 맥스" value="'+(S.reward.name||'')+'"></div>';
+  h+='<div class="price-row"><span>💰</span><input type="text" id="priceInput" placeholder="예: 39,000원" value="'+(S.reward.price||'')+'"></div>';
+  h+='<div style="margin-top:10px;text-align:left">';
+  h+='<div style="font-size:11px;color:var(--tm);font-weight:700;margin-bottom:4px;padding:0 4px">📜 공주의 구매 명분서 <span style="color:var(--th);font-weight:500">(선택)</span></div>';
+  h+='<textarea id="reasonInput" placeholder="이 수련의 보상이 어찌하여 마땅한지 한 말씀&#10;예: 한 달 내내 수련을 게을리하지 않았으니, 마땅히 이 보상이 따라야 하느니라" style="width:100%;min-height:60px;padding:10px;border:2.5px solid var(--c3);border-radius:12px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--tx);box-sizing:border-box;resize:vertical;line-height:1.5">'+(S.reward.reason||'')+'</textarea>';
+  h+='</div>';
+  h+='<div style="margin-top:14px">';
+  h+='<button class="complete-btn" onclick="triggerFileUpload()">📸 사진 선택 후 다음 →</button>';
+  h+='</div>';
+  if(!hasMinister){
+    h+='<div style="margin-top:8px;font-size:11px;color:var(--th);text-align:center">⚠️ 재무대신 미설정 — <a onclick="closeModal();showMinisterSetup()" style="color:var(--c);cursor:pointer;text-decoration:underline">먼저 임명하기</a></div>';
+  }
+  h+='<input type="file" id="rwdFilePrincess" accept="image/*" style="display:none" onchange="startCropWithPrice(this)">';
+  h+='</div></div>';
+  document.getElementById('modal').innerHTML=h;
+}
+function triggerFileUpload(){
+  var name=document.getElementById('nameInput').value.trim();
+  var price=document.getElementById('priceInput').value.trim();
+  var reason=document.getElementById('reasonInput').value.trim();
+  if(!name){toast('품목 이름을 입력해주세요!');return}
+  S.reward.name=name;S.reward.price=price;S.reward.reason=reason;save();
+  document.getElementById('rwdFilePrincess').click();
+}
+function startCropWithPrice(input){
+  var file=input.files[0];if(!file)return;
+  closeModal();
+  var reader=new FileReader();
+  reader.onload=function(e){showCropModal(e.target.result)};
+  reader.readAsDataURL(file);
+}
+
+// --- Calendar tab ---
+function renderCalendar(){
+  var h='<div class="cal-month">';
+  h+='<button class="cal-nav" onclick="calPrev()">‹</button>';
+  h+='<span>'+(calYear)+'년 '+(calMonth+1)+'월</span>';
+  h+='<button class="cal-nav" onclick="calNext()">›</button>';
+  h+='</div>';
+  var days=['일','월','화','수','목','금','토'];
+  h+='<div class="cal-grid">';
+  days.forEach(function(d){h+='<div class="cal-day-header">'+d+'</div>'});
+  var first=new Date(calYear,calMonth,1).getDay();
+  var last=new Date(calYear,calMonth+1,0).getDate();
+  var today=new Date();
+  var records={};
+  S.history.forEach(function(item){
+    if(item.year===calYear&&item.month===calMonth){
+      if(!records[item.day])records[item.day]=[];
+      records[item.day].push(item);
+    }
+  });
+  for(var i=0;i<first;i++)h+='<div class="cal-day"></div>';
+  for(var d=1;d<=last;d++){
+    var isToday=calYear===today.getFullYear()&&calMonth===today.getMonth()&&d===today.getDate();
+    var has=records[d];
+    var sel=calSelected===d;
+    var cls='cal-day'+(isToday?' today':'')+(has?' has-record':'')+(sel?' selected':'');
+    h+='<div class="'+cls+'" onclick="selectDay('+d+')">'+d+'</div>';
+  }
+  h+='</div>';
+  if(calSelected&&records[calSelected]){
+    h+='<div class="cal-detail">';
+    h+='<div class="cal-detail-title">'+(calMonth+1)+'/'+calSelected+' 수련 기록</div>';
+    records[calSelected].forEach(function(item){
+      h+='<div class="cal-detail-item">'+item.icon+' '+item.name+'</div>';
+    });
+    h+='</div>';
+  } else if(calSelected){
+    h+='<div class="cal-detail"><div class="cal-detail-item" style="color:var(--th)">기록 없음</div></div>';
+  }
+  var mc=0;S.history.forEach(function(item){if(item.year===calYear&&item.month===calMonth)mc++});
+  h+='<div style="text-align:center;margin:16px 0;font-size:13px;color:var(--tm)">이번 달 총 <b style="color:var(--c)">'+mc+'회</b> 수련</div>';
+  document.getElementById('app').innerHTML=h;
+}
+function selectDay(d){calSelected=calSelected===d?null:d;renderCalendar()}
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--}calSelected=null;renderCalendar()}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++}calSelected=null;renderCalendar()}
+
+// --- Weight tab ---
+function renderWeight(){
+  var h='';
+  var latestW=S.weights.length?S.weights[S.weights.length-1]:null;
+  h+='<div class="wt-current">';
+  h+='<div class="wt-num">'+(latestW?latestW.kg:'-')+'</div>';
+  h+='<div class="wt-unit">kg</div>';
+  h+='</div>';
+  h+='<div class="wt-input-row">';
+  h+='<input type="number" id="wti" placeholder="몸무게 입력" step="0.1">';
+  h+='<button onclick="saveWt()">저장</button>';
+  h+='</div>';
+  if(S.weights.length>=2){
+    h+='<div class="wt-chart"><canvas id="wtCanvas" width="400" height="200"></canvas></div>';
+  }
+  if(S.weights.length){
+    h+='<div class="wt-list">';
+    var recent=S.weights.slice(-15).reverse();
+    recent.forEach(function(w){
+      h+='<div class="wt-item"><span>'+w.kg+' kg</span><span class="wt-d">'+w.date+'</span></div>';
+    });
+    h+='</div>';
+  }
+  h+='<div style="margin:24px 0;display:flex;flex-direction:column;gap:8px">';
+  h+='<button class="btn-ghost" onclick="exportBackup()">📦 데이터 백업 (내보내기)</button>';
+  h+='<label class="btn-ghost" style="text-align:center;cursor:pointer">📥 데이터 복원 (가져오기)<input type="file" accept=".json" style="display:none" onchange="importBackup(this)"></label>';
+  h+='<button class="btn-ghost" style="color:#E05070;border-color:#E05070" onclick="resetData()">🗑️ 기록 전체 리셋</button>';
+  h+='</div>';
+  document.getElementById('app').innerHTML=h;
+  if(S.weights.length>=2)drawChart();
+}
+function saveWt(){
+  var v=parseFloat(document.getElementById('wti').value);
+  if(!v||v<20||v>300)return;
+  var now=new Date();
+  S.weights.push({kg:v,date:(now.getFullYear())+'.'+(now.getMonth()+1)+'.'+now.getDate()});
+  save();renderWeight();toast(v+'kg 저장!');
+}
+function drawChart(){
+  var canvas=document.getElementById('wtCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  canvas.width=canvas.offsetWidth*dpr;
+  canvas.height=200*dpr;
+  ctx.scale(dpr,dpr);
+  var W=canvas.offsetWidth,H=200;
+  var data=S.weights.slice(-20);
+  var vals=data.map(function(w){return w.kg});
+  var minV=Math.min.apply(null,vals);
+  var maxV=Math.max.apply(null,vals);
+  var min=Math.floor(minV)-1;
+  var max=Math.ceil(maxV)+1;
+  var range=max-min||1;
+  var padL=40,padR=10,padT=15,padB=25;
+  var gw=W-padL-padR,gh=H-padT-padB;
+  ctx.strokeStyle='rgba(255,107,157,0.1)';ctx.lineWidth=1;
+  for(var v=min;v<=max;v++){
+    var y=padT+(max-v)/range*gh;
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
+    ctx.fillStyle='#bbb';ctx.font='10px sans-serif';ctx.textAlign='right';
+    ctx.fillText(v,padL-4,y+3);
+  }
+  ctx.beginPath();
+  ctx.strokeStyle='#FF6B9D';ctx.lineWidth=2.5;ctx.lineJoin='round';
+  data.forEach(function(w,i){
+    var x=padL+i/(data.length-1)*gw;
+    var y=padT+(max-w.kg)/range*gh;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  data.forEach(function(w,i){
+    var x=padL+i/(data.length-1)*gw;
+    var y=padT+(max-w.kg)/range*gh;
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle='#FF6B9D';ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  });
+  ctx.fillStyle='#bbb';ctx.font='9px sans-serif';ctx.textAlign='center';
+  [0,Math.floor(data.length/2),data.length-1].forEach(function(i){
+    if(!data[i])return;
+    var x=padL+i/(data.length-1)*gw;
+    ctx.fillText(data[i].date.split('.').slice(1).join('/'),x,H-5);
+  });
+}
+
+// --- Rest timer ---
+var restTimer=null;
+var restEi=-1,restSi=-1;
+var restStart=0;
+var REST_SEC=60;
+function startRest(ei,si){
+  clearInterval(restTimer);
+  restEi=ei;restSi=si;
+  restStart=Date.now();
+  restTimer=setInterval(function(){
+    var elapsed=Math.floor((Date.now()-restStart)/1000);
+    if(elapsed>=REST_SEC){
+      clearInterval(restTimer);
+      updateRestUI(REST_SEC);
+      restTimer=null;
+    } else {
+      updateRestUI(elapsed);
+    }
+  },200);
+}
+function restoreRestUI(){
+  if(!restTimer||restEi<0)return;
+  var elapsed=Math.floor((Date.now()-restStart)/1000);
+  if(elapsed<REST_SEC)updateRestUI(elapsed);
+  else updateRestUI(REST_SEC);
+}
+function updateRestUI(sec){
+  var el=document.getElementById('rest-'+restEi+'-'+restSi);
+  if(!el)return;
+  var pct=Math.min(100,Math.round(sec/REST_SEC*100));
+  var left=REST_SEC-sec;
+  var bar=el.querySelector('.rest-timer-fill');
+  var txt=el.querySelector('.rest-timer-text');
+  if(bar)bar.style.width=pct+'%';
+  if(txt)txt.textContent=left>0?left+'초':'GO!';
+  if(left<=0)el.classList.add('done-timer');
+}
+
+// --- Actions ---
+function togSet(ei,si){
+  var key=ei+'_'+si;
+  var wasDone=S.sets[key];
+  S.sets[key]=!S.sets[key];
+  save();
+  if(!wasDone&&S.sets[key]){
+    var r=curRoutine();
+    var ex=r.exercises[ei];
+    var allExDone=true;
+    for(var s=0;s<ex.sets;s++){if(!S.sets[ei+'_'+s]){allExDone=false;break;}}
+    if(!allExDone){startRest(ei,si);}
+    else{clearInterval(restTimer);restTimer=null;restEi=-1;}
+  } else {
+    clearInterval(restTimer);restTimer=null;restEi=-1;
+  }
+  // Check if ALL exercises complete -> show popup
+  var r=curRoutine();
+  if(r.type==='strength'){
+    var totalSets=0,doneSets=0;
+    r.exercises.forEach(function(ex,i){
+      for(var s=0;s<ex.sets;s++){totalSets++;if(S.sets[i+'_'+s])doneSets++;}
+    });
+    if(doneSets===totalSets&&!wasDone){
+      showCompletePopup(r);
+    }
+  }
+  render();
+}
+function togHow(btn){
+  var txt=btn.nextElementSibling;
+  if(txt.style.display==='block'){txt.style.display='none';btn.textContent='방법 보기 →';}
+  else{txt.style.display='block';btn.textContent='접기';}
+}
+function addHistory(r){
+  var now=new Date();
+  S.history.push({name:r.name,icon:r.icon,year:now.getFullYear(),month:now.getMonth(),day:now.getDate(),date:(now.getMonth()+1)+'/'+now.getDate()});
+}
+function pickCardio(ci){
+  S.cardioChoice=ci;
+  save();render();
+}
+function completeCardio(ci){
+  var c=CARDIO_OPTIONS[ci];
+  var now=new Date();
+  S.history.push({name:c.name,icon:c.icon,year:now.getFullYear(),month:now.getMonth(),day:now.getDate(),date:(now.getMonth()+1)+'/'+now.getDate()});
+  S.idx++;S.cardioChoice=null;save();
+  var count=getMonthCount();
+  var pctGain=Math.round(100/getGoal());
+  showCompletePopupCustom(c.icon+' '+c.name, pctGain, count);
+  render();checkRewardUnlock();
+}
+function nextRoutine(doNow){
+  S.idx++;S.sets={};save();
+  if(doNow)toast(curRoutine().icon+' '+curRoutine().name+' 시작!');
+  else toast('다음에 할게요! 👋');
+  S.extras=[];save();
+  render();checkRewardUnlock();
+}
+function togExtraSet(ei,si){
+  var key='ex_'+ei+'_'+si;
+  S.sets[key]=!S.sets[key];save();render();
+}
+function showAddExtraModal(){
+  var cats=[
+    {key:'compound',label:'🏋️ 복합'},
+    {key:'hinge',label:'🍑 힌지'},
+    {key:'pull',label:'💪 당기기'},
+    {key:'push',label:'✊ 밀기'},
+    {key:'core',label:'🔥 코어'}
+  ];
+  var h='<div class="skip-modal" onclick="if(event.target===this)closeModal()">';
+  h+='<div class="skip-box" style="max-height:80vh;overflow-y:auto">';
+  h+='<h3>💪 운동 추가하기</h3>';
+  h+='<div style="background:var(--sf);border-radius:12px;padding:12px;margin-top:8px">';
+  h+='<div style="font-size:13px;font-weight:700;color:var(--c);margin-bottom:8px">✏️ 직접 입력</div>';
+  h+='<input type="text" id="customName" placeholder="운동 이름" style="width:100%;padding:8px;border:2px solid var(--c3);border-radius:10px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--tx);box-sizing:border-box;margin-bottom:6px">';
+  h+='<div style="display:flex;gap:4px;align-items:center">';
+  h+='<input type="number" id="customSets" placeholder="3" value="3" style="width:44px;padding:8px 4px;border:2px solid var(--c3);border-radius:10px;font-size:13px;text-align:center;font-family:inherit;background:var(--bg);color:var(--tx);box-sizing:border-box">';
+  h+='<span style="font-size:12px;color:var(--tm);font-weight:600">세트</span>';
+  h+='<span style="font-size:12px;color:var(--th)">×</span>';
+  h+='<input type="text" id="customReps" placeholder="10" value="10" style="width:52px;padding:8px 4px;border:2px solid var(--c3);border-radius:10px;font-size:13px;text-align:center;font-family:inherit;background:var(--bg);color:var(--tx);box-sizing:border-box">';
+  h+='<span style="font-size:12px;color:var(--tm);font-weight:600">회/초</span>';
+  h+='<button class="btn-primary" style="margin-left:auto;padding:8px 14px;font-size:13px;white-space:nowrap" onclick="addCustomExtra()">추가</button>';
+  h+='</div></div>';
+  h+='<div style="font-size:11px;color:var(--th);margin-top:12px;text-align:center">— 또는 아래에서 선택 —</div>';
+  if(S.customPool&&S.customPool.length>0){
+    h+='<div style="margin-top:12px"><div style="font-size:13px;font-weight:700;color:var(--c);margin-bottom:5px">⭐ 내 운동</div>';
+    h+='<div style="display:flex;flex-direction:column;gap:4px">';
+    S.customPool.forEach(function(ex){
+      h+='<button class="btn-ghost" style="text-align:left;padding:8px 12px;font-size:13px" onclick="addExtraByName(\''+ex.name+'\','+ex.sets+',\''+ex.reps+'\')"><strong>'+ex.name+'</strong> <span style="color:var(--th);font-size:11px">'+ex.sets+'세트×'+ex.reps+(typeof ex.reps==='number'?'회':'')+'</span></button>';
+    });
+    h+='</div></div>';
+  }
+  cats.forEach(function(cat){
+    h+='<div style="margin-top:12px"><div style="font-size:13px;font-weight:700;color:var(--c);margin-bottom:5px">'+cat.label+'</div>';
+    h+='<div style="display:flex;flex-direction:column;gap:4px">';
+    POOL[cat.key].forEach(function(ex){
+      h+='<button class="btn-ghost" style="text-align:left;padding:8px 12px;font-size:13px" onclick="addExtraByName(\''+ex.name+'\','+ex.sets+',\''+ex.reps+'\')"><strong>'+ex.name+'</strong> <span style="color:var(--th);font-size:11px">'+ex.sets+'세트×'+ex.reps+(typeof ex.reps==='number'?'회':'')+'</span></button>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div></div>';
+  document.getElementById('modal').innerHTML=h;
+}
+function addCustomExtra(){
+  var name=document.getElementById('customName').value.trim();
+  if(!name){toast('운동 이름을 입력해주세요!');return;}
+  var sets=parseInt(document.getElementById('customSets').value)||3;
+  var reps=document.getElementById('customReps').value.trim()||'10';
+  var r=isNaN(Number(reps))?reps:Number(reps);
+  S.extras.push({name:name,sets:sets,reps:r});
+  if(!S.customPool)S.customPool=[];
+  var exists=S.customPool.some(function(e){return e.name===name});
+  if(!exists)S.customPool.push({name:name,sets:sets,reps:r});
+  save();closeModal();render();
+  toast(name+' 추가! 💪');
+}
+function addExtraByName(name,sets,reps){
+  var r=isNaN(Number(reps))?reps:Number(reps);
+  S.extras.push({name:name,sets:sets,reps:r});
+  save();closeModal();render();
+  toast(name+' 추가! 💪');
+}
+function goBack(){
+  if(S.idx>0){
+    S.idx--;S.sets={};S.cardioChoice=null;
+    if(S.history.length>0){
+      var last=S.history[S.history.length-1];
+      var now=new Date();
+      if(last.year===now.getFullYear()&&last.month===now.getMonth()&&last.day===now.getDate()){
+        S.history.pop();
+      }
+    }
+    save();render();toast('되돌렸어요! ↩');
+  }
+}
+
+// --- Complete Popup ---
+function showCompletePopup(routine){
+  // record history first
+  addHistory(routine);
+  var count=getMonthCount();
+  var pctGain=Math.round(100/getGoal());
+  showCompletePopupCustom(routine.icon+' '+routine.name, pctGain, count);
+  checkRewardUnlock();
+}
+function showCompletePopupCustom(label, pctGain, count){
+  var goal=getGoal();
+  var streak=getStreak();
+  var comment=getRoyalComment(count);
+  S.lastComment=comment;save();
+  var isUnlock=count>=goal;
+  var h='<div class="complete-popup" onclick="if(event.target===this)closeCompletePopup()">';
+  if(isUnlock){
+    var approvedComment=SAFE_COMMENTS_APPROVED[Math.floor(Math.random()*SAFE_COMMENTS_APPROVED.length)];
+    h+='<div class="complete-box unlock-box">';
+    h+='<div class="unlock-stamp">구매 허가 승인</div>';
+    h+='<div class="unlock-stats">';
+    h+='<div class="unlock-stat">🔥 연속 <b>'+streak+'일</b></div>';
+    h+='<div class="unlock-stat">📊 <b>'+count+'/'+goal+'회</b> 달성</div>';
+    h+='</div>';
+    h+='<div class="unlock-comment">'+approvedComment+'</div>';
+    h+='<button class="btn-skip" style="margin-top:14px;padding:6px;font-size:11px" onclick="closeCompletePopup();goBack()">↩ 되돌리기</button>';
+  } else {
+    h+='<div class="complete-box">';
+    h+='<h3>👑 구매 심사 반영 완료!</h3>';
+    h+='<div class="complete-item"><b>'+label+'</b> 수련 완료</div>';
+    h+='<div class="complete-item">✨ 소비 정당화 게이지 <b>+'+pctGain+'%</b></div>';
+    h+='<div class="complete-item">🔥 연속 수련 <b>'+streak+'일째</b></div>';
+    h+='<div class="complete-item">📊 이번 달 <b>'+count+'/'+goal+'회</b> 완료</div>';
+    h+='<div class="complete-comment">💬 '+comment+'</div>';
+    h+='<div class="done-btns" style="margin-top:12px;display:flex;flex-direction:column;gap:5px">';
+    h+='<button class="btn-primary" style="padding:10px;font-size:13px" onclick="closeCompletePopup();nextRoutine(true)">바로 다음 하기 →</button>';
+    h+='<button class="btn-ghost" style="padding:8px;font-size:12px" onclick="closeCompletePopup();nextRoutine(false)">다음에 할게요 👋</button>';
+    h+='<button class="btn-skip" style="padding:6px;font-size:11px" onclick="closeCompletePopup();goBack()">↩ 되돌리기</button>';
+    h+='</div>';
+  }
+  h+='</div></div>';
+  document.getElementById('modal').innerHTML=h;
+  if(isUnlock){showConfetti();showConfetti(true);}
+  else showConfetti();
+}
+function closeCompletePopup(){closeModal()}
+
+function exportBackup(){
+  var data=JSON.stringify(S,null,2);
+  var blob=new Blob([data],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='princess-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(url);
+  toast('백업 완료! 📦');
+}
+function importBackup(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(!data.history&&!data.weights){toast('올바른 백업 파일이 아니에요!');return;}
+      if(confirm('기존 데이터를 덮어쓸까요?')){
+        S=data;save();render();toast('복원 완료! 📥');
+      }
+    }catch(err){toast('파일을 읽을 수 없어요!');}
+  };
+  reader.readAsText(file);
+}
+function resetData(){
+  if(!confirm('정말 모든 기록을 리셋할까요?\n운동 기록, 보상, 몸무게 등 전부 삭제됩니다.'))return;
+  if(!confirm('되돌릴 수 없어요! 진짜 리셋할까요?'))return;
+  localStorage.removeItem('wk_princess');
+  location.reload();
+}
+function saveW(){
+  var v=parseFloat(document.getElementById('wi').value);
+  if(!v||v<20||v>300)return;
+  var now=new Date();
+  S.weights.push({kg:v,date:(now.getFullYear())+'.'+(now.getMonth()+1)+'.'+now.getDate()});
+  save();render();toast(v+'kg 저장! 👸');
+}
+
+// --- Swap exercise ---
+function showSwapConfirm(exIdx){
+  var swaps=getSwapsUsed();
+  var left=SWAP_MAX-swaps;
+  var r=curRoutine();
+  var ex=r.exercises[exIdx];
+  var h='<div class="skip-modal" onclick="if(event.target===this)closeModal()">';
+  h+='<div class="skip-box">';
+  if(left<=0){
+    h+='<h3>😥 변경 소진!</h3>';
+    h+='<p>이번 달 변경 '+SWAP_MAX+'번을 다 썼어요.<br>지금 운동으로 힘내봐요!</p>';
+    h+='<div class="skip-btns"><button style="flex:1;background:var(--c);color:#fff" onclick="closeModal()">알겠어요 💪</button></div>';
+  } else {
+    h+='<h3>'+ex.name+' 변경할까요? 🔄</h3>';
+    h+='<span class="skip-count">남은 변경: '+left+'번</span>';
+    h+='<p>같은 부위의 다른 운동으로 바꿔요!</p>';
+    h+='<div class="skip-btns">';
+    h+='<button style="background:var(--sf);color:var(--tm)" onclick="closeModal()">그냥 할게</button>';
+    h+='<button style="background:var(--c);color:#fff" onclick="doSwap('+exIdx+')">변경!</button>';
+    h+='</div>';
+  }
+  h+='</div></div>';
+  document.getElementById('modal').innerHTML=h;
+}
+function doSwap(exIdx){
+  var cats=['compound','hinge',null,'core'];
+  var catName=cats[exIdx];
+  if(catName===null) catName=POOL.pull.some(function(e){return e.name===curRoutine().exercises[exIdx].name})?'pull':'push';
+  var pool=POOL[catName];
+  var cur=curRoutine().exercises[exIdx].name;
+  var others=pool.filter(function(e){return e.name!==cur});
+  if(others.length===0){closeModal();toast('다른 운동이 없어요!');return;}
+  var pick=others[Math.floor(Math.random()*others.length)];
+  var key=S.idx+'_'+exIdx;
+  S.swapped[key]=pick;
+  for(var s=0;s<10;s++){delete S.sets[exIdx+'_'+s]}
+  var mk=curMonthKey();
+  S.swaps[mk]=(S.swaps[mk]||0)+1;
+  save();closeModal();
+  toast('🔄 '+pick.name+'(으)로 변경!');render();
+}
+function closeModal(){document.getElementById('modal').innerHTML=''}
+
+// --- Reward ---
+function checkRewardUnlock(){
+  if(!S.reward.img)return;
+  if(getMonthCount()===getGoal()){showConfetti();toast('✨ 왕실 구매 허가!! 사세요!!');}
+}
+
+// ===== 재무대신 설정 =====
+function showMinisterSetup(){
+  var h='<div class="skip-modal" onclick="if(event.target===this)closeModal()">';
+  h+='<div class="skip-box">';
+  h+='<h3>⚜️ 왕실 재무대신 임명</h3>';
+  h+='<p>구매를 결재해줄 사람을 지정해주세요<br><span style="color:var(--th);font-size:11px">남편·남친·엄마·룸메 누구든 OK</span></p>';
+  h+='<div class="price-row"><span>👤</span><input type="text" id="ministerNameIn" placeholder="이름 또는 별명" value="'+(S.minister.name||'')+'"></div>';
+  h+='<div class="price-row"><span>🎖️</span><input type="text" id="ministerTitleIn" placeholder="직책 (기본: 왕실 재무대신)" value="'+(S.minister.title||'왕실 재무대신')+'"></div>';
+  h+='<div class="price-row" style="margin-top:6px"><span>👸</span><input type="text" id="princessNameIn" placeholder="공주 이름 (선택)" value="'+(S.princessName==='공주'?'':S.princessName)+'"></div>';
+  h+='<div style="margin-top:14px;display:flex;gap:8px">';
+  h+='<button class="btn-ghost" style="flex:1" onclick="closeModal()">취소</button>';
+  h+='<button class="complete-btn" style="flex:2;margin-top:0" onclick="saveMinister()">임명! 👑</button>';
+  h+='</div></div></div>';
+  document.getElementById('modal').innerHTML=h;
+}
+function saveMinister(){
+  var name=document.getElementById('ministerNameIn').value.trim();
+  var title=document.getElementById('ministerTitleIn').value.trim()||'왕실 재무대신';
+  var pn=document.getElementById('princessNameIn').value.trim();
+  if(!name){toast('이름을 입력해주세요!');return}
+  S.minister={name:name,title:title};
+  if(pn)S.princessName=pn;
+  save();closeModal();render();toast('⚜️ '+name+' '+title+' 임명 완료!');
+}
+
+// ===== 결재 요청 공유 =====
+function buildApprovalUrl(kind){
+  kind=kind||'pre';
+  var payload={
+    v:1,
+    k:kind, // 'pre' (사전 심사) | 'final' (최종 결재)
+    rid:S.reward.requestId,
+    pn:S.princessName||'공주',
+    mn:S.minister.name,
+    mt:S.minister.title,
+    n:S.reward.name||'',
+    p:S.reward.price||'',
+    r:S.reward.reason||'',
+    t:S.reward.thumb||'',
+    cnt:getMonthCount(),
+    goal:getGoal(),
+    streak:getStreak(),
+    ts:Date.now()
+  };
+  // 최종 결재일 때 사전 승인 정보 + 수련 달성 보고서 첨부
+  if(kind==='final'){
+    payload.preDecision=S.reward.status==='conditional'?'conditional':'approve';
+    payload.preCondition=S.reward.condition||'';
+    payload.gc=getGoal(); // 사전 설정된 목표
+    var st=getMonthStats();
+    payload.st={
+      tot:st.total,str:st.strength,car:st.cardio,
+      wd:st.workoutDays,fd:st.firstDay,ld:st.lastDay,
+      ms:st.maxStreak,md:st.missedDays,
+      ml:st.monthLen,cd:st.consideredDays,mo:st.month
+    };
+  }
+  return buildShareUrl('req',payload);
+}
+function showApprovalShareModal(){
+  var url=buildApprovalUrl('pre');
+  var msgBody='📨 '+(S.princessName||'공주')+' 공주님의 사전 심사 요청서\n'
+    +'━━━━━━━━━━━━━━━\n'
+    +'🏷️ '+(S.reward.name||'(품목)')+'\n'
+    +(S.reward.price?'💰 '+S.reward.price+'\n':'')
+    +(S.reward.reason?'📜 '+S.reward.reason+'\n':'')
+    +'━━━━━━━━━━━━━━━\n'
+    +'재무대신께서는 예산과 타당성을 살피시고\n수련 목표 횟수를 정하시어\n승인 / 조건부 승인 / 보류를 내려주소서 👇';
+  var msg=msgBody+'\n'+url;
+  var h='<div class="skip-modal" onclick="if(event.target===this)closeModal()">';
+  h+='<div class="skip-box" style="max-height:90vh;overflow-y:auto">';
+  h+='<h3>📨 공주님의 요청서 발송</h3>';
+  h+='<p><b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'께<br>아래 메시지를 보내주세요</p>';
+  h+='<div style="margin:10px 0;padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:var(--c);text-decoration:underline;font-weight:600">🔗 결재 링크 열기</a></div>';
+  h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">';
+  h+='<button class="complete-btn" style="margin-top:0" onclick="shareApproval()">📤 카톡/메시지로 공유</button>';
+  h+='<button class="btn-ghost" onclick="copyApprovalLink()">📋 메시지 복사하기</button>';
+  h+='<button class="btn-skip" onclick="closeModal()">나중에 보낼게요</button>';
+  h+='</div>';
+  h+='<input type="hidden" id="approvalMsg" value="'+msg.replace(/"/g,'&quot;')+'">';
+  h+='</div></div>';
+  document.getElementById('modal').innerHTML=h;
+}
+function getApprovalMsg(){
+  var el=document.getElementById('approvalMsg');
+  return el?el.value:'';
+}
+function shareApproval(){
+  var msg=getApprovalMsg();
+  if(navigator.share){
+    navigator.share({title:'왕실 구매 심사 요청',text:msg}).catch(function(){});
+  } else {
+    copyApprovalLink();
+  }
+}
+function copyApprovalLink(){
+  var msg=getApprovalMsg();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(function(){
+      toast('📋 복사 완료! 재무대신님께 보내세요');
+    }).catch(function(){fallbackCopy(msg)});
+  } else { fallbackCopy(msg) }
+}
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.top='-9999px';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');toast('📋 복사 완료!');}catch(e){toast('복사 실패ㅠ 수동으로 선택해주세요');}
+  document.body.removeChild(ta);
+}
+function resendApprovalRequest(){showApprovalShareModal()}
+function cancelApprovalRequest(){
+  if(!confirm('결재 요청을 취소하고 품목을 다시 등록할까요?'))return;
+  S.reward={};save();render();toast('취소했어요');
+}
+function resetReward(){
+  if(!confirm('새로운 품목으로 다시 제출할까요?'))return;
+  S.reward={};save();render();showPriceUpload();
+}
+
+// ===== 최종 결재 요청 (수련 완주 시) =====
+function requestFinalApproval(){
+  if(!S.minister.name){
+    toast('재무대신을 먼저 임명해주세요');
+    showMinisterSetup();return;
+  }
+  S.reward.status='awaiting_final';
+  if(!S.reward.requestId)S.reward.requestId=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  save();render();
+  showFinalApprovalShareModal();
+}
+function resendFinalApprovalRequest(){showFinalApprovalShareModal()}
+function cancelFinalApproval(){
+  if(!confirm('최종 결재 대기를 취소하고 사전 승인 상태로 되돌릴까요?'))return;
+  S.reward.status=S.reward.condition?'conditional':'approved';
+  save();render();toast('대기 취소');
+}
+function showFinalApprovalShareModal(){
+  var url=buildApprovalUrl('final');
+  var preLine=S.reward.status==='conditional'||S.reward.condition
+    ?'사전 결재: 🤝 조건부 승인'+(S.reward.condition?' ('+S.reward.condition+')':'')
+    :'사전 결재: ✅ 사전 승인 완료';
+  var msgBody='👑 '+(S.princessName||'공주')+' 공주님의 최종 결재 요청서\n'
+    +'━━━━━━━━━━━━━━━\n'
+    +'🏷️ '+(S.reward.name||'(품목)')+'\n'
+    +(S.reward.price?'💰 '+S.reward.price+'\n':'')
+    +preLine+'\n'
+    +'━━━━━━━━━━━━━━━\n'
+    +'공주께서 약속된 수련을 완주하셨습니다.\n'
+    +'사전 승인된 보상에 대한 최종 구매 허가를\n내려주소서 👇';
+  var msg=msgBody+'\n'+url;
+  var h='<div class="skip-modal" onclick="if(event.target===this)closeModal()">';
+  h+='<div class="skip-box" style="max-height:90vh;overflow-y:auto">';
+  h+='<h3>👑 최종 결재 요청</h3>';
+  h+='<p>수련을 완주하셨어요!<br><b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'께<br>구매 허가 도장을 부탁드려요</p>';
+  h+='<div style="margin:10px 0;padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:#C08020;text-decoration:underline;font-weight:600">🔗 결재 링크 열기</a></div>';
+  h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">';
+  h+='<button class="complete-btn" style="margin-top:0;background:linear-gradient(135deg,#E0A040,#FFC870)" onclick="shareApproval()">📤 카톡/메시지로 공유</button>';
+  h+='<button class="btn-ghost" onclick="copyApprovalLink()">📋 메시지 복사하기</button>';
+  h+='<button class="btn-skip" onclick="closeModal()">나중에 보낼게요</button>';
+  h+='</div>';
+  h+='<input type="hidden" id="approvalMsg" value="'+msg.replace(/"/g,'&quot;')+'">';
+  h+='</div></div>';
+  document.getElementById('modal').innerHTML=h;
+}
+
+// ===== 최종 결재 모드 (재무대신 화면) — 수련 달성 보고서 =====
+function renderFinalApprovalMinister(){
+  var d=APPROVAL_DATA||{};
+  var princess=d.pn||'공주';
+  var mTitle=d.mt||'왕실 재무대신';
+  var mName=d.mn||'재무대신';
+  var goalCount=d.gc||d.goal||20;
+  var actual=d.cnt||0;
+  var pct=Math.min(100,Math.round(actual/goalCount*100));
+  var preLabel=d.preDecision==='conditional'?'🤝 조건부 승인':'✅ 사전 승인';
+  var st=d.st||{};
+  var achieved=actual>=goalCount;
+  var h='<div class="approval-wrap">';
+  h+='<div class="approval-card final-card">';
+  h+='<div class="approval-header">';
+  h+='<div class="approval-crown">👑</div>';
+  h+='<div class="approval-from">FROM. <b>'+princess+'</b> 공주</div>';
+  h+='<div class="approval-to">TO. <b>'+mName+'</b> '+mTitle+'</div>';
+  h+='</div>';
+
+  h+='<div class="approval-title" style="background:linear-gradient(135deg,rgba(255,200,80,.18),rgba(255,180,100,.12));border-color:#E0A040;color:#C08020">📜 최종 구매 허가 결재</div>';
+  h+='<div style="text-align:center;font-size:12px;color:var(--tm);margin:-8px 0 14px;line-height:1.6;font-weight:600">공주께서 약속된 수련을 완주하셨습니다.<br>아래 보고서를 살피시고 최종 구매 허가를 내려주소서.</div>';
+
+  if(d.t){h+='<div class="approval-thumb-wrap"><img class="approval-thumb" src="'+d.t+'"></div>'}
+
+  // 품목 + 사전 결재
+  h+='<div class="approval-item">';
+  h+='<div class="approval-row"><span class="approval-label">🏷️ 품목</span><span class="approval-val">'+(d.n||'(이름 없음)')+'</span></div>';
+  if(d.p)h+='<div class="approval-row"><span class="approval-label">💰 가격</span><span class="approval-val" style="color:#E0408A;font-weight:900">'+d.p+'</span></div>';
+  h+='<div class="approval-row"><span class="approval-label">📜 사전 결재</span><span class="approval-val">'+preLabel+'</span></div>';
+  h+='<div class="approval-row"><span class="approval-label">🎯 약속한 목표</span><span class="approval-val" style="color:#C08020;font-weight:900">'+goalCount+'회</span></div>';
+  if(d.preCondition){
+    h+='<div style="margin-top:8px;padding:10px;background:rgba(255,180,80,.1);border-radius:10px;border-left:3px solid #E0A040;font-size:12px;color:var(--tx);line-height:1.5;white-space:pre-wrap"><b style="color:#C08020">조건:</b> '+escapeHtml(d.preCondition)+'</div>';
+  }
+  h+='</div>';
+
+  // === 수련 달성 보고서 ===
+  h+='<div class="report-card">';
+  h+='<div class="report-title">📊 수련 달성 보고서</div>';
+
+  // 메인 성취 — 목표 vs 실제
+  h+='<div class="report-goal">';
+  h+='<div class="report-goal-bar"><div class="report-goal-fill" style="width:'+pct+'%"></div></div>';
+  h+='<div class="report-goal-text"><b>'+actual+'</b> / '+goalCount+'회 <span style="color:'+(achieved?'#22AA66':'#E08020')+';font-weight:900">('+pct+'%)</span> '+(achieved?'✅ 달성':'⚠️ 미달')+'</div>';
+  h+='</div>';
+
+  // 세부 지표 그리드
+  h+='<div class="report-grid">';
+  h+='<div class="report-cell"><div class="report-cell-num">'+(st.str||0)+'</div><div class="report-cell-lbl">💪 근력 수련</div></div>';
+  h+='<div class="report-cell"><div class="report-cell-num">'+(st.car||0)+'</div><div class="report-cell-lbl">🏃‍♀️ 유산소</div></div>';
+  h+='<div class="report-cell"><div class="report-cell-num">'+(st.ms||0)+'<small>일</small></div><div class="report-cell-lbl">🔥 연속 최장</div></div>';
+  h+='<div class="report-cell"><div class="report-cell-num">'+(st.wd||0)+'<small>일</small></div><div class="report-cell-lbl">📅 운동한 날</div></div>';
+  h+='<div class="report-cell"><div class="report-cell-num">'+(st.md||0)+'<small>일</small></div><div class="report-cell-lbl">😴 쉰 날</div></div>';
+  var period=(st.fd&&st.ld)?(st.mo+'/'+st.fd+'~'+st.mo+'/'+st.ld):'-';
+  h+='<div class="report-cell"><div class="report-cell-num" style="font-size:14px">'+period+'</div><div class="report-cell-lbl">📆 수련 기간</div></div>';
+  h+='</div>';
+
+  h+='</div>'; // report-card
+
+  // 도장 버튼
+  h+='<div class="approval-actions">';
+  h+='<div style="font-size:13px;font-weight:900;color:var(--tx);margin-bottom:10px;text-align:center">⚖️ 최종 도장</div>';
+  h+='<button class="approval-btn stamp-btn" onclick="ministerStamp()">';
+  h+='<span style="font-size:30px">👑</span><span><b>왕실 도장 쾅!</b><br><small>구매를 허가하노라</small></span>';
+  h+='</button>';
+  h+='<button class="approval-btn hold-btn" onclick="ministerDecide(\'hold\')">';
+  h+='<span style="font-size:22px">⏸️</span><span><b>마음이 바뀌었다</b><br><small>다시 보류 (드물게)</small></span>';
+  h+='</button>';
+  h+='</div>';
+
+  h+='<button class="btn-skip" style="margin-top:12px" onclick="exitApprovalMode()">결재 안 하고 닫기</button>';
+  h+='</div></div>';
+  document.getElementById('app').innerHTML=h;
+}
+function ministerStamp(){
+  // 도장 애니메이션 후 결과 공유
+  var d=APPROVAL_DATA||{};
+  var app=document.getElementById('app');
+  var overlay=document.createElement('div');
+  overlay.className='stamp-overlay';
+  overlay.innerHTML='<div class="stamp-big">구매 허가</div>';
+  app.appendChild(overlay);
+  showConfetti();
+  setTimeout(function(){
+    showMinisterResultShare('approve','',d);
+  },1100);
+}
+
+// ===== 결재 모드 (재무대신 화면) =====
+function renderMinisterMode(){
+  var d=APPROVAL_DATA||{};
+  if((d.k||'pre')==='final'){renderFinalApprovalMinister();return}
+  MINISTER_GOAL=20; // 사전 결재 진입 시 기본값
+  var princess=d.pn||'공주';
+  var mTitle=d.mt||'왕실 재무대신';
+  var mName=d.mn||'재무대신';
+  var pct=d.goal?Math.min(100,Math.round((d.cnt||0)/d.goal*100)):0;
+  var h='<div class="approval-wrap">';
+  h+='<div class="approval-card">';
+  h+='<div class="approval-header">';
+  h+='<div class="approval-crown">👑</div>';
+  h+='<div class="approval-from">FROM. <b>'+princess+'</b> 공주</div>';
+  h+='<div class="approval-to">TO. <b>'+mName+'</b> '+mTitle+'</div>';
+  h+='</div>';
+
+  h+='<div class="approval-title">📜 공주님의 사전 심사 요청서</div>';
+  h+='<div style="text-align:center;font-size:11px;color:var(--tm);margin:-8px 0 14px;line-height:1.5">공주께서 수련의 보상으로 삼고자 하는 품목입니다.<br>예산과 타당성을 살펴주소서.</div>';
+
+  // 품목 사진
+  if(d.t){
+    h+='<div class="approval-thumb-wrap"><img class="approval-thumb" src="'+d.t+'"></div>';
+  }
+
+  h+='<div class="approval-item">';
+  h+='<div class="approval-row"><span class="approval-label">🏷️ 품목</span><span class="approval-val">'+(d.n||'(이름 없음)')+'</span></div>';
+  if(d.p)h+='<div class="approval-row"><span class="approval-label">💰 가격</span><span class="approval-val" style="color:#E0408A;font-weight:900">'+d.p+'</span></div>';
+  if(d.r){
+    h+='<div class="approval-reason">';
+    h+='<div style="font-size:11px;color:var(--tm);font-weight:700;margin-bottom:6px">📜 공주의 구매 명분서</div>';
+    h+='<div style="font-size:13px;line-height:1.6;color:var(--tx);white-space:pre-wrap">'+escapeHtml(d.r)+'</div>';
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // 수련 실적
+  h+='<div class="approval-stats">';
+  h+='<div class="approval-stat"><div class="approval-stat-num">'+(d.cnt||0)+'<small>/'+(d.goal||GOAL)+'</small></div><div class="approval-stat-lbl">이번 달 수련</div></div>';
+  h+='<div class="approval-stat"><div class="approval-stat-num">'+(d.streak||0)+'<small>일</small></div><div class="approval-stat-lbl">연속 수련</div></div>';
+  h+='<div class="approval-stat"><div class="approval-stat-num">'+pct+'<small>%</small></div><div class="approval-stat-lbl">정당화 게이지</div></div>';
+  h+='</div>';
+
+  // 수련 목표 설정
+  h+='<div class="goal-setter">';
+  h+='<div style="font-size:13px;font-weight:900;color:var(--tx);margin-bottom:6px;text-align:center">📋 수련 목표 하달</div>';
+  h+='<div style="font-size:11px;color:var(--tm);text-align:center;margin-bottom:10px;line-height:1.5">이 보상을 얻기 위해 공주께서<br>이번 달 완수해야 할 수련 횟수</div>';
+  h+='<div class="goal-counter">';
+  h+='<button class="goal-btn" onclick="adjGoal(-5)">−5</button>';
+  h+='<button class="goal-btn" onclick="adjGoal(-1)">−1</button>';
+  h+='<div class="goal-num"><b id="goalNum">20</b><small>회</small></div>';
+  h+='<button class="goal-btn" onclick="adjGoal(1)">+1</button>';
+  h+='<button class="goal-btn" onclick="adjGoal(5)">+5</button>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap">';
+  [10,15,20,25,30].forEach(function(n){
+    h+='<button class="goal-preset" onclick="setGoal('+n+')">'+n+'회</button>';
+  });
+  h+='</div>';
+  h+='</div>';
+
+  // 결재 옵션
+  h+='<div class="approval-actions">';
+  h+='<div style="font-size:13px;font-weight:900;color:var(--tx);margin-bottom:10px;text-align:center">⚖️ 왕실 예산 사전 승인</div>';
+  h+='<button class="approval-btn approve" onclick="ministerDecide(\'approve\')">';
+  h+='<span style="font-size:22px">✅</span><span><b>사전 승인</b><br><small>위 목표로 수련 윤허</small></span>';
+  h+='</button>';
+  h+='<button class="approval-btn conditional" onclick="ministerDecide(\'conditional\')">';
+  h+='<span style="font-size:22px">🤝</span><span><b>조건부 승인</b><br><small>위 목표 + 추가 조건</small></span>';
+  h+='</button>';
+  h+='<button class="approval-btn reject" onclick="ministerDecide(\'hold\')">';
+  h+='<span style="font-size:22px">⏸️</span><span><b>보류</b><br><small>조금 더 고민 후 다시 신청</small></span>';
+  h+='</button>';
+  h+='</div>';
+
+  h+='<button class="btn-skip" style="margin-top:12px" onclick="exitApprovalMode()">결재 안 하고 닫기</button>';
+  h+='</div></div>';
+  document.getElementById('app').innerHTML=h;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function exitApprovalMode(){
+  clearUrlParams();APPROVAL_MODE=null;APPROVAL_DATA=null;
+  var tabs=document.querySelector('.tabs');
+  if(tabs)tabs.style.display='';
+  document.body.style.background='';
+  render();
+}
+// 목표 횟수 상태 (재무대신 결재 화면용)
+var MINISTER_GOAL=20;
+function setGoal(n){MINISTER_GOAL=Math.max(5,Math.min(60,n));var el=document.getElementById('goalNum');if(el)el.textContent=MINISTER_GOAL}
+function adjGoal(d){setGoal(MINISTER_GOAL+d)}
+function ministerDecide(decision){
+  var d=APPROVAL_DATA||{};
+  var promptText='';
+  if(decision==='conditional')promptText='추가 조건을 입력하세요\n예) 예산 30만원 이하 / 세일 시 / 연속 7일 이상 포함';
+  else if(decision==='hold')promptText='보류 사유를 입력하세요 (선택)\n예) 가격이 좀 부담스러워 — 다음 달 재신청 권함';
+  var condition='';
+  if(decision!=='approve'){
+    var input=prompt(promptText,'');
+    if(input===null)return; // 취소
+    condition=input.trim();
+    if(decision==='conditional'&&!condition){toast('조건을 입력해주세요!');return}
+  }
+  showMinisterResultShare(decision, condition, d);
+}
+function showMinisterResultShare(decision, condition, d){
+  var kind=d.k||'pre';
+  var resPayload={
+    v:1,k:kind,rid:d.rid,d:decision,c:condition,
+    mn:d.mn,mt:d.mt,ts:Date.now()
+  };
+  // 사전 결재일 때 + 승인/조건부면 목표 횟수도 함께 회신
+  if(kind==='pre'&&(decision==='approve'||decision==='conditional')){
+    resPayload.g=MINISTER_GOAL;
+  }
+  var url=buildShareUrl('res',resPayload);
+  var labelMap=kind==='final'
+    ?{approve:'👑 구매 허가 — 도장 쾅!',hold:'⏸️ 도장 보류'}
+    :{approve:'✅ 사전 승인',conditional:'🤝 조건부 승인',hold:'⏸️ 보류'};
+  var label=labelMap[decision]||decision;
+  var headerLine=kind==='final'?'⚜️ 최종 구매 허가 결재 회신':'⚜️ 공주님의 사전 심사 회신';
+  var goalLine=(kind==='pre'&&MINISTER_GOAL&&(decision==='approve'||decision==='conditional'))
+    ?'🎯 수련 목표: '+MINISTER_GOAL+'회\n':'';
+  var msgBody=headerLine+' — '+(d.mn||'재무대신')+' '+(d.mt||'왕실 재무대신')+'\n'
+    +'━━━━━━━━━━━━━━━\n'
+    +'품목: '+(d.n||'')+'\n'
+    +'결재: '+label+'\n'
+    +goalLine
+    +(condition?(decision==='hold'?'사유: ':'조건: ')+condition+'\n':'')
+    +'━━━━━━━━━━━━━━━\n'
+    +(d.pn||'공주')+'님께 회신 링크를 보내주세요 👇';
+  var msg=msgBody+'\n'+url;
+  var iconMap=kind==='final'?{approve:'👑',hold:'⏸️'}:{approve:'✅',conditional:'🤝',hold:'⏸️'};
+  var colorMap={approve:kind==='final'?'#C08020':'#22AA66',conditional:'#E08020',hold:'#9070A0'};
+  var icon=iconMap[decision]||'✅';
+  var color=colorMap[decision]||'#22AA66';
+  var h='<div class="approval-wrap">';
+  h+='<div class="approval-card">';
+  h+='<div style="text-align:center;padding:20px 0 10px">';
+  h+='<div style="font-size:56px;margin-bottom:8px">'+icon+'</div>';
+  h+='<div style="font-size:20px;font-weight:900;color:'+color+'">'+label+'</div>';
+  if(condition){
+    h+='<div style="margin:14px 16px;padding:12px;background:var(--sf);border-radius:12px;font-size:13px;color:var(--tx);line-height:1.5;text-align:left;white-space:pre-wrap">'+(decision==='hold'?'사유':'조건')+': '+escapeHtml(condition)+'</div>';
+  }
+  h+='</div>';
+  h+='<div style="padding:0 16px">';
+  h+='<div style="font-size:13px;color:var(--tm);text-align:center;margin-bottom:10px"><b style="color:var(--c)">'+(d.pn||'공주')+'</b>님께 결재 결과를 보내주세요</div>';
+  h+='<div style="padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all;margin-bottom:14px">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:var(--c);text-decoration:underline;font-weight:600">🔗 회신 링크 열기</a></div>';
+  h+='<button class="complete-btn" style="margin-top:0" onclick="shareMinisterResult()">📤 카톡/메시지로 회신</button>';
+  h+='<button class="btn-ghost" style="margin-top:8px" onclick="copyMinisterResult()">📋 메시지 복사하기</button>';
+  h+='<button class="btn-skip" style="margin-top:8px" onclick="exitApprovalMode()">닫기</button>';
+  h+='<input type="hidden" id="resultMsg" value="'+msg.replace(/"/g,'&quot;')+'">';
+  h+='</div></div></div>';
+  document.getElementById('app').innerHTML=h;
+}
+function shareMinisterResult(){
+  var msg=document.getElementById('resultMsg').value;
+  if(navigator.share){
+    navigator.share({title:'결재 회신',text:msg}).catch(function(){});
+  } else { copyMinisterResult() }
+}
+function copyMinisterResult(){
+  var msg=document.getElementById('resultMsg').value;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(function(){toast('📋 복사 완료! 공주님께 보내세요')}).catch(function(){fallbackCopy(msg)});
+  } else { fallbackCopy(msg) }
+}
+
+// ===== 결재 결과 수신 화면 (공주) =====
+function renderResultMode(){
+  var d=APPROVAL_DATA||{};
+  var kind=d.k||'pre';
+  var decision=d.d;
+  applyApprovalResult(d);
+
+  var iconMap,labelMap,colorMap,msgMap,ctaMap;
+  if(kind==='final'){
+    iconMap={approve:'👑',hold:'⏸️'};
+    labelMap={approve:'구매 허가 — 도장 쾅!',hold:'도장 보류'};
+    colorMap={approve:'#C08020',hold:'#9070A0'};
+    msgMap={
+      approve:'재무대신께서 왕실 도장을 찍어주셨어요!<br>이제 진짜 데려오세요 👑✨',
+      hold:'재무대신께서 마음이 바뀌셨어요...<br>사전 승인 상태로 돌아갑니다'
+    };
+    ctaMap={approve:'🎉 보상 받으러 가기',hold:'알겠어요 ↩'};
+  } else {
+    iconMap={approve:'✅',conditional:'🤝',hold:'⏸️'};
+    labelMap={approve:'사전 승인',conditional:'조건부 승인',hold:'보류'};
+    colorMap={approve:'#22AA66',conditional:'#E08020',hold:'#9070A0'};
+    msgMap={
+      approve:'재무대신께서 사전 승인하셨어요!<br>이제 수련 시작해서 게이지를 채워봐요 💪',
+      conditional:'조건부로 사전 승인되었어요.<br>조건을 지키며 수련하세요!',
+      hold:'재무대신께서 조금 더 고민 후<br>다시 신청해 달라셨어요'
+    };
+    ctaMap={approve:'수련하러 가기 👸✨',conditional:'수련하러 가기 👸✨',hold:'품목 다시 제출하기 →'};
+  }
+  var label=labelMap[decision]||decision;
+  var icon=iconMap[decision]||'✅';
+  var color=colorMap[decision]||'#22AA66';
+  var msg=msgMap[decision]||'';
+  var ctaLabel=ctaMap[decision]||'확인';
+
+  var h='<div class="approval-wrap">';
+  h+='<div class="approval-card'+(kind==='final'?' final-card':'')+'">';
+  h+='<div style="text-align:center;padding:30px 16px">';
+  h+='<div style="font-size:72px;margin-bottom:14px;animation:bounceIn .6s ease">'+icon+'</div>';
+  h+='<div style="font-size:13px;color:var(--tm);margin-bottom:6px">⚜️ '+(d.mn||'재무대신')+' '+(d.mt||'왕실 재무대신')+' '+(kind==='final'?'최종 결재':'사전 심사')+' 회신</div>';
+  if(kind==='final'&&decision==='approve'){
+    h+='<div class="result-stamp">구매 허가</div>';
+  } else {
+    h+='<div style="font-size:24px;font-weight:900;color:'+color+';margin-bottom:14px">'+label+'</div>';
+  }
+  if(d.c){
+    h+='<div style="margin:14px 0;padding:14px;background:var(--sf);border-radius:14px;font-size:13px;color:var(--tx);line-height:1.6;text-align:left;white-space:pre-wrap;border-left:4px solid '+color+'">';
+    h+='<div style="font-size:11px;color:var(--tm);font-weight:700;margin-bottom:6px">'+(decision==='hold'?'사유':'조건')+'</div>';
+    h+=escapeHtml(d.c);
+    h+='</div>';
+  }
+  h+='<div style="font-size:14px;color:var(--tm);margin-top:18px;line-height:1.6">'+msg+'</div>';
+  h+='<button class="complete-btn" style="margin-top:20px" onclick="exitApprovalMode()">'+ctaLabel+'</button>';
+  h+='</div></div></div>';
+  document.getElementById('app').innerHTML=h;
+  if(decision==='approve'){showConfetti();if(kind==='final')showConfetti(true)}
+}
+
+// ===== 결재 결과 적용 (회신 링크 처리) =====
+function applyApprovalResult(data){
+  if(!S.reward||!S.reward.requestId){
+    toast('진행 중인 결재가 없어요');
+    clearUrlParams();APPROVAL_MODE=null;render();return;
+  }
+  if(data.rid&&data.rid!==S.reward.requestId){
+    if(!confirm('이 결재는 현재 진행 중인 요청과 달라요. 그래도 적용할까요?')){
+      clearUrlParams();APPROVAL_MODE=null;render();return;
+    }
+  }
+  var kind=data.k||'pre';
+  if(kind==='final'){
+    // 최종 결재 회신
+    if(data.d==='approve'){
+      S.reward.status='unlocked';
+    } else if(data.d==='hold'){
+      // 최종 보류 — 사전 승인 상태로 되돌림
+      S.reward.status=S.reward.condition?'conditional':'approved';
+      S.reward.finalHoldReason=data.c||'';
+    }
+  } else {
+    // 사전 결재 회신
+    if(data.d==='approve'){
+      S.reward.status='approved';S.reward.condition='';S.reward.holdReason='';
+      if(data.g)S.reward.goalCount=data.g;
+    } else if(data.d==='conditional'){
+      S.reward.status='conditional';S.reward.condition=data.c||'';S.reward.holdReason='';
+      if(data.g)S.reward.goalCount=data.g;
+    } else if(data.d==='hold'||data.d==='reject'){
+      S.reward.status='holding';S.reward.holdReason=data.c||'';
+    }
+  }
+  save();
+}
+function changeReward(){
+  showPriceUpload();
+}
+function startCrop(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){showCropModal(e.target.result)};
+  reader.readAsDataURL(file);
+}
+function showCropModal(src){
+  var h='<div class="crop-modal">';
+  h+='<div class="crop-title">드래그로 위치 조정 ✂️</div>';
+  h+='<div class="crop-area" id="cropArea"><img id="cropImg" src="'+src+'"></div>';
+  h+='<div class="crop-btns">';
+  h+='<button class="crop-cancel" onclick="closeModal()">취소</button>';
+  h+='<button class="crop-save" onclick="saveCrop()">완료 ✨</button>';
+  h+='</div></div>';
+  document.getElementById('modal').innerHTML=h;
+  var img=document.getElementById('cropImg');
+  img.onload=function(){
+    var area=document.getElementById('cropArea');
+    var aw=area.offsetWidth,ah=area.offsetHeight;
+    var iw=img.naturalWidth,ih=img.naturalHeight;
+    var scale;
+    if(iw/ih>1){scale=ah/ih;} else {scale=aw/iw;}
+    img.style.width=(iw*scale)+'px';
+    img.style.height=(ih*scale)+'px';
+    img.style.left=((aw-iw*scale)/2)+'px';
+    img.style.top=((ah-ih*scale)/2)+'px';
+    var sx,sy,sl,st;
+    function onStart(e){
+      e.preventDefault();
+      var p=e.touches?e.touches[0]:e;
+      sx=p.clientX;sy=p.clientY;
+      sl=parseFloat(img.style.left)||0;
+      st=parseFloat(img.style.top)||0;
+    }
+    function onMove(e){
+      if(sx===undefined)return;
+      e.preventDefault();
+      var p=e.touches?e.touches[0]:e;
+      var dx=p.clientX-sx,dy=p.clientY-sy;
+      img.style.left=(sl+dx)+'px';
+      img.style.top=(st+dy)+'px';
+    }
+    function onEnd(){sx=undefined}
+    area.addEventListener('touchstart',onStart,{passive:false});
+    area.addEventListener('touchmove',onMove,{passive:false});
+    area.addEventListener('touchend',onEnd);
+    area.addEventListener('mousedown',onStart);
+    area.addEventListener('mousemove',onMove);
+    area.addEventListener('mouseup',onEnd);
+  };
+}
+function saveCrop(){
+  var area=document.getElementById('cropArea');
+  var img=document.getElementById('cropImg');
+  var canvas=document.createElement('canvas');
+  canvas.width=240;canvas.height=240;
+  var ctx=canvas.getContext('2d');
+  var l=parseFloat(img.style.left)||0;
+  var t=parseFloat(img.style.top)||0;
+  var dw=parseFloat(img.style.width);
+  var dh=parseFloat(img.style.height);
+  var sx=-l/dw*img.naturalWidth;
+  var sy=-t/dh*img.naturalHeight;
+  var sw=240/dw*img.naturalWidth;
+  var sh=240/dh*img.naturalHeight;
+  ctx.drawImage(img,sx,sy,sw,sh,0,0,240,240);
+  S.reward.img=canvas.toDataURL('image/jpeg',0.85);
+  // 작은 썸네일 — 결재 링크에 함께 보낼 용
+  var thumb=document.createElement('canvas');
+  thumb.width=160;thumb.height=160;
+  thumb.getContext('2d').drawImage(canvas,0,0,160,160);
+  S.reward.thumb=thumb.toDataURL('image/jpeg',0.55);
+  S.reward.month=curMonthKey();
+  // 재무대신 있으면 결재 대기 상태로
+  if(S.minister.name){
+    S.reward.status='awaiting';
+    S.reward.requestId=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    S.reward.condition='';
+    S.reward.rejectReason='';
+    save();closeModal();render();
+    showApprovalShareModal();
+  } else {
+    S.reward.status='approved'; // 재무대신 없으면 기존 방식
+    save();closeModal();render();toast('왕실 심사 접수 완료! 👑');
+  }
+}
+
+function showConfetti(fromBottom){
+  var c=document.createElement('div');c.className='confetti';
+  var colors=['#FF6B9D','#FFB3C6','#fbbf24','#a78bfa','#34d399','#60a5fa','#FF8FB1'];
+  for(var i=0;i<50;i++){
+    var p=document.createElement('div');p.className='confetti-piece'+(fromBottom?' from-bottom':'');
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay=Math.random()*1.2+'s';
+    p.style.width=(6+Math.random()*8)+'px';
+    p.style.height=(6+Math.random()*8)+'px';
+    c.appendChild(p);
+  }
+  document.body.appendChild(c);
+  setTimeout(function(){c.remove()},3500);
+}
+
+// migrate old history format
+S.history.forEach(function(h){
+  if(!h.year){
+    var parts=h.date.split('/');
+    var now=new Date();
+    h.month=parseInt(parts[0])-1;
+    h.day=parseInt(parts[1]);
+    h.year=now.getFullYear();
+  }
+});
+save();
+// URL 파라미터 체크 (결재 모드 분기) — render 전에
+checkUrlParams();
+if(APPROVAL_MODE){
+  // 결재/결과 모드면 하단 탭 숨기기
+  document.querySelector('.tabs').style.display='none';
+  document.body.style.background='linear-gradient(135deg,#FFF5FB,#F8EAFF)';
+  if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches){
+    document.body.style.background='linear-gradient(135deg,#1A0F1F,#221428)';
+  }
+}
+render();
+
+// floating sparkles
+(function(){
+  var box=document.createElement('div');box.className='sparkles';
+  var items=['✦','♡','✧','⋆','♥','✦','✧','⋆','♡','✦','✧','♡'];
+  for(var i=0;i<12;i++){
+    var s=document.createElement('span');s.className='sparkle';
+    s.textContent=items[i];
+    s.style.left=Math.random()*100+'%';
+    s.style.fontSize=(20+Math.random()*35)+'px';
+    s.style.animationDuration=(13+Math.random()*20)+'s';
+    s.style.animationDelay=(Math.random()*15)+'s';
+    s.style.color=['#FFB6D9','#D8A7FF','#A0D4FF','#FF69B4','#FFD1E8'][Math.floor(Math.random()*5)];
+    box.appendChild(s);
+  }
+  document.body.appendChild(box);
+})();
+</script>
+</body>
+</html>
