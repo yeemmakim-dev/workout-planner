@@ -636,6 +636,44 @@ function buildShareUrl(kind, payload){
   var base=location.origin+location.pathname;
   return base+'?'+kind+'='+encodePayload(payload);
 }
+// URL 단축 (TinyURL primary, is.gd fallback, 실패/타임아웃 시 원본)
+function shortenUrl(longUrl){
+  return new Promise(function(resolve){
+    var done=false;
+    var finish=function(u){if(done)return;done=true;resolve(u||longUrl)};
+    var timer=setTimeout(function(){finish(longUrl)},6000);
+    // 1차: TinyURL (plain text)
+    try{
+      fetch('https://tinyurl.com/api-create.php?url='+encodeURIComponent(longUrl))
+        .then(function(r){return r.ok?r.text():Promise.reject()})
+        .then(function(t){
+          if(t&&t.indexOf('http')===0){clearTimeout(timer);finish(t.trim())}
+          else throw 0;
+        })
+        .catch(function(){
+          // 2차: is.gd (JSON)
+          fetch('https://is.gd/create.php?format=json&url='+encodeURIComponent(longUrl))
+            .then(function(r){return r.json()})
+            .then(function(d){clearTimeout(timer);finish((d&&d.shorturl)||longUrl)})
+            .catch(function(){clearTimeout(timer);finish(longUrl)});
+        });
+    } catch(e){ clearTimeout(timer);finish(longUrl) }
+  });
+}
+// 모달이 열려있으면 단축 URL로 갱신 (hidden input, 표시 메시지, 링크)
+function applyShortUrl(longUrl, shortUrl, inputId, msgBoxClass){
+  if(longUrl===shortUrl)return;
+  var input=document.getElementById(inputId);
+  if(input)input.value=input.value.split(longUrl).join(shortUrl);
+  // a 태그 href 갱신
+  document.querySelectorAll('a').forEach(function(a){if(a.href===longUrl)a.href=shortUrl});
+  // 메시지 박스 안의 표시된 긴 URL이 있으면 갱신
+  document.querySelectorAll('div[style*="white-space:pre-wrap"]').forEach(function(box){
+    if(box.innerHTML.indexOf(longUrl)>=0){
+      box.innerHTML=box.innerHTML.split(longUrl).join(shortUrl);
+    }
+  });
+}
 // 메인 모드(공주) / 결재 모드(재무대신) / 회신 처리 모드
 var APPROVAL_MODE=null; // null | 'minister' | 'result'
 var APPROVAL_DATA=null;
@@ -1542,6 +1580,10 @@ function showApprovalShareModal(){
   h+='<h3>📨 공주님의 요청서 발송</h3>';
   h+='<p><b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'께<br>아래 메시지를 보내주세요</p>';
   h+='<div style="margin:10px 0;padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:var(--c);text-decoration:underline;font-weight:600">🔗 결재 링크 열기</a></div>';
+  // 백그라운드에서 URL 단축 시도
+  setTimeout(function(){
+    shortenUrl(url).then(function(s){applyShortUrl(url,s,'approvalMsg')});
+  },0);
   h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">';
   h+='<button class="complete-btn" style="margin-top:0" onclick="shareApproval()">📤 카톡/메시지로 공유</button>';
   h+='<button class="btn-ghost" onclick="copyApprovalLink()">📋 메시지 복사하기</button>';
@@ -1624,6 +1666,9 @@ function showFinalApprovalShareModal(){
   h+='<h3>👑 최종 결재 요청</h3>';
   h+='<p>수련을 완주하셨어요!<br><b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'께<br>구매 허가 도장을 부탁드려요</p>';
   h+='<div style="margin:10px 0;padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:#C08020;text-decoration:underline;font-weight:600">🔗 결재 링크 열기</a></div>';
+  setTimeout(function(){
+    shortenUrl(url).then(function(s){applyShortUrl(url,s,'approvalMsg')});
+  },0);
   h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">';
   h+='<button class="complete-btn" style="margin-top:0;background:linear-gradient(135deg,#E0A040,#FFC870)" onclick="shareApproval()">📤 카톡/메시지로 공유</button>';
   h+='<button class="btn-ghost" onclick="copyApprovalLink()">📋 메시지 복사하기</button>';
@@ -1870,6 +1915,9 @@ function showMinisterResultShare(decision, condition, d){
   h+='<div style="padding:0 16px">';
   h+='<div style="font-size:13px;color:var(--tm);text-align:center;margin-bottom:10px"><b style="color:var(--c)">'+(d.pn||'공주')+'</b>님께 결재 결과를 보내주세요</div>';
   h+='<div style="padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all;margin-bottom:14px">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:var(--c);text-decoration:underline;font-weight:600">🔗 회신 링크 열기</a></div>';
+  setTimeout(function(){
+    shortenUrl(url).then(function(s){applyShortUrl(url,s,'resultMsg')});
+  },0);
   h+='<button class="complete-btn" style="margin-top:0" onclick="shareMinisterResult()">📤 카톡/메시지로 회신</button>';
   h+='<button class="btn-ghost" style="margin-top:8px" onclick="copyMinisterResult()">📋 메시지 복사하기</button>';
   h+='<button class="btn-skip" style="margin-top:8px" onclick="exitApprovalMode()">닫기</button>';
