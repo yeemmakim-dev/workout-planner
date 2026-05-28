@@ -249,6 +249,12 @@ body{font-family:'Gowun Batang','Noto Sans KR',-apple-system,sans-serif;backgrou
 
 .hidden{display:none!important}
 
+/* 자동 동기화 알림 pill */
+.sync-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:linear-gradient(135deg,rgba(34,170,102,.1),rgba(60,200,140,.06));border-radius:14px;border:1px solid rgba(34,170,102,.25);font-size:11px;color:#1A8855;font-weight:700;margin:6px 0 10px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#22AA66;box-shadow:0 0 0 0 rgba(34,170,102,.6);animation:syncPulse 1.6s ease-out infinite}
+@keyframes syncPulse{0%{box-shadow:0 0 0 0 rgba(34,170,102,.6)}70%{box-shadow:0 0 0 8px rgba(34,170,102,0)}100%{box-shadow:0 0 0 0 rgba(34,170,102,0)}}
+@media(prefers-color-scheme:dark){.sync-pill{color:#7AD49C;background:linear-gradient(135deg,rgba(34,170,102,.18),rgba(60,200,140,.1))}}
+
 /* ===== Approval Mode (Minister/Result) ===== */
 .approval-wrap{padding:20px 0 40px;min-height:100dvh}
 .approval-card{background:linear-gradient(150deg,#FFF5FB,#FAF0FF,#FFF8FA);border:3px solid #FFB6D9;border-radius:24px;padding:24px 18px;box-shadow:0 10px 40px rgba(255,105,180,.15);position:relative;overflow:hidden}
@@ -636,6 +642,27 @@ function buildShareUrl(kind, payload){
   var base=location.origin+location.pathname;
   return base+'?'+kind+'='+encodePayload(payload);
 }
+// ===== ntfy.sh 무료 push/poll 채널 =====
+var NTFY_BASE='https://ntfy.sh';
+function genTopicId(){
+  // 추측 어려운 32자 ID
+  if(window.crypto&&crypto.randomUUID)return 'pr-'+crypto.randomUUID().replace(/-/g,'');
+  return 'pr-'+Date.now().toString(36)+Math.random().toString(36).slice(2,14)+Math.random().toString(36).slice(2,14);
+}
+function pubMessage(topic, data){
+  return fetch(NTFY_BASE+'/'+topic,{method:'POST',body:JSON.stringify(data)}).catch(function(){return null});
+}
+function fetchMessages(topic){
+  return fetch(NTFY_BASE+'/'+topic+'/json?poll=1&since=all')
+    .then(function(r){return r.text()})
+    .then(function(text){
+      return text.trim().split('\n').filter(Boolean).map(function(l){
+        try{var outer=JSON.parse(l);return JSON.parse(outer.message)}
+        catch(e){return null}
+      }).filter(Boolean);
+    }).catch(function(){return []});
+}
+
 // URL 단축 (TinyURL primary, is.gd fallback, 실패/타임아웃 시 원본)
 function shortenUrl(longUrl){
   return new Promise(function(resolve){
@@ -679,8 +706,16 @@ var APPROVAL_MODE=null; // null | 'minister' | 'result'
 var APPROVAL_DATA=null;
 function checkUrlParams(){
   var params=new URLSearchParams(location.search);
+  var id=params.get('id');
+  var kind=params.get('k')||'pre';
   var req=params.get('req');
   var res=params.get('res');
+  if(id){
+    // 새 방식: ntfy 토픽에서 데이터 fetch
+    APPROVAL_MODE='minister';
+    APPROVAL_DATA={k:kind,topic:id,_pending:true};
+    return true;
+  }
   if(req){
     var d=decodePayload(req);
     if(d){APPROVAL_MODE='minister';APPROVAL_DATA=d;return true}
@@ -698,6 +733,8 @@ function clearUrlParams(){
 function render(){
   if(APPROVAL_MODE==='minister'){renderMinisterMode();return}
   if(APPROVAL_MODE==='result'){renderResultMode();return}
+  // 메인 모드 진입 시 폴링 상태 관리
+  if(shouldPoll())startPolling(); else stopPolling();
   if(curTab===0)renderWorkout();
   else if(curTab===1)renderCalendar();
   else renderWeight();
@@ -920,6 +957,9 @@ function renderReward(){
     if(S.reward.price)h+='<div style="font-size:14px;color:var(--tm);font-weight:700;margin-bottom:10px">💰 '+S.reward.price+'</div>';
     h+='<div style="font-size:12px;color:var(--tm);line-height:1.6;margin-bottom:14px">';
     h+='<b style="color:var(--c)">'+(S.minister.name||'재무대신')+'</b>'+(S.minister.title?' '+S.minister.title:'')+'님의<br>결재를 기다리고 있어요</div>';
+    if(S.reward.topic){
+      h+='<div class="sync-pill"><span class="sync-dot"></span>자동 동기화 켜짐 · 결재되면 즉시 반영</div>';
+    }
     h+='<button class="safe-cta" style="background:linear-gradient(135deg,var(--c),var(--c4))" onclick="resendApprovalRequest()">📨 결재 링크 다시 보내기</button>';
     h+='<button class="btn-skip" style="margin-top:8px" onclick="cancelApprovalRequest()">품목 바꿀게요 ↩</button>';
     h+='</div></div></div>';
@@ -953,6 +993,9 @@ function renderReward(){
     if(S.reward.name)h+='<div style="font-size:15px;font-weight:900;color:var(--c);margin-bottom:4px">🏷️ '+S.reward.name+'</div>';
     if(S.reward.price)h+='<div style="font-size:14px;color:var(--tm);font-weight:700;margin-bottom:10px">💰 '+S.reward.price+'</div>';
     h+='<div style="font-size:12px;color:var(--tm);line-height:1.6;margin-bottom:14px">수련 완주 보고가 올라갔어요.<br><b style="color:var(--c)">'+(S.minister.name||'재무대신')+'</b>께서 도장을 찍어주실 거예요 👑</div>';
+    if(S.reward.topic){
+      h+='<div class="sync-pill"><span class="sync-dot"></span>자동 동기화 켜짐 · 도장 찍히면 즉시 반영</div>';
+    }
     h+='<button class="safe-cta" onclick="resendFinalApprovalRequest()">📨 결재 링크 다시 보내기</button>';
     h+='<button class="btn-skip" style="margin-top:8px" onclick="cancelFinalApproval()">↩ 대기 취소</button>';
     h+='</div></div></div>';
@@ -1532,11 +1575,10 @@ function saveMinister(){
 }
 
 // ===== 결재 요청 공유 =====
-function buildApprovalUrl(kind){
+function buildApprovalPayload(kind){
   kind=kind||'pre';
   var payload={
-    v:1,
-    k:kind, // 'pre' (사전 심사) | 'final' (최종 결재)
+    v:1,type:'request',k:kind,
     rid:S.reward.requestId,
     pn:S.princessName||'공주',
     mn:S.minister.name,
@@ -1550,11 +1592,10 @@ function buildApprovalUrl(kind){
     streak:getStreak(),
     ts:Date.now()
   };
-  // 최종 결재일 때 사전 승인 정보 + 수련 달성 보고서 첨부
   if(kind==='final'){
     payload.preDecision=S.reward.status==='conditional'?'conditional':'approve';
     payload.preCondition=S.reward.condition||'';
-    payload.gc=getGoal(); // 사전 설정된 목표
+    payload.gc=getGoal();
     var st=getMonthStats();
     payload.st={
       tot:st.total,str:st.strength,car:st.cardio,
@@ -1563,10 +1604,26 @@ function buildApprovalUrl(kind){
       ml:st.monthLen,cd:st.consideredDays,mo:st.month
     };
   }
-  return buildShareUrl('req',payload);
+  return payload;
+}
+// 토픽 보장 + ntfy 발행 + 짧은 URL (실패 시 long URL fallback)
+function ensureTopicAndPublish(kind){
+  if(!S.reward.topic)S.reward.topic=genTopicId();
+  save();
+  var payload=buildApprovalPayload(kind);
+  var base=location.origin+location.pathname;
+  var shortUrl=base+'?id='+S.reward.topic+'&k='+kind;
+  var longUrl=buildShareUrl('req',payload);
+  return pubMessage(S.reward.topic, payload).then(function(r){
+    return r?shortUrl:longUrl;
+  }).catch(function(){return longUrl});
+}
+// 기존 호환: 큰 페이로드 base64 URL
+function buildApprovalUrl(kind){
+  return buildShareUrl('req',buildApprovalPayload(kind));
 }
 function showApprovalShareModal(){
-  var url=buildApprovalUrl('pre');
+  var url=buildApprovalUrl('pre'); // 일단 long URL placeholder
   var msgBody='📨 '+(S.princessName||'공주')+' 공주님의 사전 심사 요청서\n'
     +'━━━━━━━━━━━━━━━\n'
     +'🏷️ '+(S.reward.name||'(품목)')+'\n'
@@ -1578,20 +1635,23 @@ function showApprovalShareModal(){
   var h='<div class="skip-modal" onclick="if(event.target===this)closeModal()">';
   h+='<div class="skip-box" style="max-height:90vh;overflow-y:auto">';
   h+='<h3>📨 공주님의 요청서 발송</h3>';
-  h+='<p><b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'께<br>아래 메시지를 보내주세요</p>';
+  h+='<p><b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'께<br>아래 메시지를 보내주세요<br><span style="font-size:11px;color:var(--th)">결재가 끝나면 자동으로 반영돼요 ✨</span></p>';
   h+='<div style="margin:10px 0;padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:var(--c);text-decoration:underline;font-weight:600">🔗 결재 링크 열기</a></div>';
-  // 백그라운드에서 URL 단축 시도
-  setTimeout(function(){
-    shortenUrl(url).then(function(s){applyShortUrl(url,s,'approvalMsg')});
-  },0);
   h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">';
   h+='<button class="complete-btn" style="margin-top:0" onclick="shareApproval()">📤 카톡/메시지로 공유</button>';
   h+='<button class="btn-ghost" onclick="copyApprovalLink()">📋 메시지 복사하기</button>';
   h+='<button class="btn-skip" onclick="closeModal()">나중에 보낼게요</button>';
   h+='</div>';
-  h+='<input type="hidden" id="approvalMsg" value="'+msg.replace(/"/g,'&quot;')+'">';
+  h+='<input type="hidden" id="approvalMsg" data-long-url="'+url+'" value="'+msg.replace(/"/g,'&quot;')+'">';
   h+='</div></div>';
   document.getElementById('modal').innerHTML=h;
+  // ntfy 발행 끝나면 짧은 URL로 모달 갱신
+  ensureTopicAndPublish('pre').then(function(shortUrl){
+    var input=document.getElementById('approvalMsg');
+    if(!input||!input.dataset.longUrl||input.dataset.longUrl===shortUrl)return;
+    applyShortUrl(input.dataset.longUrl, shortUrl, 'approvalMsg');
+    input.dataset.longUrl=shortUrl;
+  });
 }
 function getApprovalMsg(){
   var el=document.getElementById('approvalMsg');
@@ -1666,17 +1726,21 @@ function showFinalApprovalShareModal(){
   h+='<h3>👑 최종 결재 요청</h3>';
   h+='<p>수련을 완주하셨어요!<br><b style="color:var(--c)">'+S.minister.name+'</b> '+S.minister.title+'께<br>구매 허가 도장을 부탁드려요</p>';
   h+='<div style="margin:10px 0;padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:#C08020;text-decoration:underline;font-weight:600">🔗 결재 링크 열기</a></div>';
-  setTimeout(function(){
-    shortenUrl(url).then(function(s){applyShortUrl(url,s,'approvalMsg')});
-  },0);
   h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">';
   h+='<button class="complete-btn" style="margin-top:0;background:linear-gradient(135deg,#E0A040,#FFC870)" onclick="shareApproval()">📤 카톡/메시지로 공유</button>';
   h+='<button class="btn-ghost" onclick="copyApprovalLink()">📋 메시지 복사하기</button>';
   h+='<button class="btn-skip" onclick="closeModal()">나중에 보낼게요</button>';
   h+='</div>';
-  h+='<input type="hidden" id="approvalMsg" value="'+msg.replace(/"/g,'&quot;')+'">';
+  h+='<input type="hidden" id="approvalMsg" data-long-url="'+url+'" value="'+msg.replace(/"/g,'&quot;')+'">';
   h+='</div></div>';
   document.getElementById('modal').innerHTML=h;
+  // ntfy 발행 끝나면 짧은 URL로 갱신
+  ensureTopicAndPublish('final').then(function(shortUrl){
+    var input=document.getElementById('approvalMsg');
+    if(!input||!input.dataset.longUrl||input.dataset.longUrl===shortUrl)return;
+    applyShortUrl(input.dataset.longUrl, shortUrl, 'approvalMsg');
+    input.dataset.longUrl=shortUrl;
+  });
 }
 
 // ===== 최종 결재 모드 (재무대신 화면) — 수련 달성 보고서 =====
@@ -1767,11 +1831,54 @@ function ministerStamp(){
   },1100);
 }
 
+// 토픽에서 요청 데이터 받아오기 (재무대신이 ?id= 링크로 접근 시)
+function ensureApprovalData(){
+  var d=APPROVAL_DATA;
+  if(!d||!d._pending)return Promise.resolve(true);
+  // 토픽에서 type:'request' 메시지 찾기
+  return fetchMessages(d.topic).then(function(msgs){
+    var reqMsg=null;
+    msgs.forEach(function(m){if(m&&m.type==='request')reqMsg=m});
+    if(!reqMsg){APPROVAL_DATA={_error:'NOT_FOUND',topic:d.topic};return false}
+    // 토픽/종류 정보 보존하면서 데이터 채움
+    reqMsg._topic=d.topic;
+    APPROVAL_DATA=reqMsg;
+    return true;
+  });
+}
+function renderApprovalLoading(msg){
+  var h='<div class="approval-wrap"><div class="approval-card">';
+  h+='<div style="text-align:center;padding:60px 16px">';
+  h+='<div style="font-size:48px;margin-bottom:14px;animation:floaty 1.5s ease-in-out infinite">📜</div>';
+  h+='<div style="font-size:14px;color:var(--tm);font-weight:700">'+msg+'</div>';
+  h+='</div></div></div>';
+  document.getElementById('app').innerHTML=h;
+}
+function renderApprovalError(msg){
+  var h='<div class="approval-wrap"><div class="approval-card">';
+  h+='<div style="text-align:center;padding:40px 16px">';
+  h+='<div style="font-size:48px;margin-bottom:14px">⚠️</div>';
+  h+='<div style="font-size:14px;color:var(--tm);line-height:1.6">'+msg+'</div>';
+  h+='<button class="btn-skip" style="margin-top:20px" onclick="exitApprovalMode()">닫기</button>';
+  h+='</div></div></div>';
+  document.getElementById('app').innerHTML=h;
+}
+
 // ===== 결재 모드 (재무대신 화면) =====
 function renderMinisterMode(){
   var d=APPROVAL_DATA||{};
+  // ntfy에서 데이터 가져오는 중이면 로딩 표시
+  if(d._pending){
+    renderApprovalLoading('결재 요청서를 받아오는 중...');
+    ensureApprovalData().then(function(ok){
+      if(ok)renderMinisterMode();
+      else renderApprovalError('결재 요청서를 찾을 수 없어요.<br>링크가 만료됐거나 잘못된 링크일 수 있어요.<br><span style="font-size:11px;color:var(--th)">(ntfy.sh 메시지는 12시간 보관)</span>');
+    });
+    return;
+  }
+  if(d._error){renderApprovalError('결재 요청서를 찾을 수 없어요. 링크가 만료됐을 수 있어요.');return}
   if((d.k||'pre')==='final'){renderFinalApprovalMinister();return}
-  MINISTER_GOAL=20; // 사전 결재 진입 시 기본값
+  MINISTER_GOAL=d.gc||20; // 사전 결재 진입 시 기본값 (이전 사전 결재값 있으면 그걸로)
   var princess=d.pn||'공주';
   var mTitle=d.mt||'왕실 재무대신';
   var mName=d.mn||'재무대신';
@@ -1875,53 +1982,74 @@ function ministerDecide(decision){
 function showMinisterResultShare(decision, condition, d){
   var kind=d.k||'pre';
   var resPayload={
-    v:1,k:kind,rid:d.rid,d:decision,c:condition,
+    v:1,type:'result',k:kind,rid:d.rid,d:decision,c:condition,
     mn:d.mn,mt:d.mt,ts:Date.now()
   };
-  // 사전 결재일 때 + 승인/조건부면 목표 횟수도 함께 회신
   if(kind==='pre'&&(decision==='approve'||decision==='conditional')){
     resPayload.g=MINISTER_GOAL;
   }
+  // 토픽이 있으면 자동 전송 (실시간 알림)
+  var topic=d._topic||d.topic;
+  var autoSyncPromise=topic?pubMessage(topic, resPayload):Promise.resolve(null);
+  // fallback: 회신 링크 (카톡 수동 공유용)
   var url=buildShareUrl('res',resPayload);
+
   var labelMap=kind==='final'
     ?{approve:'👑 구매 허가 — 도장 쾅!',hold:'⏸️ 도장 보류'}
     :{approve:'✅ 사전 승인',conditional:'🤝 조건부 승인',hold:'⏸️ 보류'};
   var label=labelMap[decision]||decision;
-  var headerLine=kind==='final'?'⚜️ 최종 구매 허가 결재 회신':'⚜️ 공주님의 사전 심사 회신';
-  var goalLine=(kind==='pre'&&MINISTER_GOAL&&(decision==='approve'||decision==='conditional'))
-    ?'🎯 수련 목표: '+MINISTER_GOAL+'회\n':'';
-  var msgBody=headerLine+' — '+(d.mn||'재무대신')+' '+(d.mt||'왕실 재무대신')+'\n'
-    +'━━━━━━━━━━━━━━━\n'
-    +'품목: '+(d.n||'')+'\n'
-    +'결재: '+label+'\n'
-    +goalLine
-    +(condition?(decision==='hold'?'사유: ':'조건: ')+condition+'\n':'')
-    +'━━━━━━━━━━━━━━━\n'
-    +(d.pn||'공주')+'님께 회신 링크를 보내주세요 👇';
-  var msg=msgBody+'\n'+url;
   var iconMap=kind==='final'?{approve:'👑',hold:'⏸️'}:{approve:'✅',conditional:'🤝',hold:'⏸️'};
   var colorMap={approve:kind==='final'?'#C08020':'#22AA66',conditional:'#E08020',hold:'#9070A0'};
   var icon=iconMap[decision]||'✅';
   var color=colorMap[decision]||'#22AA66';
+
   var h='<div class="approval-wrap">';
-  h+='<div class="approval-card">';
-  h+='<div style="text-align:center;padding:20px 0 10px">';
-  h+='<div style="font-size:56px;margin-bottom:8px">'+icon+'</div>';
-  h+='<div style="font-size:20px;font-weight:900;color:'+color+'">'+label+'</div>';
+  h+='<div class="approval-card'+(kind==='final'?' final-card':'')+'">';
+  h+='<div style="text-align:center;padding:24px 0 12px">';
+  h+='<div style="font-size:64px;margin-bottom:10px;animation:bounceIn .5s ease">'+icon+'</div>';
+  h+='<div style="font-size:22px;font-weight:900;color:'+color+';margin-bottom:8px">결재 완료</div>';
+  h+='<div style="font-size:15px;font-weight:700;color:var(--tx)">'+label+'</div>';
+  if(kind==='pre'&&(decision==='approve'||decision==='conditional')){
+    h+='<div style="margin-top:10px;font-size:13px;color:var(--tm)">🎯 수련 목표: <b style="color:var(--c)">'+MINISTER_GOAL+'회</b></div>';
+  }
   if(condition){
-    h+='<div style="margin:14px 16px;padding:12px;background:var(--sf);border-radius:12px;font-size:13px;color:var(--tx);line-height:1.5;text-align:left;white-space:pre-wrap">'+(decision==='hold'?'사유':'조건')+': '+escapeHtml(condition)+'</div>';
+    h+='<div style="margin:14px 16px;padding:12px;background:var(--sf);border-radius:12px;font-size:13px;color:var(--tx);line-height:1.5;text-align:left;white-space:pre-wrap;border-left:3.5px solid '+color+'">';
+    h+='<div style="font-size:11px;color:var(--tm);font-weight:700;margin-bottom:4px">'+(decision==='hold'?'사유':'조건')+'</div>';
+    h+=escapeHtml(condition)+'</div>';
   }
   h+='</div>';
-  h+='<div style="padding:0 16px">';
-  h+='<div style="font-size:13px;color:var(--tm);text-align:center;margin-bottom:10px"><b style="color:var(--c)">'+(d.pn||'공주')+'</b>님께 결재 결과를 보내주세요</div>';
-  h+='<div style="padding:10px;background:var(--sf);border-radius:12px;text-align:left;font-size:11px;color:var(--tm);max-height:220px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all;margin-bottom:14px">'+msgBody.replace(/</g,'&lt;')+'\n<a href="'+url+'" target="_blank" style="color:var(--c);text-decoration:underline;font-weight:600">🔗 회신 링크 열기</a></div>';
-  setTimeout(function(){
-    shortenUrl(url).then(function(s){applyShortUrl(url,s,'resultMsg')});
-  },0);
-  h+='<button class="complete-btn" style="margin-top:0" onclick="shareMinisterResult()">📤 카톡/메시지로 회신</button>';
-  h+='<button class="btn-ghost" style="margin-top:8px" onclick="copyMinisterResult()">📋 메시지 복사하기</button>';
-  h+='<button class="btn-skip" style="margin-top:8px" onclick="exitApprovalMode()">닫기</button>';
+  h+='<div style="padding:0 16px 8px">';
+  // 자동 전송 상태 표시
+  h+='<div id="syncStatus" style="margin:6px 0 14px;padding:12px 14px;background:linear-gradient(135deg,rgba(34,170,102,.08),rgba(60,200,140,.06));border-radius:12px;border:1.5px solid rgba(34,170,102,.25);text-align:center;font-size:12px;color:#1A8855;font-weight:700;line-height:1.5">'
+    +(topic?'⏳ '+escapeHtml(d.pn||'공주')+'님께 자동 전송 중...':'🔗 자동 전송 불가 (구버전 링크). 아래로 회신해주세요.')
+    +'</div>';
+  if(topic){
+    // 자동 전송 성공 시 안내 갱신
+    autoSyncPromise.then(function(r){
+      var el=document.getElementById('syncStatus');
+      if(!el)return;
+      if(r){
+        el.innerHTML='✅ '+escapeHtml(d.pn||'공주')+'님 앱에 자동 전달됨<br><span style="font-size:11px;color:var(--tm);font-weight:500">앱이 열리면 자동으로 결과가 반영돼요</span>';
+      } else {
+        el.style.background='linear-gradient(135deg,rgba(255,180,80,.1),rgba(255,140,80,.06))';
+        el.style.borderColor='rgba(224,128,32,.3)';
+        el.style.color='#A06820';
+        el.innerHTML='⚠️ 자동 전송 실패. 아래에서 카톡으로 회신해주세요.';
+      }
+    });
+  }
+  // (선택) 카톡 수동 공유 (fallback)
+  h+='<details style="margin-bottom:14px"><summary style="cursor:pointer;font-size:11px;color:var(--th);text-align:center;padding:4px">📲 또는 카톡으로 회신 (선택)</summary>';
+  var msg='⚜️ 결재 회신 — '+(d.mn||'재무대신')+' '+(d.mt||'왕실 재무대신')+'\n품목: '+(d.n||'')+'\n결재: '+label
+    +(condition?'\n'+(decision==='hold'?'사유: ':'조건: ')+condition:'')+'\n👇 '+url;
+  h+='<div style="margin-top:8px;padding:10px;background:var(--sf);border-radius:10px;font-size:11px;color:var(--tm);max-height:140px;overflow-y:auto;line-height:1.5;white-space:pre-wrap;word-break:break-all">'+msg.replace(/</g,'&lt;').replace(url,'<a href="'+url+'" target="_blank" style="color:var(--c);text-decoration:underline">🔗 회신 링크</a>')+'</div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px">';
+  h+='<button class="btn-ghost" style="flex:1;font-size:12px;padding:8px" onclick="shareMinisterResult()">📤 공유</button>';
+  h+='<button class="btn-ghost" style="flex:1;font-size:12px;padding:8px" onclick="copyMinisterResult()">📋 복사</button>';
+  h+='</div>';
   h+='<input type="hidden" id="resultMsg" value="'+msg.replace(/"/g,'&quot;')+'">';
+  h+='</details>';
+  h+='<button class="complete-btn" style="margin-top:0" onclick="exitApprovalMode()">닫기</button>';
   h+='</div></div></div>';
   document.getElementById('app').innerHTML=h;
 }
@@ -1993,6 +2121,48 @@ function renderResultMode(){
   h+='</div></div></div>';
   document.getElementById('app').innerHTML=h;
   if(decision==='approve'){showConfetti();if(kind==='final')showConfetti(true)}
+}
+
+// ===== 공주측 자동 폴링: ntfy 토픽 구독해서 결재 결과 자동 적용 =====
+var POLL_TIMER=null;
+var POLL_SEEN=null; // 마지막으로 본 결재 결과 ts (중복 적용 방지)
+function shouldPoll(){
+  return !!(S.reward&&S.reward.topic&&(S.reward.status==='awaiting'||S.reward.status==='awaiting_final'));
+}
+function startPolling(){
+  if(POLL_TIMER)return;
+  if(!shouldPoll())return;
+  pollOnce(); // 즉시 1회
+  POLL_TIMER=setInterval(pollOnce, 6000);
+}
+function stopPolling(){if(POLL_TIMER){clearInterval(POLL_TIMER);POLL_TIMER=null}}
+function pollOnce(){
+  if(!shouldPoll()){stopPolling();return}
+  var topic=S.reward.topic;
+  fetchMessages(topic).then(function(msgs){
+    var result=null;
+    msgs.forEach(function(m){if(m&&m.type==='result')result=m});
+    if(!result)return;
+    if(POLL_SEEN===result.ts)return; // 이미 처리
+    // 사전/최종 결재 모두 같은 토픽이라 kind 일치 확인
+    var expectKind=S.reward.status==='awaiting_final'?'final':'pre';
+    if(result.k&&result.k!==expectKind)return;
+    POLL_SEEN=result.ts;
+    autoApplyResult(result);
+  });
+}
+function autoApplyResult(data){
+  applyApprovalResult(data);
+  stopPolling();
+  // 진동 알림 (가능한 경우)
+  if(navigator.vibrate)try{navigator.vibrate([80,40,80,40,160])}catch(e){}
+  // 사운드/시각 알림
+  var label;
+  if(data.k==='final')label=data.d==='approve'?'👑 구매 허가 — 도장 쾅!':'⏸️ 도장 보류';
+  else label=data.d==='approve'?'✅ 사전 승인':data.d==='conditional'?'🤝 조건부 승인':'⏸️ 보류';
+  toast('🎉 '+(S.minister.name||'재무대신')+'의 결재가 도착했어요! '+label);
+  if(data.d==='approve')showConfetti();
+  render();
 }
 
 // ===== 결재 결과 적용 (회신 링크 처리) =====
@@ -2149,6 +2319,10 @@ S.history.forEach(function(h){
 save();
 // URL 파라미터 체크 (결재 모드 분기) — render 전에
 checkUrlParams();
+// 페이지가 다시 보이면 즉시 폴링 1회 (백그라운드 → 포그라운드 전환 시 빠른 반영)
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&shouldPoll()){pollOnce();startPolling()}
+});
 if(APPROVAL_MODE){
   // 결재/결과 모드면 하단 탭 숨기기
   document.querySelector('.tabs').style.display='none';
